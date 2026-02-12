@@ -1,0 +1,10 @@
+/* ===============================
+   Global Styles Entry
+   -------------------------------
+   Loads Tailwind base styles,
+   components, and utilities.
+   =============================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
