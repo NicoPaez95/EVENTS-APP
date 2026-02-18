@@ -8,7 +8,7 @@
 // for the "events" feature domain.
 // ===============================
 
-import { EVENTS } from '../data/events.mock';
+import { events } from '../data/events.mock';
 import EventGrid from '../components/EventGrid';
 
 const Events = () => {
@@ -17,7 +17,7 @@ const Events = () => {
       <h1 className="text-2xl font-bold text-center p-4 m-2">Events</h1>
 
       {/* EventGrid receives event data as props */}
-      <EventGrid events={EVENTS} />
+      <EventGrid events={events} />
     </main>
   );
 };

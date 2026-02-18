@@ -1,4 +1,4 @@
-export const EVENTS = [
+export const events = [
   {
     id: 'e1',
     title: 'React Conference',
