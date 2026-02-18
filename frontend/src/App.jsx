@@ -1,29 +1,20 @@
 // ===============================
 // Root Application Component
 // -------------------------------
-// Configures global routing using
-// React Router v6.
+// Acts as the top-level component
+// of the application.
 //
-// All feature entry points are defined here.
+// - Delegates all routing logic
+//   to AppRouter.
+// - Keeps this file clean and
+//   architecture-focused.
+// - Ensures a single routing source.
 // ===============================
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Events from './events/pages/Events';
+import AppRouter from './router/AppRouter';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <main>
-        <Routes>
-          {/* Home route */}
-          <Route path="/" element={<Events />} />
-
-          {/* Fallback route for unknown paths */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-    </BrowserRouter>
-  );
+  return <AppRouter />;
 }
 
 export default App;
