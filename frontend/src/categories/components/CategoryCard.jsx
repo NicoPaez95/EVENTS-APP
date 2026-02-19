@@ -9,7 +9,7 @@
 
 const CategoryCard = ({ title }) => {
     return (
-        <article>
+        <article  className="bg-sky-100 border-2 border-solid border-slate-500 p-4">
             <h3>{title}</h3>
         </article>
     );

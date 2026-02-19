@@ -16,7 +16,7 @@ import CategoryGrid from 'categories/components/CategoryGrid';
 const CategoryEvents = () => {
   return (
     <main>
-      <h1>
+      <h1 className="text-2xl font-bold text-center p-4 m-2">
         Category
       </h1>
 
