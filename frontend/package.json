@@ -18,7 +18,8 @@
     "react-router": "^6.30.3",
     "react-router-dom": "^6.30.3",
     "react-scripts": "^5.0.1",
-    "scheduler": "^0.27.0"
+    "scheduler": "^0.27.0",
+    "swiper": "^12.1.2"
   },
   "browserslist": {
     "production": [
