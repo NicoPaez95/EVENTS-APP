@@ -12,6 +12,7 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+import FeaturedEvents from '../events/pages/FeaturedEvents';
 import CategoryEvents from '../categories/pages/CategoryEvents';
 import Events from '../events/pages/Events';
 
@@ -21,6 +22,7 @@ import Events from '../events/pages/Events';
 // -------------------------------
 // Composes the main landing page ("/").
 //
+// - Renders FeaturedEvents section.
 // - Renders CategoryEvents section.
 // - Renders Events list section.
 // - Acts as a page-level container.
@@ -29,8 +31,10 @@ import Events from '../events/pages/Events';
 const Home = () => {
   return (
     <main>
+      <FeaturedEvents />
       <CategoryEvents />
       <Events />
+
     </main>
   );
 };
