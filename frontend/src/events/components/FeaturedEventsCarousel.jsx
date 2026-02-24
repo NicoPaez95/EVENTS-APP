@@ -16,7 +16,7 @@ import "swiper/css/pagination";
 
 const FeaturedEventsCarousel = ({ featuredEvents }) => {
   return (
-    <section>
+    <section className="w-full">
       <Swiper
         modules={[Autoplay, Pagination]}
         spaceBetween={20}
@@ -30,10 +30,11 @@ const FeaturedEventsCarousel = ({ featuredEvents }) => {
       >
         {featuredEvents.map((event) => (
           <SwiperSlide key={event.id}>
-            <div>
+            <div  className="w-full h-64 overflow-hidden rounded-lg">
               <img
                 src={event.image}
                 alt={event.alt}
+                className="w-full h-full object-cover"
               />
             </div>
           </SwiperSlide>
