@@ -1,11 +1,8 @@
 // ===============================
-// Events Page
+// Events Feature
 // -------------------------------
 // Main page responsible for rendering
 // the list of available events.
-//
-// This component acts as the entry point
-// for the "events" feature domain.
 // ===============================
 
 import { events } from '../data/events.mock';

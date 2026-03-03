@@ -1,21 +1,21 @@
 // ===============================
 // CategoryEvents Page
 // -------------------------------
-// Displays the categories page.
+// Displays the main category
+// selection view for events.
 //
-// Imports mock category data
-// and renders the CategoryGrid
-// component.
-//
-// Page-level component.
+// Acts as a container component
+// that provides category data
+// to the CategoryGrid component.
 // ===============================
 
 import { categories } from '../data/categories.mock';
-import CategoryGrid from 'categories/components/CategoryGrid';
+import CategoryGrid from 'events/components/CategoryGrid';
 
 const CategoryEvents = () => {
   return (
     <main>
+      {/* Page Title */}
       <h1 className="text-2xl font-bold text-center p-4 m-2">
         Category
       </h1>

@@ -1,15 +1,12 @@
 // ===============================
-// FeaturedEvents Page
+// FeaturedEvents Feature
 // -------------------------------
-// Main page responsible for rendering
-// highlighted (featured) events.
-//
-// Acts as entry point for the
-// featured events view.
+// Entry component for the featured events feature.
 // ===============================
 
 import { featuredEvents } from "../data/featuredEvents.mock";
 import FeaturedEventsCarousel from "../components/FeaturedEventsCarousel";
+
 
 const FeaturedEvents = () => {
   return (

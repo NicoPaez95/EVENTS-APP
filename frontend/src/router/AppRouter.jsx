@@ -10,36 +10,6 @@
 // - Acts as the single routing source.
 // ===============================
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
-import FeaturedEvents from '../events/pages/FeaturedEvents';
-import CategoryEvents from '../categories/pages/CategoryEvents';
-import Events from '../events/pages/Events';
-
-
-// ===============================
-// Home Page Composition
-// -------------------------------
-// Composes the main landing page ("/").
-//
-// - Renders FeaturedEvents section.
-// - Renders CategoryEvents section.
-// - Renders Events list section.
-// - Acts as a page-level container.
-// ===============================
-
-const Home = () => {
-  return (
-    <main>
-      <FeaturedEvents />
-      <CategoryEvents />
-      <Events />
-
-    </main>
-  );
-};
-
-
 // ===============================
 // Router Definition
 // -------------------------------
@@ -49,12 +19,15 @@ const Home = () => {
 // "*"  → Redirects to "/"
 // ===============================
 
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Home from '../home/pages/Home';
+
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Home route */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home/>} />
 
         {/* Fallback route for unknown paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
