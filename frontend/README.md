@@ -1,95 +1,107 @@
 # 🎟️ Events App
 
-Web application to explore, search, and save events, developed with **React 19** and a scalable, feature-oriented architecture.
+A scalable event exploration web application built with **React 19** and a modular feature-based architecture.
 
-This project is part of my practical projects and serves as a foundation for a real-world application, prioritizing organization, maintainability, and best practices.
+This project simulates a real-world event platform (similar to ticketing platforms), focusing on:
+
+- Clean architecture
+- Domain isolation
+- Scalability
+- Maintainability
+- Production-ready structure
 
 ---
 
 ## 🚀 Technologies Used
 
-- **React 19** (Create React App)
-- **JavaScript (ES6+)**
-- **Context API**
-- **Custom Hooks**
-- **CSS / UI Components**
-- **react-router-dom v6**
-- **Git & GitHub**
+- React 19
+- react-router-dom v6
+- Context API
+- Custom Hooks
+- TailwindCSS
+- Swiper (carousel system)
+- JavaScript (ES6+)
+- Create React App (react-scripts v5)
 
 ---
 
 ## 📁 Project Structure
-
-The application follows a **feature-based** architecture, separating logic by functional domains:
 
 ```
 
 src/
 ├── App.jsx
 ├── index.js
+├── router/
+│   └── AppRouter.jsx
 ├── events/
 │   ├── components/
-│   └── pages/
-├── categories/
-│   ├── components/
-│   └── pages/
-├── search/
-│   ├── components/
-│   └── pages/
+│   ├── data/
+│   ├── features/
+│   ├── pages/
+│   └── README.md
+├── home/
 ├── user/
-│   ├── components/
-│   └── pages/
 ├── shared/
-│   ├── components/
-│   │   ├── UI/
-│   │   ├── Layout/
-│   │   └── Navigation/
-│   ├── context/
-│   ├── hooks/
-│   └── util/
 
 ````
 
-### 🧠 Advantages of This Architecture
-- Scalable
-- Easy to maintain
-- Clear separation of responsibilities
-- Ideal for real-world projects and teams
+---
+
+## 🧠 Architecture Highlights
+
+- Feature-driven modular structure
+- Sub-feature composition inside domains
+- Shared design system layer
+- Context-based state management
+- Clean routing separation
+- Prepared for backend integration
 
 ---
 
-## ✨ Features (In Development)
+## ✨ Current Features
 
-- 📅 Event listing
-- 🔍 Search and filters
-- 🗂️ Event categories
-- ⭐ Save events
-- 👤 User authentication
-- 🌦️ Contextual information (e.g., weather)
-- 📆 Saved events calendar
+### Events Domain
+
+- Event grid
+- Event detail view
+- Featured events carousel (Swiper)
+- Recommended events
+- Upcoming events
+- Category filtering
+- Search functionality
+- Weather widget integration (mock-based)
+
+### User Domain
+
+- Authentication (mock-based)
+- Profile page
+- Saved events calendar
 
 ---
 
-## 🛠️ Installation and Setup
+## 🔄 Data Strategy
 
-1. Clone the repository:
+Currently using mock data inside feature folders.
+
+Future transition plan:
+
+- Replace mocks with API services
+- Add service layer per feature
+- Improve state normalization
+
+---
+
+## 🛠️ Installation
+
 ```bash
 git clone https://github.com/NicoPaez95/EVENTS-APP.git
+cd frontend
+npm install
+npm start
 ````
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Run in development mode:
-
-```bash
-npm start
-```
-
-The application runs at:
+Runs at:
 
 ```
 http://localhost:3000
@@ -97,36 +109,28 @@ http://localhost:3000
 
 ---
 
-## 📌 Technical Notes
+## 📈 Project Status
 
-* The project uses **React 19** with **react-scripts v5** for modern compatibility.
-* All application logic is located inside the `src/` directory.
-* The `public/index.html` file serves as the entry point for React.
-* Routing uses **react-router-dom v6**, so `Route` components now use `element` instead of `component`.
+🟡 Actively evolving toward production-level architecture.
 
----
+Next planned upgrades:
 
-## 🧪 Project Status
-
-🟡 **Actively in development**
-
-Future enhancements will include:
-
-* Advanced routing
-* Global state management improvements
 * Backend integration
-* UX/UI enhancements
+* Authentication refinement
+* Event booking logic
+* Payment system integration
+* Lazy loading
+* Performance optimization
 
 ---
 
 ## 👨‍💻 Author
 
 **Nico Páez**
-Full Stack Web Developer, focused on building well-structured applications with purpose and long-term vision.
+Full Stack Developer focused on scalable and well-structured applications.
 
 ---
 
 ## 📄 License
 
-This project is distributed under the MIT License.
-
+MIT License

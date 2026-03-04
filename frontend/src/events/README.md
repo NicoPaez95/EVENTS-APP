@@ -1,90 +1,142 @@
-
 # Events Feature
 
 ## 📌 Overview
 
-The **Events** feature encapsulates all functionality related to event visualization and interaction within the application.
+The Events feature encapsulates all event-related business logic and UI composition.
 
-It is responsible for rendering event data and managing event-specific UI components.
+It is structured to support:
 
----
+- Independent growth
+- Sub-feature modularization
+- Future backend integration
+- Scalable event interaction logic
 
-## 🧱 Responsibilities
-
-This feature handles:
-
-- Rendering event listings
-- Displaying event cards
-- Composing event pages
-- Managing event-specific presentation logic
-- Providing reusable event UI components
-
-It does NOT manage:
-
-- Global state
-- Cross-domain concerns
-- Application routing
-- Shared utilities
-
-Those belong to the `shared` layer or root application level.
+This is the core domain of the application.
 
 ---
 
 ## 📂 Structure
 
-```
+````
 
 events/
 ├── components/
-│   ├── EventCard.jsx
-│   ├── EventGrid.jsx
-│   └── ...
-├── pages/
-│   └── Events.jsx
 ├── data/
-│   └── events.mock.js
+├── features/
+├── pages/
+└── README.md
 
 ```
 
 ---
 
-### 🔹 components/
+## 🔹 components/
 
-Reusable UI components specific to the events domain.
+Pure presentational components.
 
-- Presentational
+Examples:
+
+- EventCard
+- EventGrid
+- EventDetail
+- CategoryCard
+- Filters
+- SearchBar
+- WeatherWidget
+
+Rules:
+
 - Receive data via props
-- No implicit global dependencies
+- No direct context consumption (unless necessary)
+- No routing logic
 
 ---
 
-### 🔹 pages/
+## 🔹 features/
 
-Entry points for event-related routes.
+Domain use-case composition layer.
 
-- Compose feature components
-- Connect data sources
-- Prepare and pass props
+Examples:
+
+- FeaturedEvents
+- UpcomingEventsFeature
+- RecommendedEventsFeature
+- SearchResults
+- CategoryEvents
+- WeatherFeature
+
+Responsibilities:
+
+- Combine multiple components
+- Prepare UI sections
+- Represent business scenarios
+
+This layer improves vertical scalability inside the feature.
 
 ---
 
-### 🔹 data/
+## 🔹 pages/
 
-Temporary mock data used during development.
+Route-level entry points.
 
-Future iterations will integrate:
+Example:
 
-- API services
-- Context/state management
-- Dedicated service layer
+- Events.jsx
+
+Responsibilities:
+
+- Connect to context
+- Compose feature modules
+- Prepare data for rendering
+
+---
+
+## 🔹 data/
+
+Mock data for development:
+
+- events.mock.js
+- categories.mock.js
+- featuredEvents.mock.js
+- recommendedEvents.mock.js
+- upcomingEvents.mock.js
+- weather.mock.js
+
+Future:
+
+- Replace with service layer
+- Connect to backend API
+
+---
+
+## 🔄 Data Flow (Current)
+
+```
+
+Mock → Context (EventsContext) → Feature → Components → UI
+
+```
 
 ---
 
 ## 🔮 Future Improvements
 
 - Backend integration
-- Event filtering & sorting
+- Event booking system
+- Seat selection logic
 - Pagination or infinite scroll
-- Saved events logic
-- Feature-level service abstraction
-- Unit and integration tests
+- Sorting and advanced filtering
+- Event availability tracking
+- Role-based access control
+- Unit and integration testing
+
+---
+
+## 🎯 Design Goal
+
+The Events feature is built to simulate a real production event platform domain, prioritizing:
+
+- Encapsulation
+- Clean separation
+- Maintainability
+- Scalability

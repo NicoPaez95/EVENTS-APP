@@ -1,26 +1,33 @@
-
 # Application Architecture
 
 ## 📌 Overview
 
-This application follows a **feature-based architecture**, organizing code by business domain rather than by technical type.
+This application follows a **scalable feature-based architecture** designed to simulate real-world frontend engineering practices.
 
-The objective is to create a scalable, maintainable, and production-ready frontend structure that can evolve as the application grows.
+The structure has evolved to support:
+
+- Domain isolation
+- Sub-feature composition
+- Context-driven state management
+- Future backend integration
+- Production-level scalability
+
+The goal is long-term maintainability and architectural clarity.
 
 ---
 
 ## 🧱 Architectural Principles
 
-The architecture is guided by the following principles:
+This architecture is guided by:
 
-- **Separation of concerns**
-- **Domain-driven structure**
-- **Explicit data flow**
-- **Low coupling between features**
-- **High cohesion within features**
-- **Scalability-first mindset**
+- Separation of concerns
+- Domain-driven modularization
+- Explicit and predictable data flow
+- Feature encapsulation
+- Shared abstraction layer
+- Scalability-first mindset
 
-Each feature is designed to evolve independently without tightly coupling to other domains.
+Each domain can grow independently without tight coupling.
 
 ---
 
@@ -31,52 +38,67 @@ Each feature is designed to evolve independently without tightly coupling to oth
 src/
 ├── App.jsx
 ├── index.js
+├── router/
 ├── events/
-├── categories/
-├── search/
+├── home/
 ├── user/
 ├── shared/
 
 ```
 
+### Responsibilities
+
 - `App.jsx` → Root composition layer
-- `index.js` → React entry point
+- `router/` → Centralized routing system
 - Feature folders → Business domains
 - `shared/` → Cross-domain reusable logic
 
 ---
 
-## 🏷 Feature Module Pattern
+## 🏷 Feature Module Pattern (Current Implementation)
 
-Each feature follows a consistent internal structure:
+Each feature now supports internal modularization:
 
 ```
 
 feature-name/
 ├── components/
-├── pages/
 ├── data/
-├── services/     (future)
-├── hooks/        (future)
+├── features/     ← sub-features (composition layer)
+├── pages/
 └── README.md
 
 ```
 
-### Responsibilities Inside a Feature
+### Layer Responsibilities
 
-- **components/** → Presentational UI components specific to the domain
-- **pages/** → Route entry points that compose components
-- **data/** → Temporary mock or static data
-- **services/** → API communication layer (future)
-- **hooks/** → Feature-specific reusable logic (future)
+#### 🔹 components/
+Pure presentational components.
+- Receive props
+- No global dependencies
+- Reusable inside the feature
 
-This pattern ensures domain isolation and clear ownership.
+#### 🔹 pages/
+Route-level entry points.
+- Compose features
+- Connect to context/state
+- Prepare data
+
+#### 🔹 features/
+Intermediate composition layer.
+- Combine multiple components
+- Encapsulate UI logic sections
+- Represent domain use-cases (e.g. FeaturedEvents, SearchResults)
+
+This allows vertical scaling inside a single feature.
+
+#### 🔹 data/
+Temporary mock data.
+Will be replaced by service/API layer.
 
 ---
 
 ## 🔹 Shared Layer
-
-The `shared/` directory contains cross-domain logic:
 
 ```
 
@@ -91,96 +113,104 @@ shared/
 
 ```
 
-This layer provides:
+### Responsibilities
 
-- Reusable UI primitives
-- Layout and navigation components
-- Global context providers
-- Utility functions
-- Cross-feature hooks
+- Design system primitives (Button, Card, Modal)
+- Layout structure (HomeLayout, Sidebar)
+- Navigation components
+- Global contexts (AuthContext, EventsContext)
+- Reusable hooks (useAuth, useEvents, useWeather)
+- Utility helpers (dateHelpers, validators)
 
-The shared layer prevents duplication while maintaining feature independence.
+The shared layer prevents duplication and centralizes cross-domain logic.
 
 ---
 
 ## 🔄 Data Flow Strategy
 
-### Current (Development Phase)
+### Current
 
 ```
 
-Mock Data → Page → Feature Components → UI
+Mock Data → Context → Feature → Components → UI
 
 ```
 
-### Future (Production Phase)
+### Future (Production)
 
 ```
 
-API → Service Layer → Context / State → Page → Components → UI
+API → Service Layer → Context → Feature → Components → UI
 
 ```
 
-The data flow remains:
+### Rules
 
-- Explicit
-- Predictable
-- Unidirectional
-
-No implicit global dependencies inside features.
+- Unidirectional flow
+- No implicit global dependencies inside components
+- Context used only when domain-wide state is required
+- Features remain UI-focused
 
 ---
 
 ## 🧠 Routing Strategy
 
-Routing is centralized in `App.jsx` using **react-router-dom v6**.
+Routing is centralized in:
 
-- Each feature exposes route-level pages
-- The root router composes them
-- Unknown routes redirect to a fallback page
+```
 
-This keeps routing controlled at the application boundary.
+src/router/AppRouter.jsx
+
+```
+
+Using:
+
+- react-router-dom v6
+
+Principles:
+
+- Routes defined at application boundary
+- Pages imported from features
+- Layout composition controlled at router level
+
+Future improvement:
+
+- Route-based code splitting
+- Lazy loading
 
 ---
 
-## 📈 Scalability Strategy
+## 📈 Scalability Design
 
 The architecture supports:
 
-- Adding new features without refactoring existing ones
 - Independent feature growth
-- Lazy loading per route (future)
-- Feature-level testing (future)
-- Service abstraction per domain
-- Backend integration without structural changes
-
----
-
-## 🎯 Architectural Goals
-
-This structure is designed to:
-
-- Reflect real-world frontend engineering practices
-- Be readable for new contributors
-- Support long-term maintainability
-- Remain clean as complexity increases
-- Encourage disciplined modular development
+- Sub-feature expansion
+- Backend integration without restructuring
+- Service layer per domain
+- Context refinement
+- Feature-level testing
+- Code splitting
+- Performance optimization
 
 ---
 
 ## 🔮 Planned Evolution
 
-- Dedicated service layer per feature
-- Global state refinement
-- API abstraction
-- Error boundary implementation
-- Performance optimization
-- Feature-level test coverage
-- Route-based code splitting
+- Dedicated service layer inside each feature
+- API abstraction layer
+- Error boundaries
+- Suspense & lazy loading
+- State normalization
+- Role-based authentication
+- Payment integration
+- Real-time availability updates
 
 ---
 
 ## 🏁 Final Note
 
-This architecture intentionally favors clarity and structure over short-term convenience, ensuring that the application can scale without architectural debt.
+This structure prioritizes clarity and long-term maintainability over short-term simplicity.
+
+It reflects a production-ready mindset and is designed to scale without architectural debt.
 
