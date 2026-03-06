@@ -1,27 +1,23 @@
-// ==========================================
-// RecommendedEventsFeature Component
-// ------------------------------------------
-// Feature-level component responsible for
-// providing recommended events data to the
-// RecommendedEvents presentational component.
-//
-// Acts as a container layer between
-// mock/data source and UI.
-//
-// This is NOT a pure UI component.
-// It handles data sourcing and passes it
-// down as props.
-//
-// Current data source:
-// - recommendedEvents.mock.js
-// ==========================================
-
 import { recommendedEvents } from '../data/recommendedEvents.mock';
 import RecommendedEvents from '../components/RecommendedEvents';
 
+/**
+ * RecommendedEventsFeature Component.
+ * * This feature-level component acts as the data provider and container 
+ * for the recommended events section.
+ * * It bridges the gap between the data source (mock/API) and the 
+ * presentation layer, ensuring that the RecommendedEvents component 
+ * remains pure and decoupled from data-fetching logic.
+ * * @component
+ * @returns {JSX.Element} A full-width section wrapping the presentational RecommendedEvents.
+ */
 const RecommendedEventsFeature = () => {
   return (
     <section className="w-full">
+      {/* The 'recommendedEvents' data is injected here from the mock source.
+        This allows the presentational component to focus solely on 
+        rendering the list and handling hover states.
+      */}
       <RecommendedEvents events={recommendedEvents} />
     </section>
   );

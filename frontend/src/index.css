@@ -1,10 +1,24 @@
-/* ===============================
-   Global Styles Entry
-   -------------------------------
-   Loads Tailwind base styles,
-   components, and utilities.
-   =============================== */
+/**
+ * Global Styles Entry Point.
+ * -------------------------------
+ * This file initializes the Tailwind CSS framework by injecting 
+ * the base styles, component classes, and utility layers.
+ * * @layer base - Resets and standard HTML element styles.
+ * @layer components - Reusable complex classes (buttons, cards, etc.).
+ * @layer utilities - Low-level functional classes (margin, padding, flex).
+ */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom Global Overrides (Optional) */
+:root {
+  --app-bg-color: #f8fafc;
+}
+
+body {
+  background-color: var(--app-bg-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
