@@ -1,3 +1,14 @@
+/**
+ * @typedef {Object} Category
+ * @property {string} id - Unique identifier for the category (e.g., 'c1').
+ * @property {string} title - Display name of the category.
+ */
+
+/**
+ * Mock data for event categories.
+ * * Used for the category grid and search filters.
+ * * @type {Category[]}
+ */
 export const categories = [
     {
         id: 'c1',
@@ -15,4 +26,4 @@ export const categories = [
         id: 'c4',
         title: 'Food',
     },
-]
+];

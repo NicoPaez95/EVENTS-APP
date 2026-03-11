@@ -1,3 +1,17 @@
+/**
+ * @typedef {Object} RecommendedEvent
+ * @property {string|number} id - Unique identifier for the recommended item.
+ * @property {string} title - The event title or headline.
+ * @property {string} date - Event date formatted as YYYY-MM-DD.
+ * @property {string} location - Venue name or geographic location.
+ */
+
+/**
+ * Mock data for the Recommended Events section.
+ * * These events are curated based on popularity or user interest 
+ * and are displayed in summary format.
+ * * @type {RecommendedEvent[]}
+ */
 export const recommendedEvents = [
   {
     id: 'r1',

@@ -1,3 +1,19 @@
+/**
+ * @typedef {Object} Event
+ * @property {string|number} id - Unique identifier for the event.
+ * @property {string} title - The official name of the event.
+ * @property {string} date - Event date in YYYY-MM-DD format.
+ * @property {string} location - Venue or city where the event takes place.
+ * @property {string} category - The domain category (e.g., Tech, Music, Art).
+ * @property {string} [image] - Optional URL for the promotional banner.
+ */
+
+/**
+ * Main Event Catalog Mock Data.
+ * * Central repository of available events for the discovery and 
+ * filtering features.
+ * * @type {Event[]}
+ */
 export const events = [
   {
     id: 'e1',
