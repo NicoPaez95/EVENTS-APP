@@ -1,10 +1,17 @@
-// ===============================
-// UpcomingEvents Component
-// -------------------------------
-// Pure presentational component.
-// Receives events as props.
-// ===============================
-
+/**
+ * UpcomingEvents Component.
+ * * A compact, presentational list used to display a summary 
+ * of chronologically close events.
+ * * It uses a minimalist layout with a flexbox-based list 
+ * to show titles and dates side-by-side.
+ * * @component
+ * @param {Object} props - Component properties.
+ * @param {Object[]} props.events - List of upcoming events.
+ * @param {string|number} props.events[].id - Unique identifier for the list item.
+ * @param {string} props.events[].title - Short name of the event.
+ * @param {string} props.events[].date - Simplified date string.
+ * @returns {JSX.Element} A section containing a vertical list of upcoming events.
+ */
 const UpcomingEvents = ({ events }) => {
   return (
     <section className="bg-blue-200 rounded-2xl p-5 shadow-md min-h-[140px]">
@@ -16,8 +23,10 @@ const UpcomingEvents = ({ events }) => {
       <ul className="space-y-3 text-sm">
         {events.map((event) => (
           <li key={event.id} className="flex justify-between">
-            <span>{event.title}</span>
-            <span className="text-neutral-400">
+            <span className="font-medium text-slate-800">
+              {event.title}
+            </span>
+            <span className="text-slate-500 italic">
               {event.date}
             </span>
           </li>

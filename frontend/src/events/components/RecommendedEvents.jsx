@@ -1,23 +1,17 @@
-// =====================================
-// RecommendedEvents Component
-// -------------------------------------
-// Renders a list of recommended events
-// displaying basic preview information
-// such as title, date and location.
-//
-// Pure presentational component.
-// Receives an array of event objects
-// via props and maps over them.
-//
-// Expected event structure:
-// {
-//   id: string | number,
-//   title: string,
-//   date: string,
-//   location: string
-// }
-// =====================================
-
+/**
+ * RecommendedEvents Component.
+ * * Renders a vertical list of recommended events as a preview.
+ * * Features a subtle sky-blue background and card-based items with 
+ * hover transitions for an interactive feel.
+ * * @component
+ * @param {Object} props - Component properties.
+ * @param {Object[]} props.events - Array of event objects to recommend.
+ * @param {string|number} props.events[].id - Unique identifier for the event.
+ * @param {string} props.events[].title - The headline or name of the event.
+ * @param {string} props.events[].date - The scheduled date (string format).
+ * @param {string} props.events[].location - The venue or city.
+ * @returns {JSX.Element} A section containing a vertical stack of event previews.
+ */
 const RecommendedEvents = ({ events }) => {
   return (
     <section className="bg-sky-50 p-6 rounded-2xl shadow-md border border-slate-200">

@@ -1,35 +1,25 @@
-// ===============================
-// AppRouter Configuration
-// -------------------------------
-// Centralizes application routing
-// using React Router v6.
-//
-// - Wraps the app with BrowserRouter.
-// - Defines all primary routes.
-// - Handles unknown routes with a redirect.
-// - Acts as the single routing source.
-// ===============================
-
-// ===============================
-// Router Definition
-// -------------------------------
-// Defines application route mapping.
-//
-// "/"  → Home page
-// "*"  → Redirects to "/"
-// ===============================
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Home from '../home/pages/Home';
+import Home from '../pages/home/Home';
 
+/**
+ * Main Application Router.
+ * * Centralizes the navigation logic using React Router v6.
+ * * It wraps the application in a BrowserRouter and defines 
+ * the mapping between URLs and Page components.
+ * * @component
+ * @returns {JSX.Element} The routing tree with defined paths and fallbacks.
+ */
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Home route */}
+        {/* Main Entry Point: Home Page */}
         <Route path="/" element={<Home/>} />
 
-        {/* Fallback route for unknown paths */}
+        {/* * Wildcard Route (*): 
+          * Redirects any unknown or undefined path back to the Home page 
+          * to prevent 404 broken UI states.
+        */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
