@@ -2,60 +2,61 @@
 
 A scalable event exploration web application built with **React 19** and a modular feature-based architecture.
 
-This project simulates a real-world event platform (similar to ticketing platforms), focusing on:
-
-- Clean architecture
-- Domain isolation
-- Scalability
-- Maintainability
-- Production-ready structure
+This project simulates a real-world event platform (similar to ticketing platforms), focusing on clean architecture, domain isolation, and production-ready standards.
 
 ---
 
 ## 🚀 Technologies Used
 
-- React 19
-- react-router-dom v6
-- Context API
-- Custom Hooks
-- TailwindCSS
-- Swiper (carousel system)
-- JavaScript (ES6+)
-- Create React App (react-scripts v5)
+- **React 19** (Latest features & concurrent rendering)
+- **React Router v6** (Centralized routing & layout nesting)
+- **TailwindCSS** (Utility-first styling & JIT engine)
+- **PostCSS & Autoprefixer** (Cross-browser CSS processing)
+- **Swiper** (Modern touch slider for featured events)
+- **ESLint & JSDoc** (Enforced code quality and intelligent documentation)
+- **JavaScript (ES6+)**
+- **Create React App** (react-scripts v5)
 
 ---
 
 ## 📁 Project Structure
 
-```
-
+```text
 src/
-├── App.jsx
-├── index.js
-├── router/
-│   └── AppRouter.jsx
-├── events/
-│   ├── components/
-│   ├── data/
-│   ├── features/
-│   ├── pages/
-│   └── README.md
-├── home/
-├── user/
-├── shared/
+├── events/              # Events Domain (Core)
+│   ├── components/      # Pure presentational UI components
+│   ├── data/            # Mock data sources (Source of truth)
+│   ├── features/        # Business logic & sub-feature composition
+│   ├── hooks/           # Domain-specific logic (useEvents, useAutocomplete)
+│   └── utils/           # Filtering, suggestions, and business helpers
+├── shared/              # Cross-domain reusable logic
+│   ├── components/      # UI Kit & Layouts
+│   │   ├── Layout/      # HomeLayout, Sidebar
+│   │   ├── Navigation/  # Navbars, Links
+│   │   └── UI/          # Atomic components (Button, Card, Modal)
+│   ├── context/         # Global state (AuthContext, EventsContext)
+│   ├── hooks/           # Reusable generic hooks (useAuth, useWeather)
+│   └── util/            # Global helpers (dateHelpers, validators)
+├── pages/               # Route-level entry points
+│   ├── home/            # Home page composition
+│   └── user/            # Auth and Profile pages
+├── user/                # User Domain specific components
+│   └── components/      # SavedEventsCalendar, etc.
+├── router/              # AppRouter configuration
+├── App.jsx              # Application root
+└── index.js             # Entry point
 
-````
+```
 
 ---
 
 ## 🧠 Architecture Highlights
 
-- Feature-driven modular structure
-- Sub-feature composition inside domains
-- Shared design system layer
-- Context-based state management
-- Clean routing separation
-- Prepared for backend integration
+* **Domain-Driven Modularization**: Isolation of concerns between `events`, `user`, and `shared` layers.
+* **Feature Module Pattern**: Separation between atomic components and orchestrated business features.
+* **Shared Design System**: Centralized UI primitives and layouts to ensure visual consistency.
+* **Strict JSDoc Enforcement**: Full IDE intellisense and type-safety simulation without TypeScript overhead.
+* **Facade Hook Pattern**: Complex logic encapsulation via custom hooks for clean component interfaces.
 
 ---
 
@@ -63,64 +64,50 @@ src/
 
 ### Events Domain
 
-- Event grid
-- Event detail view
-- Featured events carousel (Swiper)
-- Recommended events
-- Upcoming events
-- Category filtering
-- Search functionality
-- Weather widget integration (mock-based)
+* **Event Discovery**: Dynamic grid with multi-criteria filtering.
+* **Featured Carousel**: High-impact promotional slider.
+* **Smart Search**: Real-time autocomplete for titles, categories, and locations.
+* **Weather Integration**: Local environmental data widget.
+* **Upcoming & Recommended**: Curated sidebars for event discovery.
 
 ### User Domain
 
-- Authentication (mock-based)
-- Profile page
-- Saved events calendar
+* **Auth Infrastructure**: Prepared for login and session management.
+* **Personalized Calendar**: Visualization of saved events for the user.
 
 ---
 
-## 🔄 Data Strategy
-
-Currently using mock data inside feature folders.
-
-Future transition plan:
-
-- Replace mocks with API services
-- Add service layer per feature
-- Improve state normalization
-
----
-
-## 🛠️ Installation
+## 🛠️ Installation & Setup
 
 ```bash
-git clone https://github.com/NicoPaez95/EVENTS-APP.git
+# Clone the repository
+git clone [https://github.com/NicoPaez95/EVENTS-APP.git](https://github.com/NicoPaez95/EVENTS-APP.git)
+
+# Navigate to frontend
 cd frontend
+
+# Install dependencies
 npm install
+
+# Start development server
 npm start
-````
-
-Runs at:
 
 ```
-http://localhost:3000
-```
+
+Runs at: `http://localhost:3000`
 
 ---
 
-## 📈 Project Status
+## 📈 Project Status & Roadmap
 
-🟡 Actively evolving toward production-level architecture.
+🟡 **Current Status**: Finalizing modular architecture and full documentation.
 
-Next planned upgrades:
+**Next Planned Upgrades:**
 
-* Backend integration
-* Authentication refinement
-* Event booking logic
-* Payment system integration
-* Lazy loading
-* Performance optimization
+* [ ] Backend integration (Node.js/Express or Firebase)
+* [ ] Performance optimization (Lazy loading & Code splitting)
+* [ ] Booking and Payment system integration
+* [ ] Advanced state normalization
 
 ---
 
@@ -134,3 +121,4 @@ Full Stack Developer focused on scalable and well-structured applications.
 ## 📄 License
 
 MIT License
+

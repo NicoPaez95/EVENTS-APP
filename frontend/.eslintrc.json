@@ -1,0 +1,58 @@
+/**
+ * ESLint Configuration - The Project's Quality Guardrail
+ * -----------------------------------------------------
+ * This configuration defines the linting rules to ensure code consistency,
+ * catch common React bugs, and strictly enforce JSDoc documentation.
+ */
+
+{
+  "env": {
+    "browser": true, // Habilita globales como 'window' o 'document'
+    "es2021": true   // Permite sintaxis moderna (Optional Chaining, etc.)
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsdoc/recommended" // Crítico: Valida que tus JSDoc estén bien escritos
+  ],
+  "parserOptions": {
+    "ecmaFeatures": { "jsx": true },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["react", "jsdoc"],
+  "rules": {
+    /** * React Rules 
+     * ------------
+     * 'react-in-jsx-scope': off -> Desde React 17+, no hace falta importar React en cada archivo.
+     * 'prop-types': off -> Delegamos la validación a JSDoc para evitar redundancia.
+     */
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+
+    /** * JSDoc Enforcement
+     * -----------------
+     * Estas reglas aseguran que no te olvides de describir tus funciones 
+     * y que los tipos definidos realmente existan.
+     */
+    "jsdoc/require-description": "warn",
+    "jsdoc/check-indentation": "warn",
+    "jsdoc/require-param-description": "warn",
+    "jsdoc/no-undefined-types": "error", // Evita que inventes tipos sin @typedef
+
+    /** * Code Hygiene 
+     * ------------
+     */
+    "no-unused-vars": "warn", // Te avisa si dejaste basura (variables sin usar)
+    "no-console": ["warn", { "allow": ["warn", "error"] }] // Limita el ruido en la consola
+  },
+  "settings": {
+    "jsdoc": {
+      "mode": "typescript", // Truco de experto: Permite usar tipos complejos de TS en JSDoc
+      "preferredTypes": {
+        "JSX.Element": "JSX.Element"
+      }
+    }
+  }
+}

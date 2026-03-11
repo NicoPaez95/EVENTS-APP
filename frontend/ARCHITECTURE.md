@@ -2,215 +2,147 @@
 
 ## 📌 Overview
 
-This application follows a **scalable feature-based architecture** designed to simulate real-world frontend engineering practices.
+This application follows a **Domain-Driven Feature Architecture** designed to simulate high-level frontend engineering practices. It prioritizes scalability, strict documentation via JSDoc, and a clear separation between business logic and UI presentation.
 
-The structure has evolved to support:
-
-- Domain isolation
-- Sub-feature composition
-- Context-driven state management
-- Future backend integration
-- Production-level scalability
-
-The goal is long-term maintainability and architectural clarity.
+The structure is designed to support:
+- **Domain Isolation**: Logic is grouped by business area (Events, User).
+- **Sub-feature Composition**: Complex UI sections are built as independent features.
+- **Intelligent Documentation**: Enforced JSDoc standards for IDE-level type safety.
+- **Production-level Scalability**: Ready for backend integration and state management growth.
 
 ---
 
 ## 🧱 Architectural Principles
 
-This architecture is guided by:
-
-- Separation of concerns
-- Domain-driven modularization
-- Explicit and predictable data flow
-- Feature encapsulation
-- Shared abstraction layer
-- Scalability-first mindset
-
-Each domain can grow independently without tight coupling.
+- **Separation of Concerns**: UI components are decoupled from business logic.
+- **Unidirectional Data Flow**: Explicit and predictable state propagation.
+- **Feature Encapsulation**: Each domain contains its own hooks, utils, and data.
+- **Shared Abstraction**: Reusable design tokens and logic reside in a centralized shared layer.
+- **Scalability-first**: Independent growth of modules without tight coupling.
 
 ---
 
 ## 📂 High-Level Structure
 
-```
-
+```text
 src/
-├── App.jsx
-├── index.js
-├── router/
-├── events/
-├── home/
-├── user/
-├── shared/
+├── events/    # Core Event Domain logic and UI
+├── user/      # User Domain (Profiles, Saved Events)
+├── pages/     # Route entry points (Home, Auth, Profile)
+├── shared/    # Cross-domain reusable abstractions
+├── router/    # Centralized routing system
+└── App.jsx    # Application root & composition layer
 
 ```
-
-### Responsibilities
-
-- `App.jsx` → Root composition layer
-- `router/` → Centralized routing system
-- Feature folders → Business domains
-- `shared/` → Cross-domain reusable logic
 
 ---
 
-## 🏷 Feature Module Pattern (Current Implementation)
+## 🏷 Feature Module Pattern
 
-Each feature now supports internal modularization:
+Each domain (e.g., `events/`) implements a vertical internal structure:
 
-```
-
-feature-name/
-├── components/
-├── data/
-├── features/     ← sub-features (composition layer)
-├── pages/
-└── README.md
+```text
+domain-folder/
+├── components/ # Atomic, presentational UI
+├── features/   # Business-use-case composition layer
+├── hooks/      # Domain logic (Custom Hooks)
+├── utils/      # Pure business functions
+├── data/       # Domain-specific mock data
+└── README.md   # Domain technical documentation
 
 ```
 
 ### Layer Responsibilities
 
 #### 🔹 components/
-Pure presentational components.
-- Receive props
-- No global dependencies
-- Reusable inside the feature
 
-#### 🔹 pages/
-Route-level entry points.
-- Compose features
-- Connect to context/state
-- Prepare data
+Purely presentational components.
+
+* Receive data via `props`.
+* Do not consume global contexts directly.
+* Styled using Tailwind CSS utility classes.
 
 #### 🔹 features/
+
 Intermediate composition layer.
-- Combine multiple components
-- Encapsulate UI logic sections
-- Represent domain use-cases (e.g. FeaturedEvents, SearchResults)
 
-This allows vertical scaling inside a single feature.
+* Combines multiple components to solve a specific use case (e.g., `EventDiscovery` orchestrates search and grid).
+* Encapsulates complex UI logic.
+* Acts as a bridge between data hooks and visualization.
 
-#### 🔹 data/
-Temporary mock data.
-Will be replaced by service/API layer.
+#### 🔹 hooks/ & utils/
+
+The application's engine.
+
+* **Hooks** manage local state, effects, and context subscriptions.
+* **Utils** contain pure logic (filtering, suggestions) that is easy to test.
 
 ---
 
 ## 🔹 Shared Layer
 
-```
+The `shared/` layer acts as the project's infrastructure foundation:
 
+```text
 shared/
 ├── components/
-│   ├── UI/
-│   ├── Layout/
-│   └── Navigation/
-├── context/
-├── hooks/
-└── util/
+│   ├── UI/         # Design System (Button, Card, Modal)
+│   ├── Layout/     # Structural components (HomeLayout, Sidebar)
+│   └── Navigation/ # Navigation logic (Navbars)
+├── context/        # Global state (AuthContext, EventsContext)
+├── hooks/          # Generic reusable hooks (useWeather, useAuth)
+└── util/           # Global helpers (dateHelpers, validators)
 
 ```
-
-### Responsibilities
-
-- Design system primitives (Button, Card, Modal)
-- Layout structure (HomeLayout, Sidebar)
-- Navigation components
-- Global contexts (AuthContext, EventsContext)
-- Reusable hooks (useAuth, useEvents, useWeather)
-- Utility helpers (dateHelpers, validators)
-
-The shared layer prevents duplication and centralizes cross-domain logic.
 
 ---
 
 ## 🔄 Data Flow Strategy
 
-### Current
+### Current (Mock-Driven)
+
+```text
+Mock Data -> Domain Hook -> Feature Component -> Presentation UI
 
 ```
 
-Mock Data → Context → Feature → Components → UI
+### Future (Service-Ready)
+
+```text
+API Service -> Domain Hook (SWR/Query) -> Feature Component -> UI
 
 ```
-
-### Future (Production)
-
-```
-
-API → Service Layer → Context → Feature → Components → UI
-
-```
-
-### Rules
-
-- Unidirectional flow
-- No implicit global dependencies inside components
-- Context used only when domain-wide state is required
-- Features remain UI-focused
 
 ---
 
-## 🧠 Routing Strategy
+## 🧠 Routing & Layout Strategy
 
-Routing is centralized in:
+Navigation is centralized in `src/router/AppRouter.jsx` using **React Router v6**.
 
-```
-
-src/router/AppRouter.jsx
-
-```
-
-Using:
-
-- react-router-dom v6
-
-Principles:
-
-- Routes defined at application boundary
-- Pages imported from features
-- Layout composition controlled at router level
-
-Future improvement:
-
-- Route-based code splitting
-- Lazy loading
+* **Layout Nesting**: `shared/components/Layout/HomeLayout` is used to wrap routes consistently.
+* **Route Isolation**: Pages in `src/pages/` act as simple containers that inject the necessary **Features** based on the route.
 
 ---
 
-## 📈 Scalability Design
+## 📈 Quality & Linting
 
-The architecture supports:
+The project uses a strict **ESLint** configuration with the `jsdoc` plugin to ensure:
 
-- Independent feature growth
-- Sub-feature expansion
-- Backend integration without restructuring
-- Service layer per domain
-- Context refinement
-- Feature-level testing
-- Code splitting
-- Performance optimization
+1. **Redundancy Reduction**: `prop-types` are disabled in favor of JSDoc documentation.
+2. **Type Safety**: JSDoc `typescript` mode is enabled to support complex types like `JSX.Element`.
+3. **Maintainability**: Descriptions for parameters and return values are mandatory for critical functions.
 
 ---
 
 ## 🔮 Planned Evolution
 
-- Dedicated service layer inside each feature
-- API abstraction layer
-- Error boundaries
-- Suspense & lazy loading
-- State normalization
-- Role-based authentication
-- Payment integration
-- Real-time availability updates
+* **Service Layer**: Abstraction of `fetch/axios` calls within each domain.
+* **Code Splitting**: Implementation of `React.lazy()` per route to optimize the initial bundle.
+* **State Normalization**: Refinement of Context data structures to prevent unnecessary re-renders.
+* **Error Boundaries**: Feature-level error catching to improve UI resilience.
 
 ---
 
 ## 🏁 Final Note
 
-This structure prioritizes clarity and long-term maintainability over short-term simplicity.
-
-It reflects a production-ready mindset and is designed to scale without architectural debt.
-
+This architecture prioritizes **long-term maintainability**. It reflects an engineering mindset where code not only works but is organized to be scaled and understood by other developers without technical debt.
