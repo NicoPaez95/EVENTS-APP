@@ -1,18 +1,13 @@
 import { useAutocomplete } from "../hooks/useAutocomplete";
-
 /**
- * Navigation-style Search Bar component.
- * * Provides a multi-input filtering system with real-time autocomplete 
- * for event titles, categories, and locations.
- * * It operates as a controlled component, delegating suggestion logic 
- * to external providers and emitting the final filter state on submit.
- * * @component
- * @param {Object} props - Component properties.
- * @param {Function} props.onSearch - Callback triggered on form submission. Receives { values }.
- * @param {Function} props.getTitleSuggestions - Provider function for title autocomplete.
- * @param {Function} props.getCategorySuggestions - Provider function for category autocomplete.
- * @param {Function} props.getLocationSuggestions - Provider function for location autocomplete.
- * @returns {JSX.Element} A search form with multiple input fields and suggestion overlays.
+ * Intelligent Navigation Search Bar.
+ * Features a multi-input system with real-time autocomplete.
+ * @param {object} props - Component properties.
+ * @param {(data: object) => void} props.onSearch - Search callback.
+ * @param {(term: string) => Promise<string[]>} props.getTitleSuggestions - Titles.
+ * @param {(term: string) => Promise<string[]>} props.getCategorySuggestions - Categories.
+ * @param {(term: string) => Promise<string[]>} props.getLocationSuggestions - Locations.
+ * @returns {JSX.Element} A responsive search form.
  */
 const SearchBar = ({
   onSearch,
@@ -20,36 +15,49 @@ const SearchBar = ({
   getCategorySuggestions,
   getLocationSuggestions
 }) => {
-
   const { values, suggestions, handleChange, selectSuggestion } = useAutocomplete();
 
   /**
-   * Handles the form submission and passes the current filter state to the parent.
-   * @param {{import("react").FormEvent} e - The form submission event.
+   * Synchronizes autocomplete selection with the parent's search state.
+   * Ensures real-time results by creating a fresh state object for the callback.
+   * @param {string} field - The values object key to update.
+   * @param {string} value - The selected suggestion string.
+   */
+  const handleSelect = (field, value) => {
+    selectSuggestion(field, value);
+    const updatedValues = { ...values, [field]: value };
+    onSearch(updatedValues);
+  };
+
+  /**
+   * Prevents default form behavior and triggers search with current local state.
+   * @param {import("react").FormEvent} e - Form event.
    */
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch({ values });
+    onSearch(values);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full bg-white shadow-md p-4 flex items-center gap-4">
-      
-      {/* Search Input: Handles free text and title suggestions */}
-      <div className="relative flex-1">
+    <form 
+      onSubmit={handleSubmit} 
+      className="w-full bg-white shadow-md p-4 flex flex-wrap items-center gap-4 rounded-lg"
+    >
+      {/* Global/Title Search */}
+      <div className="relative flex-1 min-w-[200px]">
         <input
           type="text"
-          placeholder="Buscar eventos..."
+          placeholder="Search events, artists..."
           value={values.searchTerm}
           onChange={(e) => handleChange("searchTerm", e.target.value, getTitleSuggestions)}
           className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
         />
-        {suggestions.titles.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white border shadow-lg rounded-b-md mt-1">
+        {suggestions.titles?.length > 0 && (
+          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md max-h-60 overflow-y-auto">
             {suggestions.titles.map((event) => (
               <li 
                 key={event.id} 
-                onClick={() => selectSuggestion("searchTerm", event.title)}
+                onClick={() => handleSelect("searchTerm", event.title)}
                 className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
               >
                 {event.title}
@@ -59,21 +67,21 @@ const SearchBar = ({
         )}
       </div>
 
-      {/* Category Input: Dynamic filtering by event type */}
-      <div className="relative">
+      {/* Category Filter */}
+      <div className="relative min-w-[150px]">
         <input
           type="text"
-          placeholder="Categoría"
+          placeholder="Category"
           value={values.category}
           onChange={(e) => handleChange("category", e.target.value, getCategorySuggestions)}
-          className="border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full border p-2 rounded outline-none"
         />
-        {suggestions.categories.length > 0 && (
-          <ul className="absolute z-10 w-full bg-white border shadow-lg rounded-b-md mt-1">
+        {suggestions.categories?.length > 0 && (
+          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md">
             {suggestions.categories.map((cat) => (
               <li 
                 key={cat} 
-                onClick={() => selectSuggestion("category", cat)}
+                onClick={() => handleSelect("category", cat)}
                 className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
               >
                 {cat}
@@ -83,15 +91,43 @@ const SearchBar = ({
         )}
       </div>
 
+      {/* Location Filter */}
+      <div className="relative min-w-[150px]">
+        <input
+          type="text"
+          placeholder="Location (e.g. Córdoba)"
+          value={values.location}
+          onChange={(e) => handleChange("location", e.target.value, getLocationSuggestions)}
+          className="w-full border p-2 rounded outline-none"
+        />
+        {suggestions.locations?.length > 0 && (
+          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md">
+            {suggestions.locations.map((loc) => (
+              <li 
+                key={loc} 
+                onClick={() => handleSelect("location", loc)}
+                className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
+              >
+                {loc}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Date Picker */}
       <input 
         type="date" 
         value={values.date} 
-        onChange={(e) => handleChange("date", e.target.value)} 
-        className="border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+        onChange={(e) => handleSelect("date", e.target.value)} 
+        className="border p-2 rounded outline-none cursor-pointer hover:bg-gray-50 transition-colors"
       />
 
-      <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded font-semibold transition-colors">
-        Buscar
+      <button 
+        type="submit" 
+        className="bg-blue-600 text-white px-8 py-2 rounded font-bold hover:bg-blue-700 transition-all shadow-sm"
+      >
+        Search
       </button>
     </form>
   );
