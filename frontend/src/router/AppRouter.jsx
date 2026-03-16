@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/home/Home';
+import EventDetailPage from '../pages/events/EventDetailPage';
+
 
 /**
  * Main Application Router.
@@ -15,7 +17,8 @@ const AppRouter = () => {
       <Routes>
         {/* Main Entry Point: Home Page */}
         <Route path="/" element={<Home/>} />
-
+        <Route path="/events/:id" element={<EventDetailPage/>}/>
+        {/*<Route path="/category/:categoryName" element={<CategoryPage/>}/>*/}
         {/* * Wildcard Route (*): 
           * Redirects any unknown or undefined path back to the Home page 
           * to prevent 404 broken UI states.
