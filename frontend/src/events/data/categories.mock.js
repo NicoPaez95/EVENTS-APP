@@ -11,6 +11,10 @@
  */
 export const categories = [
     {
+        id: 'c0',
+        title: 'All',
+    },
+    {
         id: 'c1',
         title: 'Tech',
     },

@@ -2,16 +2,19 @@ import { categories } from '../data/categories.mock';
 import CategoryGrid from 'events/components/CategoryGrid';
 
 /**
- * CategoryEvents Page Component.
+ * CategoryEvents Feature Component.
  * * This acts as a high-level container that orchestrates the display 
  * of all available event categories.
  * * It retrieves data from the category mock system and provides it 
  * to the CategoryGrid to maintain a clean separation between data 
  * management and presentation.
  * * @component
- * @returns {JSX.Element} The main page layout for category selection.
+ * @category Features
+ * @param {Object} props - Component properties.
+ * @param {Function} props.onCategoryClick - Callback function that bubbles up the selected category title to the parent (Home).
+ * @returns {JSX.Element} The main feature section for category selection.
  */
-const CategoryEvents = () => {
+const CategoryEvents = ({ onCategoryClick }) => {
   return (
     <main>
       {/* Page Title: Main heading for the category selection view */}
@@ -20,9 +23,13 @@ const CategoryEvents = () => {
       </h1>
 
       {/* CategoryGrid: Presentational component that renders the list 
-        of categories passed via the 'categories' prop. 
+        of categories. It receives the 'categories' data and the 
+        click handler to pass it down the component tree.
       */}
-      <CategoryGrid categories={categories} />
+      <CategoryGrid 
+        categories={categories} 
+        onCategoryClick={onCategoryClick} 
+      />
     </main>
   );
 };
