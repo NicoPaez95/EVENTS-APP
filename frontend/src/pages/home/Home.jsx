@@ -11,6 +11,8 @@ import { useEvents } from "../../events/hooks/useEvents";
  * of the ticketing platform (Discovery, Featured, and Categories).
  * * It orchestrates the global event state by connecting the search 
  * and category selection logic with the event display grid.
+ * * It provides the event data to the HomeLayout to ensure secondary 
+ * features (like Sidebar recommendations) stay synchronized with the main catalog.
  * * @component
  * @category Pages
  * @returns {JSX.Element} The rendered landing page with orchestrated event features.
@@ -28,7 +30,7 @@ const Home = () => {
   } = useEvents();
 
   return (
-    <HomeLayout>
+    <HomeLayout events={events}>
       {/* EventDiscovery: Multi-input search interface with autocomplete support */}
       <EventDiscovery 
         onSearch={handleSearch}
