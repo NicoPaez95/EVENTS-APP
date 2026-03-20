@@ -1,52 +1,33 @@
 /**
  * WeatherWidget Component.
- * * A purely presentational widget that displays real-time weather information.
- * * It features a stylized gradient background and uses a flexbox layout 
- * to organize temperature, location, and weather conditions.
+ * * A presentational UI component that displays weather data in a compact card.
+ * Designed to be used within sidebars or contextual detail panels.
  * * @component
+ * @category Components
  * @param {Object} props - Component properties.
- * @param {number|string} props.temperature - Current numeric temperature.
- * @param {string} props.location - City or area name (e.g., Córdoba).
- * @param {string} props.condition - Short description of the weather (e.g., Sunny).
- * @param { {import("react").React.RNode}} props.icon - A React element or icon component representing the condition.
- * @returns {JSX.Element} A visual weather summary card.
+ * @param {number} props.temp - Current temperature in Celsius.
+ * @param {string} props.condition - Main weather condition (e.g., 'Clouds').
+ * @param {string} props.city - Name of the city fetched.
+ * @param {string} props.icon - OpenWeatherMap icon code.
+ * @returns {JSX.Element} A styled article with weather information.
  */
-const WeatherWidget = ({ temperature, location, condition, icon }) => {
+const WeatherWidget = ({ temp, condition, city, icon }) => {
+  const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
   return (
-    <section className="bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl p-6 shadow-lg min-h-[300px] flex flex-col justify-between border border-blue-300">
-      
-      {/* Header section with title */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-800 mb-4">
-          Clima
-        </h2>
+    <article className="bg-gradient-to-br from-blue-500 to-blue-600 p-5 rounded-2xl shadow-lg text-white animate-fade-in">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-xs font-medium opacity-80 uppercase tracking-wider">{city}</p>
+          <h3 className="text-4xl font-bold mt-1">{temp}°C</h3>
+          <p className="text-sm font-medium capitalize mt-1">{condition}</p>
+        </div>
         
-        {/* Main Weather Information Display */}
-        <div className="flex items-center justify-between">
-          
-          <div>
-            <p className="text-4xl font-bold text-slate-900">
-              {temperature}°
-            </p>
-            <p className="text-sm text-slate-600">
-              {location}
-            </p>
-          </div>
-
-          {/* Icon placeholder for weather conditions */}
-          <div className="text-5xl text-slate-700">
-            {icon}
-          </div>
-
+        <div className="bg-white/20 rounded-full p-2">
+          <img src={iconUrl} alt={condition} className="w-16 h-16 object-contain" />
         </div>
       </div>
-
-      {/* Narrative weather condition footer */}
-      <div className="text-sm text-slate-700 mt-6">
-        {condition}
-      </div>
-
-    </section>
+    </article>
   );
 };
 
