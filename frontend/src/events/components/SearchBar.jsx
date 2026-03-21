@@ -1,13 +1,18 @@
 import { useAutocomplete } from "../hooks/useAutocomplete";
+
 /**
  * Intelligent Navigation Search Bar.
- * Features a multi-input system with real-time autocomplete.
- * @param {object} props - Component properties.
- * @param {(data: object) => void} props.onSearch - Search callback.
- * @param {(term: string) => Promise<string[]>} props.getTitleSuggestions - Titles.
- * @param {(term: string) => Promise<string[]>} props.getCategorySuggestions - Categories.
- * @param {(term: string) => Promise<string[]>} props.getLocationSuggestions - Locations.
- * @returns {JSX.Element} A responsive search form.
+ * * A reusable UI component that manages a multi-input search interface and local 
+ * autocomplete state. It follows the "Dumb Component" pattern, staying decoupled 
+ * from the global EventsContext by communicating strictly via props with its parent Feature.
+ * * @component
+ * @category Components
+ * @param {Object} props - Component properties.
+ * @param {Function} props.onSearch - Callback to trigger the global filtering logic in the Context.
+ * @param {Function} props.getTitleSuggestions - Provider for event title autocomplete results.
+ * @param {Function} props.getCategorySuggestions - Provider for category-specific suggestions.
+ * @param {Function} props.getLocationSuggestions - Provider for location-based suggestions.
+ * @returns {JSX.Element} A styled, responsive search form with real-time feedback.
  */
 const SearchBar = ({
   onSearch,
@@ -15,23 +20,29 @@ const SearchBar = ({
   getCategorySuggestions,
   getLocationSuggestions
 }) => {
+  /**
+   * Internal Autocomplete Logic:
+   * Values: Current local state of all inputs.
+   * Suggestions: Filtered lists for titles, categories, and locations.
+   */
   const { values, suggestions, handleChange, selectSuggestion } = useAutocomplete();
 
   /**
-   * Synchronizes autocomplete selection with the parent's search state.
-   * Ensures real-time results by creating a fresh state object for the callback.
-   * @param {string} field - The values object key to update.
-   * @param {string} value - The selected suggestion string.
+   * Synchronizes autocomplete selection with the global search state.
+   * Updates the local hook state and immediately notifies the parent Feature.
+   * * @param {string} field - The field identifier (searchTerm, category, location, or date).
+   * @param {string} value - The chosen suggestion or input value.
    */
   const handleSelect = (field, value) => {
     selectSuggestion(field, value);
     const updatedValues = { ...values, [field]: value };
-    onSearch(updatedValues);
+    onSearch(updatedValues); 
   };
 
   /**
-   * Prevents default form behavior and triggers search with current local state.
-   * @param {import("react").FormEvent} e - Form event.
+   * Form Submission Handler:
+   * Prevents default browser behavior and executes search with all current local values.
+   * * @param {React.FormEvent} e - The form submission event.
    */
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -41,24 +52,24 @@ const SearchBar = ({
   return (
     <form 
       onSubmit={handleSubmit} 
-      className="w-full bg-white shadow-md p-4 flex flex-wrap items-center gap-4 rounded-lg"
+      className="w-full bg-white shadow-lg p-5 flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100"
     >
-      {/* Global/Title Search */}
-      <div className="relative flex-1 min-w-[200px]">
+      {/* --- Global/Title Search Section --- */}
+      <div className="relative flex-1 min-w-[250px]">
         <input
           type="text"
-          placeholder="Search events, artists..."
+          placeholder="What are you looking for?"
           value={values.searchTerm}
           onChange={(e) => handleChange("searchTerm", e.target.value, getTitleSuggestions)}
-          className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
         />
         {suggestions.titles?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md max-h-60 overflow-y-auto">
+          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-1">
             {suggestions.titles.map((event) => (
               <li 
                 key={event.id} 
                 onClick={() => handleSelect("searchTerm", event.title)}
-                className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm border-b border-slate-50 last:border-none"
               >
                 {event.title}
               </li>
@@ -67,22 +78,22 @@ const SearchBar = ({
         )}
       </div>
 
-      {/* Category Filter */}
-      <div className="relative min-w-[150px]">
+      {/* --- Category Filter Section --- */}
+      <div className="relative min-w-[180px]">
         <input
           type="text"
           placeholder="Category"
           value={values.category}
           onChange={(e) => handleChange("category", e.target.value, getCategorySuggestions)}
-          className="w-full border p-2 rounded outline-none"
+          className="w-full border border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 transition-all"
         />
         {suggestions.categories?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md">
+          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.categories.map((cat) => (
               <li 
                 key={cat} 
                 onClick={() => handleSelect("category", cat)}
-                className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
               >
                 {cat}
               </li>
@@ -91,22 +102,22 @@ const SearchBar = ({
         )}
       </div>
 
-      {/* Location Filter */}
-      <div className="relative min-w-[150px]">
+      {/* --- Location Filter Section --- */}
+      <div className="relative min-w-[180px]">
         <input
           type="text"
-          placeholder="Location (e.g. Córdoba)"
+          placeholder="Location"
           value={values.location}
           onChange={(e) => handleChange("location", e.target.value, getLocationSuggestions)}
-          className="w-full border p-2 rounded outline-none"
+          className="w-full border border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 transition-all"
         />
         {suggestions.locations?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border shadow-lg mt-1 rounded-b-md">
+          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.locations.map((loc) => (
               <li 
                 key={loc} 
                 onClick={() => handleSelect("location", loc)}
-                className="p-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
               >
                 {loc}
               </li>
@@ -115,17 +126,17 @@ const SearchBar = ({
         )}
       </div>
 
-      {/* Date Picker */}
+      {/* --- Date Picker Section --- */}
       <input 
         type="date" 
         value={values.date} 
         onChange={(e) => handleSelect("date", e.target.value)} 
-        className="border p-2 rounded outline-none cursor-pointer hover:bg-gray-50 transition-colors"
+        className="border border-slate-200 p-3 rounded-xl outline-none cursor-pointer hover:bg-slate-50 transition-colors text-slate-600"
       />
 
       <button 
         type="submit" 
-        className="bg-blue-600 text-white px-8 py-2 rounded font-bold hover:bg-blue-700 transition-all shadow-sm"
+        className="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md"
       >
         Search
       </button>

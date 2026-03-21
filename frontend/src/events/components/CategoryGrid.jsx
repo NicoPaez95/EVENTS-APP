@@ -1,31 +1,39 @@
 import CategoryCard from "./CategoryCard";  
 
 /**
- * CategoryGrid Component.
- * * A container component that renders a responsive collection of CategoryCards.
- * * It maps through an array of category objects and handles the layout 
- * using a flexible wrap system with consistent spacing.
+ * CategoryGrid Component (Presentational).
+ * * A stateless container component that renders a responsive collection of CategoryCards.
+ * It follows the "Dumb Component" pattern, remaining decoupled from the global state (Context)
+ * by receiving its data and event handlers strictly via props.
  * * @component
  * @category Components
  * @param {Object} props - Component properties.
- * @param {Array<Object>} props.categories - Array of category objects to display.
- * @param {string|number} props.categories[].id - Unique identifier for the category.
+ * @param {Array<Object>} props.categories - Array of category objects to be rendered.
+ * @param {string|number} props.categories[].id - Unique identifier for each category.
  * @param {string} props.categories[].title - Display name for the category card.
- * @param {Function} props.onCategoryClick - Callback function that receives the category title when a card is clicked.
- * @returns {JSX.Element} A section containing a mapped list of CategoryCards.
+ * @param {Function} [props.onCategoryClick] - Optional callback triggered when a category is selected. 
+ * Receives the category title as its first argument.
+ * @returns {JSX.Element} A flexible section containing the mapped list of CategoryCards.
  */
 const CategoryGrid = ({ categories = [], onCategoryClick }) => {
     return (
-        <section className="flex flex-wrap justify-center gap-4 p-4">
+        <section 
+            className="flex flex-wrap justify-center gap-4 p-4"
+            aria-label="Event categories selection"
+        >
             {categories.map((category) => (
                 <CategoryCard 
                     key={category.id} 
                     title={category.title} 
-                    onClick={() => onCategoryClick(category.title)}
+                    /**
+                     * Anonymous function used to isolate and bubble up only 
+                     * the necessary data (title) to the parent Feature.
+                     */
+                    onClick={() => onCategoryClick?.(category.title)}
                 />
             ))}
         </section>
     );
-}
+};
 
 export default CategoryGrid;

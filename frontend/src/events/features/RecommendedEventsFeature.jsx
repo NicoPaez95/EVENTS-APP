@@ -1,28 +1,32 @@
+import { useEvents } from '../hooks/useEvents';
 import RecommendedEvents from '../components/RecommendedEvents';
 
 /**
  * RecommendedEventsFeature Component.
- * * * This feature-level component acts as the data orchestrator for the 
+ * * This "Smart Component" acts as the data orchestrator for the 
  * recommendations domain.
- * * Instead of fetching data internally, it consumes the event collection 
- * provided by the parent layout, ensuring perfect synchronization with 
- * the global application state.
+ * * Following the Context API migration, it now independently consumes 
+ * the global event collection via the useEvents hook, ensuring 
+ * synchronization without prop drilling.
  * * It filters the collection based on the 'isRecommended' flag and limits 
  * the output to maintain sidebar aesthetics.
  * * @component
  * @category Features
- * @param {Object} props - Component properties.
- * @param {Array<Object>} props.events - The collection of events passed down 
- * from the Home/Sidebar hierarchy.
  * @returns {JSX.Element|null} A section wrapping the RecommendedEvents list, 
  * or null if no recommended data is found.
  */
-const RecommendedEventsFeature = ({ events }) => {
+const RecommendedEventsFeature = () => {
+  /**
+   * Global State Consumption:
+   * Retrieves the current event catalog from the EventsContext.
+   */
+  const { events } = useEvents();
+
   /**
    * Filter Strategy:
    * 1. Only include events explicitly marked as 'isRecommended'.
    * 2. Slice the result to the top 3 items to avoid UI clutter in the Sidebar.
-   * We use optional chaining and a fallback array to prevent errors if events are undefined.
+   * Uses optional chaining to ensure stability during initial data loads.
    */
   const recommended = events
     ?.filter((event) => event.isRecommended === true)
@@ -30,15 +34,19 @@ const RecommendedEventsFeature = ({ events }) => {
 
   /**
    * Conditional Rendering:
-   * Prevents rendering an empty section if no recommendations exist 
-   * or if the event list hasn't loaded yet.
+   * If no events match the recommendation criteria, the component 
+   * returns null to keep the Sidebar clean and focused.
    */
   if (recommended.length === 0) {
     return null;
   }
 
   return (
-    <section className="w-full animate-fade-in">
+    <section 
+      className="w-full animate-in fade-in duration-700"
+      aria-labelledby="recommended-title"
+    >
+      <h3 id="recommended-title" className="sr-only">Recommended for you</h3>
       <RecommendedEvents events={recommended} />
     </section>
   );

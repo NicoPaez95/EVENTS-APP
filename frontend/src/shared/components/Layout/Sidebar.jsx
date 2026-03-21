@@ -5,31 +5,45 @@ import SavedEventsCalendar from "../../../user/components/SavedEventsCalendar";
 
 /**
  * Sidebar Component.
- * * * Acts as a composite layer that aggregates secondary features for the main application layout.
- * * It serves as a structural container that orchestrates auxiliary widgets 
- * such as weather, upcoming events, recommendations, and the user's saved calendar.
- * * This component ensures data synchronization by forwarding the 'events' collection 
- * to its child feature-orchestrators.
+ * * A composite layer that aggregates auxiliary features for the main application layout.
+ * It serves as a structural orchestrator for secondary widgets, such as weather 
+ * updates, upcoming event summaries, curated recommendations, and user-specific calendars.
+ * * Architectural Note:
+ * Following the Context API migration, this component no longer requires 
+ * manual prop drilling. Each internal Feature is now self-sufficient, 
+ * independently retrieving its required data.
  * * @component
  * @category Shared Components
- * @param {Object} props - Component properties.
- * @param {Array<Object>} props.events - The global or filtered event collection 
- * used to derive recommendations and upcoming summaries.
- * @returns {JSX.Element} A vertically spaced container with sidebar-specific feature widgets.
+ * @returns {JSX.Element} A vertically spaced container with autonomous sidebar widgets.
  */
-const Sidebar = ({ events }) => (
-  <div className="space-y-6" role="complementary" aria-label="Sidebar highlights">
-    
-    {/* WeatherFeature: Displays real-time weather based on user location */}
+const Sidebar = () => (
+  <div 
+    className="space-y-8" 
+    role="complementary" 
+    aria-label="Sidebar highlights and tools"
+  >
+    {/* WeatherFeature:
+      Provides real-time meteorological insights. In this context, it typically 
+      defaults to the user's current city or the event's venue location.
+    */}
     <WeatherFeature />
 
-    {/* UpcomingSidebarFeature: Highlights chronologically close events (Widget view) */}
-    <UpcomingSidebarFeature events={events} />
+    {/* UpcomingSidebarFeature:
+      A &quot;Smart&quot; orchestrator that filters the global event catalog 
+      to display only the most chronologically relevant entries.
+    */}
+    <UpcomingSidebarFeature />
 
-    {/* RecommendedEventsFeature: Processes the 'events' prop to show curated suggestions */}
-    <RecommendedEventsFeature events={events} />
+    {/* RecommendedEventsFeature:
+      Implements personalized suggestion logic based on global 
+      event data and user preferences stored in the Context.
+    */}
+    <RecommendedEventsFeature />
 
-    {/* SavedEventsCalendar: A compact view of the user's bookmarked events */}
+    {/* SavedEventsCalendar:
+      A compact, user-centric widget that displays bookmarked 
+      or &quot;favorite&quot; events from the user&apos;s personal domain.
+    */}
     <SavedEventsCalendar />
     
   </div>

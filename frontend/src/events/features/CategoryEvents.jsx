@@ -1,36 +1,45 @@
 import { categories } from '../data/categories.mock';
 import CategoryGrid from 'events/components/CategoryGrid';
+import { useEvents } from '../hooks/useEvents';
 
 /**
  * CategoryEvents Feature Component.
- * * This acts as a high-level container that orchestrates the display 
- * of all available event categories.
- * * It retrieves data from the category mock system and provides it 
- * to the CategoryGrid to maintain a clean separation between data 
- * management and presentation.
+ * * This "Smart Component" orchestrates the category selection experience.
+ * It encapsulates the business logic for category filtering by consuming 
+ * the global EventsContext, making it completely autonomous and 
+ * decoupled from page-level props.
  * * @component
  * @category Features
- * @param {Object} props - Component properties.
- * @param {Function} props.onCategoryClick - Callback function that bubbles up the selected category title to the parent (Home).
- * @returns {JSX.Element} The main feature section for category selection.
+ * @returns {JSX.Element} The orchestrated category selection section.
  */
-const CategoryEvents = ({ onCategoryClick }) => {
-  return (
-    <main>
-      {/* Page Title: Main heading for the category selection view */}
-      <h1 className="text-2xl font-bold text-center p-4 m-2">
-        Category
-      </h1>
+const CategoryEvents = () => {
+  /**
+   * Context Consumption:
+   * Retrieves the global handler for category selection. 
+   * This ensures that any click on the grid updates the application's 
+   * filtered event state globally.
+   */
+  const { handleCategorySelect } = useEvents();
 
-      {/* CategoryGrid: Presentational component that renders the list 
-        of categories. It receives the 'categories' data and the 
-        click handler to pass it down the component tree.
+  return (
+    <section aria-labelledby="categories-title">
+      {/* Feature Header */}
+      <h2 
+        id="categories-title"
+        className="text-2xl font-bold text-center p-4 m-2 font-display text-slate-900"
+      >
+        Browse by Category
+      </h2>
+
+      {/* Presentational Layer:
+        Passes the static mock data and the global context handler 
+        to the decoupled Grid component.
       */}
       <CategoryGrid 
         categories={categories} 
-        onCategoryClick={onCategoryClick} 
+        onCategoryClick={handleCategorySelect} 
       />
-    </main>
+    </section>
   );
 };
 

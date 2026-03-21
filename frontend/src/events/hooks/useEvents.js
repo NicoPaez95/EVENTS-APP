@@ -1,75 +1,39 @@
-// src/events/hooks/useEvents.js
-import { useState } from "react";
-import { events as mockData } from "../data/events.mock";
-import { filterEvents } from "../utils/filterEvents";
-import {
-  getTitleSuggestions, 
-  getCategorySuggestions,
-  getLocationSuggestions 
-} from "../utils/eventSuggestions";
+import { useContext } from 'react';
+import { EventsContext } from '../../shared/context/EventsContext';
 
 /**
- * Custom Hook to manage event-related business logic.
- * * This hook centralizes event state management, filtering execution, 
- * and provides specialized suggestion providers for the search interface.
+ * Custom Hook: useEvents.
+ * * This hook acts as a functional "Facade," encapsulating the complexity 
+ * of the React Context API for the entire events domain.
+ * * It provides a centralized point of access to the global event state, 
+ * including filtered collections, loading indicators, and orchestrated 
+ * handlers (search, category selection, etc.).
  * * @hook
- * @returns {{
- * events: Array<Object>,
- * handleSearch: function(Object): void,
- * handleCategorySelect: function(string): void,
- * suggestions: {
- * getTitle: function(string): Array<Object>,
- * getCategory: function(string): Array<string>,
- * getLocation: function(string): Array<string>
- * }
- * }} The event state and orchestrated logic handlers.
+ * @category Hooks
+ * @returns {Object} The complete EventsContext value.
+ * @property {Array<Object>} events - The currently filtered list of events.
+ * @property {boolean} loading - Global loading state for event data.
+ * @property {Function} handleSearch - Search orchestration handler.
+ * @property {Function} handleCategorySelect - Category filtering handler.
+ * @property {Object} suggestions - Provider functions for autocomplete inputs.
+ * * @throws {Error} If the hook is invoked outside of an <EventsProvider />, 
+ * preventing silent failures in the component tree.
  */
 export const useEvents = () => {
-  const [filteredEvents, setFilteredEvents] = useState(mockData);
-
+  const context = useContext(EventsContext);
+  
   /**
-   * Orchestrates the event filtering process.
-   * * Applies the filtering logic to the full event catalog and updates 
-   * the local state with the results.
-   * * @param {Object} filters - Search criteria.
-   * @param {string} [filters.searchTerm=""] - Text to match in event titles.
-   * @param {string} [filters.category=""] - Selected category filter.
-   * @param {string} [filters.date=""] - Target date string.
-   * @param {string} [filters.location=""] - Target city or venue location.
+   * Defensive Programming:
+   * Ensures that the hook is only used within its designated Provider.
+   * This provides an immediate, descriptive error in the console 
+   * during development if the architectural boundary is breached.
    */
-  const handleSearch = (filters) => {
-    const results = filterEvents(mockData, filters);
-    setFilteredEvents(results);
-  };
-
-  /**
-   * Specifically handles category selection from UI elements.
-   * * Triggers a search filtered by the selected category and 
-   * performs a smooth scroll to the events display section.
-   * * @param {string} categoryName - The title of the category to filter by (e.g., 'All', 'Music').
-   */
-  const handleCategorySelect = (categoryName) => {
-    // FIX: Normalize 'All' to an empty string to reset the category filter
-    const filterValue = categoryName === 'All' ? '' : categoryName;
-    
-    // Use the normalized value to perform the search
-    handleSearch({ category: filterValue });
-
-    // Ensure UX confirmation by scrolling to the results
-    window.scrollTo({ top: 800, behavior: 'smooth' });
-  };
-
-  return {
-    events: filteredEvents,
-    handleSearch,
-    handleCategorySelect,
-    suggestions: {
-      /** @param {string} query */
-      getTitle: (query) => getTitleSuggestions(mockData, query),
-      /** @param {string} query */
-      getCategory: (query) => getCategorySuggestions(mockData, query),
-      /** @param {string} query */
-      getLocation: (query) => getLocationSuggestions(mockData, query),
-    }
-  };
+  if (!context) {
+    throw new Error(
+      '[useEvents Error]: This hook must be used within an <EventsProvider>. ' +
+      'Check your App.jsx or Main.jsx to ensure the provider wraps this component tree.'
+    );
+  }
+  
+  return context;
 };
