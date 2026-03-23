@@ -1,31 +1,27 @@
 import { EventsProvider } from './shared/context/EventsContext';
+import { UserProvider } from './user/context/UserContext';
 import AppRouter from './router/AppRouter';
 
 /**
  * Root Application Component.
- * * The entry point of the React application. It establishes the 
- * high-level architectural hierarchy by wrapping the entire routing 
- * system with the necessary global state providers.
- * * This ensures that every route managed by AppRouter (Home, EventDetails, etc.) 
- * has immediate access to the EventsContext via the useEvents hook.
+ * * This component serves as the entry point of the React application. 
+ * It establishes the Global State Layer by nesting Domain Context Providers.
+ * * Architectural Note: 
+ * Providers are stacked based on data dependency. Since User actions (like saving events) 
+ * might eventually depend on the global Events list, UserProvider is nested within EventsProvider.
  * * @component
  * @category Core
- * @returns {JSX.Element} The foundational component tree of the Events App.
+ * @returns {JSX.Element} The high-level provider tree and application router.
  */
 function App() {
   return (
     <EventsProvider>
-      {/* Domain Providers:
-          Centralizes the state for the &quot;Events&quot; domain. 
-          Any future providers (e.g., AuthProvider, UserProvider) 
-          should be stacked here to maintain a clean root structure.
-      */}
-
-      <AppRouter />
-      
-      {/* Navigation Layer:
-          Handles the client-side routing and page transitions.
-      */}
+      <UserProvider>
+        
+        {/* Main Application Routing Logic */}
+        <AppRouter />
+        
+      </UserProvider>
     </EventsProvider>
   );
 }

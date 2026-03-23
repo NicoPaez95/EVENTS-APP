@@ -7,17 +7,19 @@
 
 {
   "env": {
-    "browser": true, // Habilita globales como 'window' o 'document'
-    "es2021": true   // Permite sintaxis moderna (Optional Chaining, etc.)
+    "browser": true,
+    "es2021": true
   },
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:jsdoc/recommended" // Crítico: Valida que tus JSDoc estén bien escritos
+    "plugin:jsdoc/recommended"
   ],
   "parserOptions": {
-    "ecmaFeatures": { "jsx": true },
+    "ecmaFeatures": {
+      "jsx": true
+    },
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
@@ -25,33 +27,42 @@
   "rules": {
     /** * React Rules 
      * ------------
-     * 'react-in-jsx-scope': off -> Desde React 17+, no hace falta importar React en cada archivo.
-     * 'prop-types': off -> Delegamos la validación a JSDoc para evitar redundancia.
+     * 'react-in-jsx-scope': off -> React 17+ doesn't require importing React in every file.
+     * 'prop-types': off -> We delegate validation to JSDoc for better DX.
      */
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
 
     /** * JSDoc Enforcement
      * -----------------
-     * Estas reglas aseguran que no te olvides de describir tus funciones 
-     * y que los tipos definidos realmente existan.
+     * Ensures functions are described and types actually exist.
      */
     "jsdoc/require-description": "warn",
     "jsdoc/check-indentation": "warn",
     "jsdoc/require-param-description": "warn",
-    "jsdoc/no-undefined-types": "error", // Evita que inventes tipos sin @typedef
+    
+    /**
+     * Fix for [jsdoc/no-undefined-types]:
+     * We explicitly allow React-specific types that are global in our project.
+     */
+    "jsdoc/no-undefined-types": ["error", { 
+      "definedTypes": ["React", "JSX", "ReactNode", "MouseEvent", "ReactElement"] 
+    }],
 
     /** * Code Hygiene 
      * ------------
      */
-    "no-unused-vars": "warn", // Te avisa si dejaste basura (variables sin usar)
-    "no-console": ["warn", { "allow": ["warn", "error"] }] // Limita el ruido en la consola
+    "no-unused-vars": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
   },
   "settings": {
+    "react": {
+      "version": "detect"
+    },
     "jsdoc": {
-      "mode": "typescript", // Truco de experto: Permite usar tipos complejos de TS en JSDoc
-      "preferredTypes": {
-        "JSX.Element": "JSX.Element"
+      "mode": "typescript",
+      "tagNamePreference": {
+        "returns": "returns"
       }
     }
   }
