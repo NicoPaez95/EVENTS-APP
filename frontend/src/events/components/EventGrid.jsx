@@ -14,9 +14,15 @@ import EventCard from './EventCard';
  * @param {string} props.events[].date - Scheduled date and time.
  * @param {string} props.events[].location - Venue or geographic location.
  * @param {string} props.events[].category - Event classification (e.g., Music, Sports).
+ * @param {Function} props.onToggleSave - Callback triggered to save/unsave an event. Receives (eventId).
+ * @param {Function} props.isEventSaved - Utility function to check the saved status. Receives (eventId) and returns Boolean.
  * @returns {JSX.Element} A responsive CSS Grid containing the mapped EventCards.
  */
-const EventGrid = ({ events = [] }) => (
+const EventGrid = ({ 
+  events = [], 
+  onToggleSave, 
+  isEventSaved 
+}) => (
   <div 
     className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
     role="list"
@@ -26,12 +32,13 @@ const EventGrid = ({ events = [] }) => (
       /**
        * Spread Operator Implementation:
        * We use {...event} to deconstruct the object and pass each property 
-       * (id, title, date, etc.) as an individual prop to the EventCard.
-       * This maintains compatibility with the EventCard's prop expectations.
+       * to the EventCard. We manually inject the persistence logic from the orchestrator.
        */
       <EventCard 
         key={event.id} 
         {...event} 
+        onToggleSave={onToggleSave}
+        isSaved={isEventSaved ? isEventSaved(event.id) : false}
       />
     ))}
   </div>
