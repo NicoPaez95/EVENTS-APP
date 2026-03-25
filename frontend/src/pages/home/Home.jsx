@@ -1,47 +1,44 @@
 import HomeLayout from "../../shared/components/Layout/HomeLayout";
-import EventDiscovery from "../../events/features/EventDiscovery";
 import FeaturedEvents from "../../events/features/FeaturedEvents";
 import CategoryEvents from "../../events/features/CategoryEvents";
 import Events from "../../events/features/Events";
 
 /**
- * Main Landing Page Component.
- * * This component serves as the high-level Composition Layer for the ticketing platform. 
- * It organizes core event features (Discovery, Featured, Categories, and Results) 
- * into a cohesive user experience.
+ * Home Page Component.
+ * * This component serves as the high-level Composition Layer for the application's 
+ * landing experience. It orchestrates specialized event features within the 
+ * global structural layout.
  * * Architectural Note:
- * Following the migration to React Context, this page is now "Prop-Drilling Free." 
- * Features like EventDiscovery and CategoryEvents are self-sufficient units 
- * that consume the global state independently via the useEvents hook.
+ * Following the "Composition over Configuration" principle, this page is strictly 
+ * declarative. It delegates all data fetching and state logic to self-sufficient 
+ * Feature components, ensuring a "Prop-Drilling Free" architecture.
  * * @component
  * @category Pages
- * @returns {JSX.Element} The rendered landing page orchestrating autonomous event features.
+ * @returns {JSX.Element} The rendered Home page composed of autonomous event features.
  */
 const Home = () => {
   return (
     <HomeLayout>
       
-      {/* EventDiscovery: 
-          Autonomous Search Feature. Internally handles search intent 
-          and autocomplete providers from the EventsContext. 
-      */}
-      <EventDiscovery />
-      
-      {/* FeaturedEvents: 
-          High-priority or trending events section. 
-      */}
+      {/**
+       * FeaturedEvents: 
+       * Renders high-priority or trending experiences. 
+       * Consumes global state via useEvents hook.
+       */}
       <FeaturedEvents />
 
-      {/* CategoryEvents: 
-          Interactive filtering grid. Independently handles category selection 
-          logic by communicating directly with the global state. 
-      */}
+      {/**
+       * CategoryEvents: 
+       * Provides an interactive grid for domain-specific filtering. 
+       * Updates the global EventsContext on user interaction.
+       */}
       <CategoryEvents />
 
-      {/* Events: 
-          Dynamic result area. Automatically re-renders the filtered 
-          event collection whenever the context state changes. 
-      */}
+      {/**
+       * Events: 
+       * The primary results display area. Automatically synchronizes 
+       * with the filtered collection provided by the context.
+       */}
       <Events />
 
     </HomeLayout>
