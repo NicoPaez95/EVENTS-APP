@@ -1,17 +1,18 @@
 /**
  * Advanced event filtering utility with adaptive logic.
  * * This function performs a multi-layered search:
- * 1. **Strict Match**: Filters by all provided criteria (AND logic).
- * 2. **Adaptive Fallback**: If no strict matches are found, it expands the search:
+ * 1. **Strict Match**: Filters by all provided criteria using AND logic.
+ * 2. **Adaptive Fallback**: If no strict matches are found, it expands the scope:
  * - Date: Searches for events within a +/- 3-day window.
- * - Location/Category: Relaxes constraints to find partial matches.
+ * - Location/Category/SearchTerm: Relaxes constraints to find partial matches.
  * * @function
- * @param {Array<Object>} events - The complete array of event objects.
- * @param {Object} filters - Search criteria.
- * @param {string} [filters.searchTerm=""] - Global text to match across title, category, or location.
- * @param {string} [filters.category=""] - Specific category filter. Use 'all' to bypass category filtering.
+ * @category Utils/Events
+ * @param {Array<Object>} events - The complete array of event objects from the master catalog.
+ * @param {Object} filters - The search criteria provided by the user.
+ * @param {string} [filters.searchTerm=""] - Global text to match across title, category, or city.
+ * @param {string} [filters.category=""] - Specific category filter. 'All' is treated as no filter.
  * @param {string} [filters.date=""] - Target date string in YYYY-MM-DD format.
- * @param {string} [filters.location=""] - Specific city or venue filter.
+ * @param {string} [filters.location=""] - Specific city or venue name filter.
  * @returns {Array<Object>} A filtered and prioritized subset of events.
  */
 export const filterEvents = (events, filters) => {
@@ -24,29 +25,34 @@ export const filterEvents = (events, filters) => {
   let results = events.filter((event) => {
     const term = searchTerm?.toLowerCase();
     
+    // Check global search term across Title, Category, and City (Venue)
     const matchesSearch = term
-      ? event.title.toLowerCase().includes(term) || 
-        event.category.toLowerCase().includes(term) ||
-        event.location.toLowerCase().includes(term)
+      ? event.title?.toLowerCase().includes(term) || 
+        event.category?.toLowerCase().includes(term) ||
+        event.venue?.city?.toLowerCase().includes(term)
       : true;
 
+    // Check specific category
     const matchesCategory = category
-      ? event.category.toLowerCase().includes(category.toLowerCase())
+      ? event.category?.toLowerCase().includes(category.toLowerCase())
       : true;
 
+    // Check specific location (City)
     const matchesLocation = location
-      ? event.location.toLowerCase().includes(location.toLowerCase())
+      ? event.venue?.city?.toLowerCase().includes(location.toLowerCase())
       : true;
 
+    // Check strict date match
     const matchesDate = date ? event.date === date : true;
 
     return matchesSearch && matchesCategory && matchesLocation && matchesDate;
   });
 
-  // --- STAGE 2: Adaptive Fallback (If no results found) ---
+  // --- STAGE 2: Adaptive Fallback (Triggered if strict results are empty) ---
   if (results.length === 0) {
     
     // Fallback A: Date Proximity Search (+/- 3 days)
+    // Only triggers if the user provided a date without other text constraints
     if (date && !searchTerm && !category && !location) {
       const targetDate = new Date(date);
       results = events.filter((event) => {
@@ -57,13 +63,13 @@ export const filterEvents = (events, filters) => {
       }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
 
-    // Fallback B: Partial Term Matching
+    // Fallback B: Partial/Relaxed Term Matching
     if (results.length === 0 && (category || location || searchTerm)) {
       results = events.filter((event) => {
         return (
-          (category && event.category.toLowerCase().includes(category.toLowerCase())) ||
-          (location && event.location.toLowerCase().includes(location.toLowerCase())) ||
-          (searchTerm && event.title.toLowerCase().includes(searchTerm.toLowerCase()))
+          (category && event.category?.toLowerCase().includes(category.toLowerCase())) ||
+          (location && event.venue?.city?.toLowerCase().includes(location.toLowerCase())) ||
+          (searchTerm && event.title?.toLowerCase().includes(searchTerm.toLowerCase()))
         );
       });
     }

@@ -1,43 +1,56 @@
-import { useEvents } from 'events/hooks/useEvents';
+import { useMemo } from 'react';
+import { useEvents } from '../hooks/useEvents';
 import UpcomingEvents from '../components/UpcomingEvents';
 
 /**
  * UpcomingSidebarFeature Component.
- * * This "Smart Component" orchestrates the sidebar experience by 
- * retrieving the global event catalog and preparing it for the sidebar UI.
- * * It acts as a data-driven bridge, isolating the complex logic of 
- * sorting or limiting the event list from the presentational 'UpcomingEvents' component.
+ * * A "Smart Component" (Feature Orchestrator) that manages the data logic for the
+ * upcoming events section in the sidebar.
  * * @component
- * @category Features
- * @returns {JSX.Element} The orchestrated sidebar section with a curated event list.
+ * @category Features/Events
+ * @description
+ * **Architectural Strategy**:
+ * This feature specifically consumes `allEvents` (the master catalog) instead of 
+ * the filtered `events` array. This ensures that the sidebar remains persistent 
+ * and unaffected by user-applied search filters or category selections in the 
+ * main application view.
+ * * @hooks
+ * - `useEvents`: Accesses the global event context.
+ * - `useMemo`: Optimizes performance by memoizing the sliced event list.
+ * * @returns {JSX.Element|null} The orchestrated sidebar section or null if no data exists.
  */
 const UpcomingSidebarFeature = () => {
   /**
-   * Data Retrieval and Preparation:
-   * Consumes the global event state and applies sidebar-specific constraints.
-   * In a production environment, this is where we would implement 
-   * chronological sorting or limit the result count (e.g., top 5 upcoming).
+   * Global State Consumption:
+   * We extract 'allEvents' to ensure the sidebar displays the chronological 
+   * roadmap regardless of the current search/filter state.
    */
-  const { events } = useEvents();
+  const { allEvents } = useEvents();
 
   /**
-   * Selection Strategy:
-   * We slice the first 5 events to prevent the sidebar from becoming 
-   * excessively long, ensuring a balanced layout.
+   * Data Preparation:
+   * Slices the master catalog to display the top 5 upcoming events.
+   * Memoized to prevent re-calculations during unrelated parent re-renders.
    */
-  const sidebarEvents = events.slice(0, 5);
+  const sidebarEvents = useMemo(() => {
+    return allEvents?.slice(0, 5) || [];
+  }, [allEvents]);
+
+  /**
+   * Conditional Rendering:
+   * Prevents rendering an empty section if the event catalog hasn't loaded 
+   * or is empty, maintaining a clean UI.
+   */
+  if (sidebarEvents.length === 0) {
+    return null;
+  }
 
   return (
-    /**
-     * Structural wrapper:
-     * Isolates data fetching from UI rendering. This ensures that 
-     * 'UpcomingEvents' remains a pure, atomic presentational component.
-     */
     <section 
       className="animate-in fade-in duration-700" 
       aria-label="Upcoming events sidebar"
     >
-        <UpcomingEvents events={sidebarEvents} />
+      <UpcomingEvents events={sidebarEvents} />
     </section>
   );
 };

@@ -1,53 +1,53 @@
 import { Link } from 'react-router-dom';
 
 /**
- * @typedef {Object} Event
- * @property {string|number} id - Unique identifier for the event.
- * @property {string} title - The official name or headline of the event.
- * @property {string} date - Event date in YYYY-MM-DD format.
- * @property {string} location - Venue, city, or geographical point.
- * @property {boolean} isRecommended - Indicates if the event should be highlighted.
- */
-
-/**
- * RecommendedEvents Component.
- * * Renders a vertical list of curated event previews. Each item acts as a 
- * navigation link to the specific event's detail page.
- * * Features:
- * - Subtle sky-blue container background.
- * - Interactive card items with border-color and shadow transitions on hover.
- * - Integration with React Router for seamless navigation.
+ * RecommendedEvents Presentational Component.
+ * * Renders a curated vertical list of event previews specifically designed 
+ * for the application sidebar. Each card serves as a navigation link 
+ * to the detailed view of the event.
  * * @component
+ * @category Components/Events
  * @param {Object} props - Component properties.
- * @param {Event[]} props.events - A collection of event objects to be displayed.
- * @returns {JSX.Element} A themed section containing a stack of navigable event cards.
+ * @param {Array<Object>} props.events - A collection of event objects to be displayed.
+ * @returns {JSX.Element} A themed container with a stack of navigable event cards.
  */
 const RecommendedEvents = ({ events }) => {
   return (
-    <section className="bg-sky-50 p-6 rounded-2xl shadow-md border border-slate-200">
-      <h2 className="text-xl font-semibold text-slate-800 mb-4">
+    <section 
+      className="bg-sky-50 p-5 rounded-2xl shadow-sm border border-slate-200"
+      aria-labelledby="recommended-heading"
+    >
+      <h2 
+        id="recommended-heading" 
+        className="text-lg font-bold text-slate-800 mb-4 px-1"
+      >
         Recommended Events
       </h2>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {events.map((event) => (
           <Link 
             key={event.id} 
             to={`/events/${event.id}`} 
             className="block group"
+            aria-label={`View details for ${event.title}`}
           >
-            <article className="bg-white p-4 rounded-xl shadow-sm border border-slate-300 hover:shadow-md hover:border-blue-400 transition-all duration-300 cursor-pointer">
-              <h3 className="text-lg font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
+            <article className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 group-hover:border-blue-400 group-hover:shadow-md transition-all duration-300">
+              <h3 className="text-md font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                 {event.title}
               </h3>
 
               <div className="mt-2 space-y-1">
-                <p className="text-sm text-slate-600 flex items-center gap-2">
-                  <span>📅</span> {event.date}
+                {/* Event Date Info */}
+                <p className="text-xs text-slate-600 flex items-center gap-2">
+                  <span role="img" aria-label="Date symbol">📅</span> 
+                  {event.date}
                 </p>
 
-                <p className="text-sm text-slate-500 flex items-center gap-2">
-                  <span>📍</span> {event.location}
+                {/* Event Location Info - Mapping to venue.city */}
+                <p className="text-xs text-slate-500 flex items-center gap-2">
+                  <span role="img" aria-label="Location symbol">📍</span> 
+                  {event.venue?.city || 'Location TBD'}
                 </p>
               </div>
             </article>
