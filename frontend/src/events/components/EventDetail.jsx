@@ -1,65 +1,43 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../user/hooks/useAuth'; 
-import CheckoutModal from '../features/CheckoutModal/CheckoutModal';
-
 /**
- * EventDetail Component.
- * * A high-level component that displays full information for a specific event.
- * It manages the entry point to the checkout flow and handles authentication
- * redirects if a guest tries to purchase tickets.
+ * EventDetail Component (Presentational/Dumb).
+ * * This is a purely visual "Dumb Component". Its sole responsibility is 
+ * to render the detailed information of a specific event.
+ * * Architecture:
+ * - Decoupled from business logic and global state (Context).
+ * - Receives all necessary actions and states via props.
+ * - Implements basic accessibility (aria-labels and hidden decorative icons).
  * * @component
  * @category Components/Events
  * * @param {Object} props - Component properties.
- * @param {Object} props.event - The event data object.
- * @param {string} props.event.id - Unique event identifier.
- * @param {string} props.event.title - Event name.
- * @param {string} props.event.date - ISO date string.
- * @param {string} props.event.location - Venue description.
- * @param {string} props.event.category - Event classification.
- * @param {string} [props.event.image] - Hero image URL.
- * @param {string} [props.event.description] - Detailed text about the event.
- * * @returns {JSX.Element|null} The rendered event detail view.
+ * @param {Object} props.event - Event data object.
+ * @param {string|number} props.event.id - Unique identifier for the event.
+ * @param {string} props.event.title - Title or name of the experience.
+ * @param {string} props.event.category - Event category (e.g., Music, Tech, Sports).
+ * @param {string} props.event.date - Event date in ISO format or string.
+ * @param {string} props.event.location - Venue or city where the event takes place.
+ * @param {string} [props.event.image] - Main image URL (optional).
+ * @param {string} [props.event.description] - Detailed description of the event (optional).
+ * @param {boolean} props.isAuthenticated - User's auth state (passed down from Feature/Smart component).
+ * @param {Function} props.onSecureTickets - Handler to initiate the purchase flow or login redirection.
+ * @param {Function} props.onBack - Handler to execute back navigation.
+ * * @returns {JSX.Element|null} The rendered component or null if no event data is provided.
  */
-const EventDetail = ({ event }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { isAuthenticated } = useAuth();
+const EventDetail = ({ 
+  event, 
+  isAuthenticated, 
+  onSecureTickets, 
+  onBack 
+}) => {
   
-  /** @type {[boolean, Function]} State to manage the visibility of the CheckoutModal. */
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-
   if (!event) return null;
-
-  /**
-   * Handles the primary action for securing tickets.
-   * If the user is unauthenticated, redirects to the login page and saves the 
-   * current path for post-login redirection.
-   * Otherwise, it triggers the checkout process.
-   * * @function
-   */
-  const handleSecureTickets = () => {
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: location.pathname } });
-      return;
-    }
-    setIsCheckoutOpen(true);
-  };
 
   return (
     <article className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
       
-      {/* Checkout Orchestrator Modal */}
-      <CheckoutModal 
-        isOpen={isCheckoutOpen} 
-        onClose={() => setIsCheckoutOpen(false)} 
-        event={event} 
-      />
-
       {/* Navigation Header */}
       <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={onBack}
           className="text-gray-600 hover:text-blue-600 flex items-center gap-2 font-medium transition-colors"
           aria-label="Go back to exploration"
         >
@@ -80,6 +58,7 @@ const EventDetail = ({ event }) => {
           />
           <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg text-center shadow-md border border-white/20">
             <span className="block text-2xl font-bold text-blue-600 leading-none">
+              {/* Note: +1 to compensate for timezone offsets in Date objects if necessary */}
               {new Date(event.date).getDate() + 1}
             </span>
             <span className="text-xs uppercase font-bold text-gray-500">
@@ -129,7 +108,7 @@ const EventDetail = ({ event }) => {
 
           {/* Call to Action Button */}
           <button 
-            onClick={handleSecureTickets}
+            onClick={onSecureTickets}
             className="mt-10 w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-md shadow-blue-100"
           >
             {isAuthenticated ? 'Secure Tickets' : 'Login to Secure Tickets'}

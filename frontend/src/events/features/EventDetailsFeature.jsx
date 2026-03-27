@@ -1,102 +1,131 @@
-import { useParams } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+
+// Domain Hooks
 import { useEvents } from '../hooks/useEvents';
+import { useAuth } from '../../user/hooks/useAuth';
+
+// UTILS
+import { getRelatedEvents } from '../utils/recommendationEngine';
+
+// Features & Integrations
+import CheckoutModal from '../features/CheckoutModal/CheckoutModal';
+import WeatherFeature from '../features/WeatherFeature';
+
+// Presentational Components
 import EventDetail from '../components/EventDetail';
 import EventGrid from '../components/EventGrid';
-import WeatherFeature from './WeatherFeature';
+
+// Shared UI (Atoms)
+import LoadingState from '../../shared/components/UI/LoadingState';
 
 /**
  * EventDetailsFeature Component.
- * * This feature-level orchestrator manages the entire experience of the event detail view.
- * It is responsible for:
- * 1. Extracting the event identity from the URL parameters.
- * 2. Retrieving and filtering the global event catalog to find the target event.
- * 3. Implementing a 3-tier adaptive recommendation engine (Category > Location > General).
- * 4. Integrating contextual weather data by passing the event's location to the WeatherFeature.
+ * * An orchestrator (Smart Component) that manages the complete event detail view experience.
  * * @component
- * @category Features
- * @returns {JSX.Element} The orchestrated event detail view with suggestions and weather insights.
+ * @category Features/Events
+ * * @description
+ * This component acts as a high-level Feature Orchestrator with the following responsibilities:
+ * 1. **State Selection**: Retrieves the specific event by ID from the global state.
+ * 2. **Auth Guarding**: Manages the secure ticket flow by checking authentication status.
+ * 3. **Smart Redirection**: Implements "Deep Linking" for the login flow, allowing users to return 
+ * to the current page after authenticating.
+ * 4. **Business Logic**: Executes the Recommendation Engine to find similar experiences.
+ * 5. **Contextual Integration**: Passes location data to third-party integrations (Weather API).
+ * * @hooks
+ * - `useParams`: Extracts the `:id` parameter from the URL.
+ * - `useNavigate` / `useLocation`: Handles intelligent navigation and state preservation.
+ * - `useEvents`: Consumes the global events domain state.
+ * - `useAuth`: Consumes the global user authentication state.
+ * * @returns {JSX.Element} The orchestrated layout including loading, error, and success states.
  */
 const EventDetailsFeature = () => {
-  /** * @type {{ id: string }} Route parameters from react-router 
-   */
   const { id } = useParams();
-
-  /** * @type {{ events: Array<Object>, loading: boolean }} Custom hook state 
-   */
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  
   const { events, loading } = useEvents();
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   /**
-   * Target Event Selection:
-   * Finds the specific event matching the URL parameter.
-   * Safe comparison is used to handle potential type mismatches between mock IDs and URL strings.
-   * @type {Object|undefined}
+   * Memoized target event selection.
+   * Ensures the lookup doesn't re-run unless the global events list or URL ID changes.
    */
-  const event = events.find(e => String(e.id) === String(id));
+  const event = useMemo(() => {
+    return events.find(e => String(e.id) === String(id));
+  }, [events, id]);
 
   /**
-   * Adaptive Related Events Logic:
-   * Hierarchical filtering strategy to ensure the "Similar Experiences" section is always populated.
-   * Fallback sequence: Same Category -> Same Location -> Any other upcoming events.
-   * * @returns {Array<Object>} A curated list of up to 3 related event objects.
+   * handleSecureTickets:
+   * Handles the business logic for the conversion funnel.
+   * If unauthenticated, it redirects to login while saving the current pathname 
+   * in the Router state to enable post-login redirection.
    */
-  const relatedEvents = (() => {
-    if (!event) return [];
-
-    // Tier 1: Match by Category (excluding the current event)
-    const byCategory = events.filter(e => e.category === event.category && e.id !== event.id);
-    if (byCategory.length > 0) return byCategory.slice(0, 3);
-
-    // Tier 2: Match by Location/Venue (excluding the current event)
-    const byLocation = events.filter(e => e.location === event.location && e.id !== event.id);
-    if (byLocation.length > 0) return byLocation.slice(0, 3);
-
-    // Tier 3: General Fallback (to maintain UI density)
-    return events.filter(e => e.id !== event.id).slice(0, 3);
-  })();
-
-  // --- Conditional Rendering Logic ---
+  const handleSecureTickets = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+    } else {
+      setIsCheckoutOpen(true);
+    }
+  };
 
   /**
-   * Global Loading State:
-   * Prevents layout shifts while the event catalog is being retrieved.
+   * relatedEvents:
+   * Memoized result of the recommendation engine.
+   * Filters events by hierarchy (Category > Location > General) to optimize UI secondary area.
    */
+  const relatedEvents = useMemo(() => {
+    return getRelatedEvents(event, events);
+  }, [event, events]);
+
+  // --- Rendering States: Loading & Error ---
+
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-slate-600 animate-pulse">Loading experience details...</p>
-      </div>
-    );
+    return <LoadingState message="Loading experience details..." />;
   }
 
-  /**
-   * Not Found State:
-   * Standardized error message for invalid IDs or removed content.
-   */
   if (!event) {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-slate-800">Event not found</h2>
         <p className="text-slate-500 mt-2">The experience you are looking for might have moved or ended.</p>
+        <button 
+          onClick={() => navigate('/events')}
+          className="mt-6 text-blue-600 font-medium hover:underline"
+        >
+          ← Back to all events
+        </button>
       </div>
     );
   }
 
+  // --- Main Render: Success ---
+
   return (
-    <div className="container mx-auto py-8 space-y-12 animate-fade-in">
+    <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500">
       
-      {/* Primary Content Area:
-          Renders the core presentation of the event's data.
-      */}
+      {/* Checkout Orchestration */}
+      <CheckoutModal 
+        isOpen={isCheckoutOpen} 
+        onClose={() => setIsCheckoutOpen(false)} 
+        event={event} 
+      />
+
+      {/* Primary Content: Event Detail Presentation */}
       <section aria-label="Event Details">
-        <EventDetail event={event} />
+        <EventDetail 
+          event={event} 
+          isAuthenticated={isAuthenticated}
+          onSecureTickets={handleSecureTickets}
+          onBack={() => navigate(-1)}
+        />
       </section>
 
-      {/* Secondary Content Area:
-          Adaptive grid that balances internal recommendations and external context (Weather).
-      */}
+      {/* Secondary Content: Recommendations and Venue Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Recommendations Column */}
+        {/* Recommendation Column */}
         <div className="lg:col-span-2">
           <h3 className="text-2xl font-bold text-slate-900 mb-6 font-display">
             Similar Experiences
@@ -104,21 +133,18 @@ const EventDetailsFeature = () => {
           <EventGrid events={relatedEvents} />
         </div>
         
-        {/* Contextual Information Column (Sidebar Style) */}
+        {/* Venue Information Sidebar */}
         <aside className="lg:col-span-1 space-y-6">
           <h3 className="text-2xl font-bold text-slate-900 mb-6 font-display">
             Venue Information
           </h3>
           
-          {/* WeatherFeature Orchestration:
-              Passes the event's specific location to fetch relevant meteorological data.
-          */}
           <WeatherFeature location={event.location} />
           
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
             <p className="text-sm text-slate-600 italic">
               Weather data is provided for <strong>{event.location}</strong>. 
-              Please consider this when planning your visit to the venue.
+              Please consider this when planning your visit.
             </p>
           </div>
         </aside>
