@@ -1,3 +1,4 @@
+import { NotificationProvider } from './user/context/NotificationContext';
 import { AuthProvider } from './user/context/AuthContext';
 import { EventsProvider } from './shared/context/EventsContext';
 import { UserProvider } from './user/context/UserContext';
@@ -7,11 +8,14 @@ import AppRouter from './router/AppRouter';
  * Root Application Component.
  * * This component serves as the definitive entry point for the React application. 
  * It establishes the "Global State Layer" by nesting specialized Domain Context Providers.
- * * Architectural Note:
- * Providers are stacked based on data dependency and lifecycle priority:
- * 1. AuthProvider: Top-level, as identity dictates access to all other data.
- * 2. EventsProvider: Global catalog of experiences available to all users.
- * 3. UserProvider: Nested here because user actions (e.g., saving an event) 
+ * * Architectural Note (The Provider Stack):
+ * Providers are nested based on data dependency and lifecycle priority:
+ * 1. NotificationProvider: Outermost, as UI feedback must be available even if 
+ * Auth or Data layers fail.
+ * 2. AuthProvider: Identity layer, as user credentials dictate access to 
+ * protected data.
+ * 3. EventsProvider: Domain catalog available to all users (Guest or Auth).
+ * 4. UserProvider: Nested here because user actions (e.g., saving an event) 
  * directly depend on the existence of the Events catalog.
  * * @component
  * @category Core
@@ -20,34 +24,42 @@ import AppRouter from './router/AppRouter';
 function App() {
   return (
     /**
-     * Identity Layer:
-     * Manages session status and user credentials globally.
+     * UI Feedback Layer:
+     * High-level service for global toasts and alerts.
      */
-    <AuthProvider>
-      
+    <NotificationProvider>
+
       {/**
-       * Domain Data Layer:
-       * Orchestrates the global collection of events and filtering logic.
+       * Identity Layer:
+       * Manages session status and user credentials globally.
        */}
-      <EventsProvider>
-        
+      <AuthProvider>
+      
         {/**
-         * User-specific Data Layer:
-         * Manages bookmarks, preferences, and personal collections.
+         * Domain Data Layer:
+         * Orchestrates the global collection of events and filtering logic.
          */}
-        <UserProvider>
+        <EventsProvider>
           
           {/**
-           * Routing & Navigation Layer:
-           * The actual UI entry point that maps URLs to Page components.
+           * User-specific Data Layer:
+           * Manages bookmarks, preferences, and personal collections.
            */}
-          <AppRouter />
+          <UserProvider>
+            
+            {/**
+             * Routing & Navigation Layer:
+             * The actual UI entry point that maps URLs to Page components.
+             */}
+            <AppRouter />
+            
+          </UserProvider>
           
-        </UserProvider>
+        </EventsProvider>
         
-      </EventsProvider>
-      
-    </AuthProvider>
+      </AuthProvider>
+
+    </NotificationProvider>
   );
 }
 
