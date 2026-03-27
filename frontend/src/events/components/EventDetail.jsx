@@ -1,117 +1,127 @@
 /**
- * EventDetail Component (Presentational/Dumb).
- * * This is a purely visual "Dumb Component". Its sole responsibility is 
- * to render the detailed information of a specific event.
- * * Architecture:
- * - Decoupled from business logic and global state (Context).
- * - Receives all necessary actions and states via props.
- * - Implements basic accessibility (aria-labels and hidden decorative icons).
+ * EventDetail Component (Presentational).
+ * * This "Dumb" component is responsible for rendering the full details of an event.
+ * It features an interactive location section that triggers a map focus on the parent feature.
  * * @component
  * @category Components/Events
- * * @param {Object} props - Component properties.
- * @param {Object} props.event - Event data object.
- * @param {string|number} props.event.id - Unique identifier for the event.
- * @param {string} props.event.title - Title or name of the experience.
- * @param {string} props.event.category - Event category (e.g., Music, Tech, Sports).
- * @param {string} props.event.date - Event date in ISO format or string.
- * @param {string} props.event.location - Venue or city where the event takes place.
- * @param {string} [props.event.image] - Main image URL (optional).
- * @param {string} [props.event.description] - Detailed description of the event (optional).
- * @param {boolean} props.isAuthenticated - User's auth state (passed down from Feature/Smart component).
- * @param {Function} props.onSecureTickets - Handler to initiate the purchase flow or login redirection.
- * @param {Function} props.onBack - Handler to execute back navigation.
- * * @returns {JSX.Element|null} The rendered component or null if no event data is provided.
+ * * @param {Object} props
+ * @param {Object} props.event - The event data object containing title, description, and venue.
+ * @param {boolean} props.isAuthenticated - Flag indicating if the user is logged in.
+ * @param {Function} props.onSecureTickets - Callback to initiate the ticket purchase flow.
+ * @param {Function} props.onBack - Callback to navigate to the previous view.
+ * @param {Function} props.onLocationClick - Callback to trigger the map scroll/focus effect.
+ * * @returns {JSX.Element|null} The rendered event detail view or null if no event is provided.
  */
 const EventDetail = ({ 
   event, 
   isAuthenticated, 
   onSecureTickets, 
-  onBack 
+  onBack,
+  onLocationClick 
 }) => {
   
   if (!event) return null;
 
+  // Formatting date for the UI badge
+  const eventDate = new Date(event.date);
+  const day = eventDate.getUTCDate();
+  const month = eventDate.toLocaleString('en-US', { month: 'short' });
+
   return (
-    <article className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+    <article className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
       
-      {/* Navigation Header */}
-      <div className="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+      {/* Navigation Header: Provides context and back navigation */}
+      <div className="p-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
         <button 
           onClick={onBack}
-          className="text-gray-600 hover:text-blue-600 flex items-center gap-2 font-medium transition-colors"
-          aria-label="Go back to exploration"
+          className="text-slate-500 hover:text-blue-600 flex items-center gap-2 font-bold text-sm transition-colors group"
+          aria-label="Return to event exploration"
         >
-          <span className="text-xl" aria-hidden="true">←</span> Back to Exploration
+          <span className="text-xl group-hover:-translate-x-1 transition-transform" aria-hidden="true">←</span> 
+          BACK TO EXPLORATION
         </button>
-        <span className="text-xs font-bold uppercase tracking-wider text-blue-500 bg-blue-50 px-3 py-1 rounded-full">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
           {event.category}
         </span>
       </div>
 
       <div className="flex flex-col md:flex-row">
-        {/* Event Hero Image & Floating Date Badge */}
-        <div className="md:w-1/2 relative h-64 md:h-auto">
+        {/* Visual Hero Section: Image and Floating Date Badge */}
+        <div className="md:w-1/2 relative h-72 md:h-auto">
           <img 
-            src={event.image || 'https://via.placeholder.com/800x600?text=No+Image+Available'} 
-            alt={event.title} 
+            src={event.image || 'https://via.placeholder.com/800x600?text=No+Image'} 
+            alt={`Cover image for ${event.title}`} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg text-center shadow-md border border-white/20">
-            <span className="block text-2xl font-bold text-blue-600 leading-none">
-              {/* Note: +1 to compensate for timezone offsets in Date objects if necessary */}
-              {new Date(event.date).getDate() + 1}
+          <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl text-center shadow-2xl border border-white/20 min-w-[80px]">
+            <span className="block text-3xl font-black text-blue-600 leading-none">
+              {day}
             </span>
-            <span className="text-xs uppercase font-bold text-gray-500">
-              {new Date(event.date).toLocaleString('en-US', { month: 'short' })}
+            <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest mt-1 block">
+              {month}
             </span>
           </div>
         </div>
 
-        {/* Event Detailed Information */}
-        <div className="md:w-1/2 p-8 flex flex-col justify-between">
-          <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 leading-tight mb-4">
+        {/* Content Section: Titles, Metadata, and Call to Action */}
+        <div className="md:w-1/2 p-10 flex flex-col justify-between bg-white">
+          <div className="space-y-8">
+            <h1 className="text-4xl font-black text-slate-900 leading-[1.1] tracking-tight">
               {event.title}
             </h1>
             
-            <div className="space-y-4 mb-8">
-              {/* Location Detail */}
-              <div className="flex items-center gap-3 text-gray-600">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl" aria-hidden="true">
+            <div className="space-y-4">
+              
+              {/* Interactive Venue Section: Navigates to Map Feature */}
+              <div 
+                onClick={onLocationClick}
+                className="group flex items-center gap-4 p-4 -ml-4 rounded-2xl cursor-pointer hover:bg-blue-50/80 transition-all duration-300 active:scale-[0.98]"
+                title="Click to locate on map"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-200 group-hover:rotate-12 transition-transform">
                   📍
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-400 uppercase leading-none">Location</p>
-                  <p className="text-lg font-medium">{event.location}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                    Venue • <span className="text-blue-500">See Map</span>
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 leading-tight">
+                    {event.venue.name}
+                  </p>
+                  <p className="text-sm font-medium text-slate-500">
+                    {event.venue.city}, Argentina
+                  </p>
                 </div>
               </div>
 
-              {/* Time Detail */}
-              <div className="flex items-center gap-3 text-gray-600">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl" aria-hidden="true">
+              {/* Time Information Slot */}
+              <div className="flex items-center gap-4 p-4 -ml-4">
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center text-2xl">
                   ⏰
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-400 uppercase leading-none">Time</p>
-                  <p className="text-lg font-medium">21:00 HS (Local Time)</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Time</p>
+                  <p className="text-xl font-bold text-slate-800">21:00 HS</p>
+                  <p className="text-sm font-medium text-slate-500">Local Time</p>
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-gray-100 pt-6">
-              <h3 className="text-sm font-bold text-gray-400 uppercase mb-2">About this event</h3>
-              <p className="text-gray-600 leading-relaxed">
+            {/* Event Description */}
+            <div className="pt-8 border-t border-slate-100">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Experience Description</h3>
+              <p className="text-slate-600 leading-relaxed text-base">
                 {event.description || "Join us for an unforgettable experience. This event brings together the best of its category in a unique venue."}
               </p>
             </div>
           </div>
 
-          {/* Call to Action Button */}
+          {/* Checkout/Auth Action Trigger */}
           <button 
             onClick={onSecureTickets}
-            className="mt-10 w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-md shadow-blue-100"
+            className="mt-12 w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-200 transform hover:-translate-y-1 active:translate-y-0 transition-all duration-300 uppercase tracking-widest"
           >
-            {isAuthenticated ? 'Secure Tickets' : 'Login to Secure Tickets'}
+            {isAuthenticated ? 'Secure Your Tickets' : 'Login to Purchase'}
           </button>
         </div>
       </div>

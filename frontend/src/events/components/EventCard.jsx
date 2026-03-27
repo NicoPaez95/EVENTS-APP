@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import useNotification from '../../user/hooks/useNotification';
+import VenueInfo from './VenueInfo';
 
 /**
- * Icons defined outside the component to prevent re-declaration 
- * on every render and keep the JSX clean.
+ * Icons for the card actions.
+ * Extracted from the main render to keep JSX clean.
  */
 const CLOSE_ICON = (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,39 +29,40 @@ const HEART_ICON = (isSaved) => (
  * @property {string|number} id - Unique identifier for the event.
  * @property {string} title - The official name of the event.
  * @property {string} date - Event date in YYYY-MM-DD format.
- * @property {string} location - Geographical or venue location.
- * @property {string} category - Event category (e.g., Music, Tech).
- * @property {boolean} isSaved - Current saved status from global state.
- * @property {boolean} [showRemoveButton=false] - If true, renders a delete icon instead of a heart.
- * @property {Function} onToggleSave - Callback function to handle save/unsave logic.
- * @property {Function} [onAction] - Additional callback for local logic (e.g., closing a modal).
+ * @property {Object} venue - Detailed venue data (name, city, coordinates).
+ * @property {string} category - Event domain (e.g., Music, Tech, Sports).
+ * @property {boolean} isSaved - State indicating if the event is in the user's calendar.
+ * @property {boolean} [showRemoveButton=false] - Toggle between "Save" and "Delete" visual modes.
+ * @property {Function} onToggleSave - Callback to manage the global "Saved Events" state.
+ * @property {Function} [onAction] - Optional secondary callback for specific parent behaviors.
  */
 
 /**
  * EventCard Component.
  * * A polymorphic presentational component used to display event summaries.
- * It strictly follows a "Dumb Component" pattern, receiving all data and actions via props.
+ * It integrates with the Global Notification system and the Venue domain.
  * * @component
- * @category Components
+ * @category Components/Events
  * @param {EventCardProps} props
- * @returns {JSX.Element} A themed card with navigation and action triggers.
+ * @returns {JSX.Element} The rendered event card summary.
  */
 const EventCard = ({ 
   id, 
   title, 
   date, 
-  location, 
+  venue, 
   category, 
   isSaved, 
   showRemoveButton = false, 
   onToggleSave,
   onAction 
 }) => {
-  const [showToast, setShowToast] = useState(false);
+  const { showToast } = useNotification();
 
   /**
-   * Handles the primary action (Save/Remove) without triggering the Link navigation.
-   * @param {MouseEvent} e - The click event object.
+   * Handles the primary action button interaction.
+   * Manages event persistence and triggers global feedback notifications.
+   * * @param {React.MouseEvent} e - The click event object.
    */
   const handleAction = (e) => {
     e.preventDefault();
@@ -70,10 +72,10 @@ const EventCard = ({
 
     if (showRemoveButton) {
       if (onAction) onAction(id);
+      showToast("Event removed from your calendar", "info");
     } else {
       if (!isSaved) {
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
+        showToast("Added to calendar! ✨", "success");
       }
     }
   };
@@ -81,7 +83,7 @@ const EventCard = ({
   return (
     <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
       
-      {/* Dynamic Action Button */}
+      {/* Dynamic Action Button: Handles Save/Unsave and Removal logic */}
       <button
         onClick={handleAction}
         aria-label={showRemoveButton ? "Remove event" : "Save event"}
@@ -93,14 +95,7 @@ const EventCard = ({
         {showRemoveButton ? CLOSE_ICON : HEART_ICON(isSaved)}
       </button>
 
-      {/* Confirmation Feedback */}
-      {!showRemoveButton && showToast && (
-        <div className="absolute top-12 right-3 z-20 bg-slate-800 text-white text-[10px] font-bold py-1 px-3 rounded shadow-xl animate-in fade-in slide-in-from-top-1">
-          Added to calendar! ✨
-        </div>
-      )}
-
-      {/* Navigable Content */}
+      {/* Main Card Link: Redirects to the detailed event view */}
       <Link to={`/events/${id}`} className="block p-5">
         <header>
           <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md">
@@ -111,17 +106,17 @@ const EventCard = ({
           </h3>
         </header>
         
-        <div className="mt-5 space-y-2">
+        <div className="mt-5 space-y-3">
           <p className="text-xs text-slate-600 flex items-center gap-2">
-            <span className="opacity-70">📅</span> {date}
+            <span className="opacity-70" aria-hidden="true">📅</span> {date}
           </p>
-          <p className="text-xs italic text-slate-500 flex items-center gap-2">
-            <span className="opacity-70">📍</span> {location}
-          </p>
+          
+          {/* Rich Venue component for location display */}
+          <VenueInfo venue={venue} isClickable={false} />
         </div>
 
         <footer className="mt-6 pt-4 border-t border-slate-50 text-xs font-bold text-blue-500 group-hover:text-blue-700 flex items-center gap-1 transition-colors">
-          View Details <span>→</span>
+          View Details <span aria-hidden="true">→</span>
         </footer>
       </Link>
     </article>

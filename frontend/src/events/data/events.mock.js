@@ -1,20 +1,27 @@
 /**
+ * @typedef {Object} Venue
+ * @property {string} name - The specific building or place (e.g., 'Quality Espacio').
+ * @property {string} city - The city where the venue is located.
+ * @property {number} lat - Geographical latitude for map rendering.
+ * @property {number} lng - Geographical longitude for map rendering.
+ */
+
+/**
  * @typedef {Object} Event
  * @property {string|number} id - Unique identifier for the event.
  * @property {string} title - The official name or headline of the event.
  * @property {string} date - Event date in ISO format (YYYY-MM-DD).
- * @property {string} location - Venue, city, or geographical point of the experience.
+ * @property {Venue} venue - Detailed location data including coordinates.
  * @property {string} category - The domain classification (e.g., Tech, Music, Art, Food).
- * @property {boolean} isFeatured - Flag to display the event in high-impact hero sections or carousels.
- * @property {boolean} isRecommended - Flag to highlight the event in secondary recommendation sidebars.
- * @property {string} image - URL for the promotional banner or cover image.
- * @property {string} [description] - Optional short summary of the event for previews.
+ * @property {boolean} isFeatured - Flag for high-impact hero sections.
+ * @property {boolean} isRecommended - Flag for secondary recommendation sidebars.
+ * @property {string} image - URL for the promotional banner.
+ * @property {string} [description] - Optional short summary for previews.
  */
 
 /**
  * Main Event Catalog Mock Data.
- * * This serves as the primary "Source of Truth" for the application during development.
- * It centralizes all event attributes to ensure consistency across Features.
+ * Updated to include geolocation coordinates and specific venue names.
  * @type {Event[]}
  * @category Data
  */
@@ -23,7 +30,12 @@ export const events = [
     id: 'e1',
     title: 'React Conference',
     date: '2026-03-15',
-    location: 'Buenos Aires',
+    venue: {
+      name: 'Centro Cultural Konex',
+      city: 'Buenos Aires',
+      lat: -34.6063,
+      lng: -58.4103
+    },
     category: 'Tech',
     isFeatured: true,
     isRecommended: false,
@@ -34,7 +46,12 @@ export const events = [
     id: 'e2',
     title: 'Music Festival',
     date: '2026-04-02',
-    location: 'Córdoba',
+    venue: {
+      name: 'Plaza de la Música',
+      city: 'Córdoba',
+      lat: -31.4055,
+      lng: -64.1974
+    },
     category: 'Music',
     isFeatured: false,
     isRecommended: false,
@@ -44,7 +61,12 @@ export const events = [
     id: 'e3',
     title: 'Art Exhibition',
     date: '2026-05-10',
-    location: 'Mendoza',
+    venue: {
+      name: 'Museo de Arte Moderno',
+      city: 'Mendoza',
+      lat: -32.8894,
+      lng: -68.8458
+    },
     category: 'Art',
     isFeatured: true,
     isRecommended: true,
@@ -54,7 +76,12 @@ export const events = [
     id: 'e4',
     title: 'Food Festival',
     date: '2026-06-20',
-    location: 'Santa Fe',
+    venue: {
+      name: 'Estación Belgrano',
+      city: 'Santa Fe',
+      lat: -31.6375,
+      lng: -60.6923
+    },
     category: 'Food',
     isFeatured: false,
     isRecommended: true,
@@ -64,7 +91,12 @@ export const events = [
     id: 'e5',
     title: 'Tech Conference',
     date: '2026-07-05',
-    location: 'Mendoza',
+    venue: {
+      name: 'Arena Maipú',
+      city: 'Mendoza',
+      lat: -32.9774,
+      lng: -68.7842
+    },
     category: 'Tech',
     isFeatured: true,
     isRecommended: true,
@@ -74,7 +106,12 @@ export const events = [
     id: 'e6',
     title: 'Art Exhibition',
     date: '2026-08-15',
-    location: 'Córdoba',
+    venue: {
+      name: 'Museo Caraffa',
+      city: 'Córdoba',
+      lat: -31.4287,
+      lng: -64.1848
+    },
     category: 'Art',
     isFeatured: false,
     isRecommended: false,

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 // Domain Hooks
@@ -11,6 +11,7 @@ import { getRelatedEvents } from '../utils/recommendationEngine';
 // Features & Integrations
 import CheckoutModal from '../features/CheckoutModal/CheckoutModal';
 import WeatherFeature from '../features/WeatherFeature';
+import EventMapFeature from '../features/EventMapFeature'; // <--- Nueva Integración
 
 // Presentational Components
 import EventDetail from '../components/EventDetail';
@@ -21,47 +22,43 @@ import LoadingState from '../../shared/components/UI/LoadingState';
 
 /**
  * EventDetailsFeature Component.
- * * An orchestrator (Smart Component) that manages the complete event detail view experience.
- * * @component
- * @category Features/Events
- * * @description
- * This component acts as a high-level Feature Orchestrator with the following responsibilities:
- * 1. **State Selection**: Retrieves the specific event by ID from the global state.
- * 2. **Auth Guarding**: Manages the secure ticket flow by checking authentication status.
- * 3. **Smart Redirection**: Implements "Deep Linking" for the login flow, allowing users to return 
- * to the current page after authenticating.
- * 4. **Business Logic**: Executes the Recommendation Engine to find similar experiences.
- * 5. **Contextual Integration**: Passes location data to third-party integrations (Weather API).
- * * @hooks
- * - `useParams`: Extracts the `:id` parameter from the URL.
- * - `useNavigate` / `useLocation`: Handles intelligent navigation and state preservation.
- * - `useEvents`: Consumes the global events domain state.
- * - `useAuth`: Consumes the global user authentication state.
- * * @returns {JSX.Element} The orchestrated layout including loading, error, and success states.
+ * Orchestrator for the event detail view, now including map anchoring and highlighting.
  */
 const EventDetailsFeature = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  
+
   const { events, loading } = useEvents();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  /**
-   * Memoized target event selection.
-   * Ensures the lookup doesn't re-run unless the global events list or URL ID changes.
-   */
+  // 1. Referencia para el scroll al mapa
+  const mapSectionRef = useRef(null);
+  // 2. Estado local para el efecto visual de "Focus" en el mapa
+  const [isMapHighlighted, setIsMapHighlighted] = useState(false);
+
   const event = useMemo(() => {
     return events.find(e => String(e.id) === String(id));
   }, [events, id]);
 
   /**
-   * handleSecureTickets:
-   * Handles the business logic for the conversion funnel.
-   * If unauthenticated, it redirects to login while saving the current pathname 
-   * in the Router state to enable post-login redirection.
+   * handleLocationFocus:
+   * Ejecuta un scroll suave hacia el mapa y activa un efecto visual temporal.
    */
+  const handleLocationFocus = () => {
+    if (mapSectionRef.current) {
+      mapSectionRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      // Activamos el brillo del mapa
+      setIsMapHighlighted(true);
+      setTimeout(() => setIsMapHighlighted(false), 2000);
+    }
+  };
+
   const handleSecureTickets = () => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: location.pathname } });
@@ -70,16 +67,9 @@ const EventDetailsFeature = () => {
     }
   };
 
-  /**
-   * relatedEvents:
-   * Memoized result of the recommendation engine.
-   * Filters events by hierarchy (Category > Location > General) to optimize UI secondary area.
-   */
   const relatedEvents = useMemo(() => {
     return getRelatedEvents(event, events);
   }, [event, events]);
-
-  // --- Rendering States: Loading & Error ---
 
   if (loading) {
     return <LoadingState message="Loading experience details..." />;
@@ -89,8 +79,7 @@ const EventDetailsFeature = () => {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-slate-800">Event not found</h2>
-        <p className="text-slate-500 mt-2">The experience you are looking for might have moved or ended.</p>
-        <button 
+        <button
           onClick={() => navigate('/events')}
           className="mt-6 text-blue-600 font-medium hover:underline"
         >
@@ -100,57 +89,66 @@ const EventDetailsFeature = () => {
     );
   }
 
-  // --- Main Render: Success ---
-
   return (
-    <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500">
-      
-      {/* Checkout Orchestration */}
-      <CheckoutModal 
-        isOpen={isCheckoutOpen} 
-        onClose={() => setIsCheckoutOpen(false)} 
-        event={event} 
+    <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500 px-4">
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        event={event}
       />
 
-      {/* Primary Content: Event Detail Presentation */}
+      {/* Primary Content */}
       <section aria-label="Event Details">
-        <EventDetail 
-          event={event} 
+        <EventDetail
+          event={event}
           isAuthenticated={isAuthenticated}
           onSecureTickets={handleSecureTickets}
           onBack={() => navigate(-1)}
+          onLocationClick={handleLocationFocus} // <--- Prop nueva conectada
         />
       </section>
 
       {/* Secondary Content: Recommendations and Venue Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
         {/* Recommendation Column */}
-        <div className="lg:col-span-2">
-          <h3 className="text-2xl font-bold text-slate-900 mb-6 font-display">
+        <div className="lg:col-span-2 space-y-8">
+          <h3 className="text-2xl font-bold text-slate-900 font-display">
             Similar Experiences
           </h3>
           <EventGrid events={relatedEvents} />
         </div>
-        
+
         {/* Venue Information Sidebar */}
-        <aside className="lg:col-span-1 space-y-6">
-          <h3 className="text-2xl font-bold text-slate-900 mb-6 font-display">
-            Venue Information
+        <aside className="lg:col-span-1 space-y-8">
+          <h3 className="text-2xl font-bold text-slate-900 font-display">
+            Venue & Logistics
           </h3>
-          
-          <WeatherFeature location={event.location} />
-          
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <p className="text-sm text-slate-600 italic">
-              Weather data is provided for <strong>{event.location}</strong>. 
-              Please consider this when planning your visit.
-            </p>
+
+          {/* 3. Contenedor con Referencia y Efecto de Resaltado */}
+          <div
+            ref={mapSectionRef}
+            className={`transition-all duration-700 rounded-3xl ${isMapHighlighted
+                ? 'ring-4 ring-blue-400 ring-offset-4 shadow-2xl scale-105'
+                : 'ring-0 shadow-none scale-100'
+              }`}
+          >
+            <EventMapFeature venue={event.venue} />
+          </div>
+
+          <div className="space-y-4">
+            <WeatherFeature location={event.venue.city} />
+            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+              <p className="text-xs text-slate-500 leading-relaxed italic">
+                {"Note: Weather forecasts for "} <strong>{event.venue.city}</strong> {" are updated in real-time. "}
+                {"Don't forget to check the map for the best route to "} <strong>{event.venue.name}</strong>.
+              </p>
+            </div>
           </div>
         </aside>
 
       </div>
-      
     </div>
   );
 };
