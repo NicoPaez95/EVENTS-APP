@@ -1,10 +1,14 @@
 /**
  * @file events-controller.js
- * @description Logic for handling event-related requests.
+ * @description Controller logic for event-related operations. 
+ * Manages database interactions using Mongoose for retrieving, 
+ * filtering, and displaying event data.
  * @module controllers/events
+ * @author Nico Paez
  */
 
 import HttpError from '../models/http-error.js';
+import Event from '../models/event.js';
 
 /**
  * @typedef {Object} Location
@@ -22,49 +26,84 @@ import HttpError from '../models/http-error.js';
  * @property {string} creator - ID of the user who created the event.
  */
 
-/** * Mock data for development purposes.
- * @type {Event[]} 
- */
-const DUMMY_EVENTS = [
-  {
-    id: 'p1',
-    title: 'Coldplay Concert',
-    description: 'The best concert in the world!',
-    location: { lat: 40.7484474, lng: -73.9871516 },
-    address: '20 W 34th St, New York, NY 10001',
-    creator: 'u1'
-  }
-];
-
 /**
- * Retrieves an event by its unique ID.
- * * @param {import('express').Request} req - Express request object.
+ * Retrieves all events stored in the database.
+ * @async
+ * @param {import('express').Request} req - Express request object.
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
- * @throws {HttpError} 404 - If no event is found with the provided ID.
  */
-export const getEventById = (req, res, next) => {
+export const getAllEvents = async (req, res, next) => {
+  let events;
+  try {
+    events = await Event.find({});
+  } catch (err) {
+    return next(
+      new HttpError('Fetching events failed, please try again later.', 500)
+    );
+  }
+  
+  // Transform Mongoose documents to plain objects and include virtual 'id' getter
+  res.json({ 
+    events: events.map(e => e.toObject({ getters: true })) 
+  });
+};
+
+/**
+ * Retrieves a specific event by its unique database ID.
+ * @async
+ * @param {import('express').Request} req - Express request object containing 'eid' param.
+ * @param {import('express').Response} res - Express response object.
+ * @param {import('express').NextFunction} next - Express next function.
+ */
+export const getEventById = async (req, res, next) => {
   const eventId = req.params.eid; 
-  const event = DUMMY_EVENTS.find(p => p.id === eventId);
+  let event;
+
+  try {
+    event = await Event.findById(eventId);
+  } catch (err) {
+    // Database connection or query syntax error
+    return next(
+      new HttpError('Something went wrong, could not retrieve event data.', 500)
+    );
+  }
 
   if (!event) {
-    throw new HttpError('Could not find an event for the provided id.', 404);
+    return next(
+      new HttpError('Could not find an event for the provided ID.', 404)
+    );
   }
-  res.json({ event }); 
+
+  res.json({ event: event.toObject({ getters: true }) });
 };
 
 /**
  * Retrieves all events created by a specific user.
- * * @param {import('express').Request} req - Express request object.
+ * @async
+ * @param {import('express').Request} req - Express request object containing 'uid' param.
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
  */
-export const getEventByUserId = (req, res, next) => {
+export const getEventByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  const event = DUMMY_EVENTS.find(p => p.creator === userId);
+  let userEvents;
 
-  if (!event) {
-    return next(new HttpError('Could not find an event for the user id.', 404));
+  try {
+    userEvents = await Event.find({ creator: userId });
+  } catch (err) {
+    return next(
+      new HttpError('Fetching user events failed, please try again later.', 500)
+    );
   }
-  res.json({ event });
+
+  if (!userEvents || userEvents.length === 0) {
+    return next(
+      new HttpError('Could not find any events for the provided user ID.', 404)
+    );
+  }
+
+  res.json({ 
+    events: userEvents.map(event => event.toObject({ getters: true })) 
+  });
 };
