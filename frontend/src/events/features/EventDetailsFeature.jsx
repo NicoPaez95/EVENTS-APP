@@ -4,6 +4,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 // Domain Hooks
 import { useEvents } from "../hooks/useEvents";
 import { useAuth } from "../../user/hooks/useAuth";
+import useToggleEventSave from "../../user/hooks/useToggleEventSave";
 
 // Utils & Domain Logic
 import { getRelatedEvents } from "../utils/recommendationEngine";
@@ -18,54 +19,75 @@ import EventMapFeature from "../features/EventMapFeature";
 import EventDetail from "../components/EventDetail";
 import EventGrid from "../components/EventGrid";
 
-// Shared UI (Atoms)
+// Shared UI
 import LoadingState from "../../shared/components/UI/LoadingState";
 import NotFound from "../../shared/components/UI/NotFound";
 
 /**
- * EventDetailsFeature (Orchestrator).
- * * This smart component serves as the main entry point for the event details experience.
- * It coordinates:
- * 1. Data fetching and selection from the global master catalog.
- * 2. Navigation logic with Auth-guards (preserving redirect state).
- * 3. Interactive UI feedback (scroll-to-map focus).
- * 4. Business logic for related event recommendations.
- * * @component
+ * @typedef {Object} Event
+ * @property {string|number} id
+ * @property {Object} venue
+ * @property {string} venue.name
+ * @property {string} venue.city
+ */
+
+/**
+ * EventDetailsFeature (Orchestrator)
+ *
+ * Main container for the event detail experience.
+ * Coordinates data retrieval, navigation guards, UI interactions,
+ * and domain-level recommendations.
+ *
+ * Responsibilities:
+ * - Resolve event by route param
+ * - Handle auth-protected actions (checkout)
+ * - Manage UI interactions (map focus, modal state)
+ * - Provide related event recommendations
+ * - Inject user interaction handlers (save/unsave)
+ *
+ * @component
  * @category Features/Events
- * @returns {JSX.Element} The full-page event detail experience.
+ * @returns {JSX.Element}
  */
 const EventDetailsFeature = () => {
+  /** @type {{ id: string }} */
   const { id } = useParams();
+
   const navigate = useNavigate();
   const location = useLocation();
+
   const { isAuthenticated } = useAuth();
+  const { onToggleSave, isEventSaved } = useToggleEventSave();
 
   /**
-   * Global State Consumption.
-   * Uses 'allEvents' to ensure the event is found via direct URL access
-   * regardless of current active search filters in the global context.
+   * Global event catalog (unfiltered source of truth)
    */
   const { allEvents, loading } = useEvents();
+
+  /** @type {[boolean, Function]} */
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Map Interaction State & Refs
+  /** @type {React.RefObject<HTMLDivElement>} */
   const mapSectionRef = useRef(null);
+
+  /** @type {[boolean, Function]} */
   const [isMapHighlighted, setIsMapHighlighted] = useState(false);
 
   /**
-   * Memoized Event Selection.
-   * Finds the specific event in the master list based on the URL parameter.
-   * Prevents unnecessary re-computations unless the catalog or ID changes.
-   * @type {Object|undefined}
+   * Resolves the current event from the global catalog.
+   *
+   * @type {Event | undefined}
    */
   const event = useMemo(() => {
     return findEventById(allEvents, id);
   }, [allEvents, id]);
 
   /**
-   * Handles UI focus on the Map section.
-   * Performs a smooth scroll to the map element and triggers a visual
-   * highlight effect using Tailwind ring utilities.
+   * Scrolls smoothly to the map section and applies
+   * a temporary visual highlight.
+   *
+   * @function
+   * @returns {void}
    */
   const handleLocationFocus = () => {
     if (mapSectionRef.current) {
@@ -80,9 +102,12 @@ const EventDetailsFeature = () => {
   };
 
   /**
-   * Auth-guarded checkout initiation.
-   * If unauthenticated, it redirects to /login but passes the current
-   * pathname in the 'state' to allow a seamless return after login.
+   * Handles secure ticket flow.
+   * Redirects unauthenticated users to login,
+   * preserving the current route for post-login return.
+   *
+   * @function
+   * @returns {void}
    */
   const handleSecureTickets = () => {
     if (!isAuthenticated) {
@@ -93,21 +118,20 @@ const EventDetailsFeature = () => {
   };
 
   /**
-   * Related Experiences Logic.
-   * Memoizes the output of the recommendation engine to avoid
-   * re-calculating suggestions on every render.
-   * @type {Array<Object>}
+   * Computes related events using recommendation engine.
+   *
+   * @type {Event[]}
    */
   const relatedEvents = useMemo(() => {
     return getRelatedEvents(event, allEvents);
   }, [event, allEvents]);
 
-  // Loading Guard: Displays a centered skeleton/spinner
+  // Loading State
   if (loading) {
     return <LoadingState message="Loading experience details..." />;
   }
 
-  // Error Guard: Renders a 404 state if ID doesn't match any event in catalog
+  // Not Found State
   if (!event) {
     return (
       <NotFound
@@ -121,14 +145,14 @@ const EventDetailsFeature = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500 px-4">
-      {/* Portaled Checkout Layer */}
+      {/* Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         event={event}
       />
 
-      {/* Primary Detail Hero Section */}
+      {/* Event Detail Section */}
       <section aria-label="Event Details">
         <EventDetail
           event={event}
@@ -139,23 +163,27 @@ const EventDetailsFeature = () => {
         />
       </section>
 
-      {/* Content Grid: Recommendations and Venue Logic */}
+      {/* Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Recommended Content Area */}
+        {/* Recommendations */}
         <div className="lg:col-span-2 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Similar Experiences
           </h3>
-          <EventGrid events={relatedEvents} />
+
+          <EventGrid
+            events={relatedEvents}
+            onToggleSave={onToggleSave}
+            isEventSaved={isEventSaved}
+          />
         </div>
 
-        {/* Sidebar: Contextual Information & Map */}
+        {/* Sidebar */}
         <aside className="lg:col-span-1 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Venue & Logistics
           </h3>
 
-          {/* Interactive Map Section with Dynamic Focus Ring */}
           <div
             ref={mapSectionRef}
             className={`transition-all duration-700 rounded-3xl ${
@@ -167,7 +195,6 @@ const EventDetailsFeature = () => {
             <EventMapFeature venue={event.venue} />
           </div>
 
-          {/* Environmental Data (Weather API Integration) */}
           <div className="space-y-4">
             <WeatherFeature location={event.venue?.city} />
 

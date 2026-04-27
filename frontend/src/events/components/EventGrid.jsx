@@ -1,25 +1,41 @@
-import EventCard from './EventCard';
+import EventCard from "./EventCard";
 
 /**
- * EventGrid Component (Presentational).
- * * A stateless grid container that orchestrates the layout for event collections.
- * It follows a "Dumb Component" pattern, strictly mapping an array of event objects 
- * into individual EventCard components.
- * * @component
- * @category Components/Events
- * * @param {Object} props
- * @param {Array<Object>} props.events - Collection of event objects to be displayed.
- * @param {Function} props.onToggleSave - Callback function to handle save/unsave logic. Receives (eventId).
- * @param {Function} [props.isEventSaved] - Selector function to check persistence status. Receives (eventId) => Boolean.
- * * @returns {JSX.Element} A responsive grid layout of EventCards.
+ * @typedef {Object} Event
+ * @property {string|number} id
+ * @property {Object} venue
+ * @property {string} venue.name
+ * @property {string} venue.city
+ * // Add additional event properties as needed (title, date, image, etc.)
  */
-const EventGrid = ({ 
-  events = [], 
-  onToggleSave, 
-  isEventSaved 
-}) => {
-  
-  // Empty state handling to prevent rendering issues
+
+/**
+ * @typedef {Object} EventGridProps
+ * @property {Event[]} events - Collection of event objects to render.
+ * @property {(id: string|number) => void} onToggleSave - Handler for save/unsave interaction.
+ * @property {(id: string|number) => boolean} [isEventSaved] - Optional selector to determine if an event is saved.
+ */
+
+/**
+ * EventGrid (Presentational Component)
+ *
+ * Stateless grid renderer for event collections.
+ * Maps a list of events into EventCard components.
+ *
+ * Responsibilities:
+ * - Render event collection
+ * - Delegate interaction handlers
+ * - Remain UI-focused (no business logic)
+ *
+ * @component
+ * @category Components/Events
+ * @param {EventGridProps} props
+ * @returns {JSX.Element}
+ */
+const EventGrid = ({ events = [], onToggleSave, isEventSaved }) => {
+  /**
+   * Empty state guard
+   */
   if (!events || events.length === 0) {
     return (
       <div className="py-10 text-center text-slate-400 italic">
@@ -29,19 +45,21 @@ const EventGrid = ({
   }
 
   return (
-    <div 
+    <div
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
       role="list"
       aria-label="Event catalog grid"
     >
       {events.map((event) => (
-        <EventCard 
-          key={event.id} 
-          {...event} 
+        <EventCard
+          key={event.id}
+          {...event}
           onToggleSave={onToggleSave}
-          /* Logic Gate: Checks if the event is saved in the user's calendar.
-             Defaults to false if the check function is not provided.
-          */
+          /**
+           * Derived UI state:
+           * Determines whether the event is saved.
+           * Falls back to false if selector is not provided.
+           */
           isSaved={isEventSaved ? isEventSaved(event.id) : false}
         />
       ))}
