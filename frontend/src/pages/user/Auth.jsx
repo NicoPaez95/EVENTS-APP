@@ -1,53 +1,39 @@
-import { useLocation } from 'react-router-dom';
-import LoginFeature from '../../user/features/LoginFeature';
-import RegisterFeature from '../../user/features/RegisterFeature';
+import { useLocation } from "react-router-dom";
+import LoginFeature from "../../user/features/LoginFeature";
+import RegisterFeature from "../../user/features/RegisterFeature";
 
 /**
- * Auth Page Component.
- * * This component acts as a high-level Orchestrator for the authentication domain. 
- * It serves as a unified entry point for both Login and Registration flows, 
- * dynamically switching its content based on the current URL path.
- * * Architectural Note:
- * By centralizing Auth logic, we ensure a consistent layout for session management. 
- * The component delegates business logic to specialized "Smart" features 
- * (LoginFeature or RegisterFeature) while maintaining a clean, centered UI.
+ * Auth Page Component (Domain Orchestrator).
+ * * This component serves as the high-level container for the authentication domain.
+ * It manages the conditional rendering of the Login and Registration flows based
+ * on the application's routing state.
+ * * **Architectural Role**:
+ * Acts as a "Wrapper" that provides a unified visual structure (centered layout,
+ * background themes) while delegating specific business logic and form handling
+ * to the specialized `LoginFeature` and `RegisterFeature` components.
  * * @component
  * @category Pages
- * @returns {JSX.Element} A responsive container that toggles between Login and Register features.
+ * @returns {JSX.Element} A centered responsive layout containing the active auth feature.
  */
 const Auth = () => {
   /**
    * Routing Logic:
-   * Extracts the current pathname to determine the user's intent.
-   * - '/login' -> Renders the LoginFeature.
-   * - '/register' (or others) -> Renders the RegisterFeature.
+   * Determines the authentication mode (Login vs. Register) by analyzing
+   * the current URL pathname.
    */
   const { pathname } = useLocation();
-  const isLogin = pathname === '/login';
+  const isLogin = pathname === "/login";
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      
-      {/* Header Section: Contextualized titles based on the current route */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <h2 className="text-3xl font-extrabold text-slate-900 font-display">
-          {isLogin ? 'Welcome back' : 'Create your account'}
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          {isLogin 
-            ? "Access your personal event collection." 
-            : "Join the platform to start saving experiences."}
-        </p>
-      </div>
-
-      {/* Feature Injection Area: 
-          Mounts the corresponding "Smart Component" based on isLogin state.
+    <main className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Feature Container: 
+          Dynamically toggles content. The 'sm:max-w-md' constraint ensures 
+          form readability and focus across devices. 
       */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md animate-in fade-in zoom-in duration-300">
         {isLogin ? <LoginFeature /> : <RegisterFeature />}
       </div>
-      
-    </div>
+    </main>
   );
 };
 

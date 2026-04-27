@@ -1,36 +1,38 @@
-import { useState, useMemo, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useMemo, useRef } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 // Domain Hooks
-import { useEvents } from '../hooks/useEvents';
-import { useAuth } from '../../user/hooks/useAuth';
+import { useEvents } from "../hooks/useEvents";
+import { useAuth } from "../../user/hooks/useAuth";
 
-// UTILS
-import { getRelatedEvents } from '../utils/recommendationEngine';
+// Utils & Domain Logic
+import { getRelatedEvents } from "../utils/recommendationEngine";
+import { findEventById } from "events/utils/eventHelpers";
 
 // Features & Integrations
-import CheckoutModal from '../features/CheckoutModal/CheckoutModal';
-import WeatherFeature from '../features/WeatherFeature';
-import EventMapFeature from '../features/EventMapFeature';
+import CheckoutModal from "../features/CheckoutModal/CheckoutModal";
+import WeatherFeature from "../features/WeatherFeature";
+import EventMapFeature from "../features/EventMapFeature";
 
 // Presentational Components
-import EventDetail from '../components/EventDetail';
-import EventGrid from '../components/EventGrid';
+import EventDetail from "../components/EventDetail";
+import EventGrid from "../components/EventGrid";
 
 // Shared UI (Atoms)
-import LoadingState from '../../shared/components/UI/LoadingState';
+import LoadingState from "../../shared/components/UI/LoadingState";
+import NotFound from "../../shared/components/UI/NotFound";
 
 /**
- * EventDetailsFeature Component (Smart Component).
- * * Orchestrates the full event experience, including ticket procurement,
- * interactive mapping, and personalized recommendations.
+ * EventDetailsFeature (Orchestrator).
+ * * This smart component serves as the main entry point for the event details experience.
+ * It coordinates:
+ * 1. Data fetching and selection from the global master catalog.
+ * 2. Navigation logic with Auth-guards (preserving redirect state).
+ * 3. Interactive UI feedback (scroll-to-map focus).
+ * 4. Business logic for related event recommendations.
  * * @component
  * @category Features/Events
- * @description
- * **Architectural Note**: 
- * This component consumes `allEvents` from the context to ensure the event is 
- * locatable even when global search filters are active. It manages the 
- * "Focus" logic for the map and handles the navigation state for the auth-guard.
+ * @returns {JSX.Element} The full-page event detail experience.
  */
 const EventDetailsFeature = () => {
   const { id } = useParams();
@@ -39,9 +41,9 @@ const EventDetailsFeature = () => {
   const { isAuthenticated } = useAuth();
 
   /**
-   * Global Context Consumption:
-   * 'allEvents' is required here to ensure a 100% hit rate when deep-linking 
-   * or navigating from the "Recommended" sidebar, regardless of search filters.
+   * Global State Consumption.
+   * Uses 'allEvents' to ensure the event is found via direct URL access
+   * regardless of current active search filters in the global context.
    */
   const { allEvents, loading } = useEvents();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -51,24 +53,25 @@ const EventDetailsFeature = () => {
   const [isMapHighlighted, setIsMapHighlighted] = useState(false);
 
   /**
-   * Memoized Event Selection:
-   * Extracts the specific event from the master catalog based on the URL ID.
-   * Strings both sides of the comparison to prevent type-mismatch failures.
+   * Memoized Event Selection.
+   * Finds the specific event in the master list based on the URL parameter.
+   * Prevents unnecessary re-computations unless the catalog or ID changes.
+   * @type {Object|undefined}
    */
   const event = useMemo(() => {
-    return allEvents?.find(e => String(e.id) === String(id));
+    return findEventById(allEvents, id);
   }, [allEvents, id]);
 
   /**
-   * handleLocationFocus:
-   * Smoothly scrolls the viewport to the map section and triggers a 
-   * temporary visual highlight to guide the user's attention.
+   * Handles UI focus on the Map section.
+   * Performs a smooth scroll to the map element and triggers a visual
+   * highlight effect using Tailwind ring utilities.
    */
   const handleLocationFocus = () => {
     if (mapSectionRef.current) {
       mapSectionRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
+        behavior: "smooth",
+        block: "center",
       });
 
       setIsMapHighlighted(true);
@@ -77,62 +80,55 @@ const EventDetailsFeature = () => {
   };
 
   /**
-   * handleSecureTickets:
-   * Redirects to login if unauthenticated, preserving the current path
-   * in state to allow a seamless "Return to Event" flow after sign-in.
+   * Auth-guarded checkout initiation.
+   * If unauthenticated, it redirects to /login but passes the current
+   * pathname in the 'state' to allow a seamless return after login.
    */
   const handleSecureTickets = () => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: location.pathname } });
+      navigate("/login", { state: { from: location.pathname } });
     } else {
       setIsCheckoutOpen(true);
     }
   };
 
   /**
-   * Related Experiences Logic:
-   * Uses the recommendation engine to find similar events based on category/venue.
+   * Related Experiences Logic.
+   * Memoizes the output of the recommendation engine to avoid
+   * re-calculating suggestions on every render.
+   * @type {Array<Object>}
    */
   const relatedEvents = useMemo(() => {
     return getRelatedEvents(event, allEvents);
   }, [event, allEvents]);
 
-  // Loading Guard
+  // Loading Guard: Displays a centered skeleton/spinner
   if (loading) {
     return <LoadingState message="Loading experience details..." />;
   }
 
-  // Error Guard: Event not found in Master Catalog
+  // Error Guard: Renders a 404 state if ID doesn't match any event in catalog
   if (!event) {
     return (
-      <div className="text-center py-20 px-4">
-        <h2 className="text-2xl font-bold text-slate-800 font-display">
-          Event not found
-        </h2>
-        <p className="text-slate-500 mt-2">
-          The experience you&apos;re looking for might have been removed or moved.
-        </p>
-        <button
-          onClick={() => navigate('/events')}
-          className="mt-8 px-6 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors shadow-lg"
-        >
-          &larr; Back to all events
-        </button>
-      </div>
+      <NotFound
+        title="Event not found"
+        message="The experience you're looking for might have been removed or moved."
+        link="/events"
+        linkText="Back to all events"
+      />
     );
   }
 
   return (
     <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500 px-4">
-      
-      {/* Transactional Layer */}
+      {/* Portaled Checkout Layer */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         event={event}
       />
 
-      {/* Primary Detail Section */}
+      {/* Primary Detail Hero Section */}
       <section aria-label="Event Details">
         <EventDetail
           event={event}
@@ -143,10 +139,9 @@ const EventDetailsFeature = () => {
         />
       </section>
 
-      {/* Contextual Information Grid */}
+      {/* Content Grid: Recommendations and Venue Logic */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
-        {/* Similar Experiences Catalog */}
+        {/* Recommended Content Area */}
         <div className="lg:col-span-2 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Similar Experiences
@@ -154,40 +149,39 @@ const EventDetailsFeature = () => {
           <EventGrid events={relatedEvents} />
         </div>
 
-        {/* Venue Sidebar & Logistics */}
+        {/* Sidebar: Contextual Information & Map */}
         <aside className="lg:col-span-1 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Venue & Logistics
           </h3>
 
-          {/* Interactive Map Wrapper with Highlight Logic */}
+          {/* Interactive Map Section with Dynamic Focus Ring */}
           <div
             ref={mapSectionRef}
             className={`transition-all duration-700 rounded-3xl ${
               isMapHighlighted
-                ? 'ring-4 ring-blue-400 ring-offset-4 shadow-2xl scale-[1.02]'
-                : 'ring-0 shadow-none scale-100'
+                ? "ring-4 ring-blue-400 ring-offset-4 shadow-2xl scale-[1.02]"
+                : "ring-0 shadow-none scale-100"
             }`}
           >
             <EventMapFeature venue={event.venue} />
           </div>
 
-          {/* Environmental Integration & Venue Metadata */}
+          {/* Environmental Data (Weather API Integration) */}
           <div className="space-y-4">
             <WeatherFeature location={event.venue?.city} />
-            
+
             <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
               <p className="text-xs text-slate-500 leading-relaxed italic">
-                {"Note: Weather forecasts for "} 
-                <strong>{event.venue?.city}</strong> 
+                {"Note: Weather forecasts for "}
+                <strong>{event.venue?.city}</strong>
                 {" are updated in real-time. "}
-                {"Don&apos;t forget to check the map for the best route to "} 
+                {"Don't forget to check the map for the best route to "}
                 <strong>{event.venue?.name}</strong>.
               </p>
             </div>
           </div>
         </aside>
-
       </div>
     </div>
   );

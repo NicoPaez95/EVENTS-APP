@@ -1,60 +1,73 @@
-import { useEvents } from '../hooks/useEvents';
-import { useUser } from '../../user/context/UserContext';
-import EventGrid from '../components/EventGrid';
+import { useEvents } from "../hooks/useEvents";
+import { useUser } from "../../user/context/UserContext";
+import EventGrid from "../components/EventGrid";
 
-import LoadingState from 'shared/components/UI/LoadingState';
-import EmptyState from 'shared/components/UI/EmptyState';
+import LoadingState from "shared/components/UI/LoadingState";
+import EmptyState from "shared/components/UI/EmptyState";
+import useNotification from "user/hooks/useNotification";
 
 /**
- * EventsFeature Component.
- * * A "Smart Component" (Feature Orchestrator) responsible for the main event catalog display.
+ * EventsFeature Component (Feature Orchestrator).
+ * * This smart component serves as the primary controller for the event discovery experience.
+ * It synchronizes two distinct domains:
+ * 1. **Events Domain**: Manages the catalog, filtering, and search results.
+ * 2. **User Domain**: Handles persistence (saving/unsaving) and session-based interactions.
+ * * It manages the high-level application states (Loading, Empty, and Success)
+ * and orchestrates global feedback via the Notification system.
  * * @component
  * @category Features/Events
- * * @description
- * This component handles the core discovery experience by:
- * 1. **Data Orchestration**: Synchronizing global event data from `EventsContext`.
- * 2. **Cross-Domain Integration**: Injecting user-specific persistence logic (Save/Unsave) 
- * from the `UserContext` into the event listing.
- * 3. **Lifecycle Management**: Handling conditional rendering for Loading, Empty, and Success states.
- * 4. **UI Decoupling**: Offloading the actual grid rendering to the `EventGrid` presentational layer.
- * * @hooks
- * - `useEvents`: Retrieves the filtered event collection and global loading status.
- * - `useUser`: Provides access to the user's saved events library and toggle functionality.
- * * @returns {JSX.Element} The orchestrated event section with state-driven rendering logic.
+ * @returns {JSX.Element} The orchestrated event catalog section.
  */
 const EventsFeature = () => {
   /**
-   * Domain Hook Consumption:
-   * Accesses the Events domain for the data catalog and the User domain 
-   * for interaction logic (persistence).
+   * Domain Hook Consumption.
+   * - `useEvents`: Retrieves the data-driven event collection.
+   * - `useUser`: Accesses the user's personal calendar logic.
+   * - `useNotification`: Provides global feedback (Toasts).
    */
   const { events, loading } = useEvents();
   const { toggleSaveEvent, isEventSaved } = useUser();
+  const { showToast } = useNotification();
 
   /**
-   * Loading State Handler:
-   * Ensures visual consistency while the event catalog is being processed or fetched.
+   * Orchestrates the save/unsave interaction.
+   * * This handler acts as a controller: it executes the state toggle
+   * and determines the appropriate visual feedback based on the
+   * previous state of the event.
+   * * @param {string|number} id - The unique identifier of the event to toggle.
+   */
+  const handleToggleAction = (id) => {
+    const wasSaved = isEventSaved(id);
+    toggleSaveEvent(id);
+
+    // Context-aware feedback logic
+    if (wasSaved) {
+      showToast("Removed from calendar", "info");
+    } else {
+      showToast("Added! ✨", "success");
+    }
+  };
+
+  /**
+   * Loading State Guard.
+   * Provides a smooth transition while the global event context is being populated.
    */
   if (loading) {
-    return (
-      <LoadingState message="Searching for experiences..." />
-    );
+    return <LoadingState message="Searching for experiences..." />;
   }
 
   /**
-   * Empty State Handler:
-   * Provides fallback UI when the current filter criteria (Search/Category) 
-   * yield no results.
+   * Empty State Guard.
+   * Triggered when the current filter set (Search query or Category)
+   * returns an empty subset of the master catalog.
    */
   if (!events.length) {
-    return (
-      <EmptyState message="No events found matching your criteria." />
-    );
+    return <EmptyState message="No events found matching your criteria." />;
   }
 
   return (
-    <section 
-      aria-label="Event Results" 
+    <section
+      aria-label="Event Results"
       className="animate-in fade-in duration-500"
     >
       <h2 className="text-2xl font-bold text-slate-900 mb-6 font-display">
@@ -62,13 +75,13 @@ const EventsFeature = () => {
       </h2>
 
       {/* Presentational Layer:
-        Delegates rendering to EventGrid, injecting the cross-domain 
-        persistence logic via props.
+          The actual rendering of the list/grid is delegated to EventGrid.
+          Interaction logic and state-checking functions are injected as dependencies.
       */}
-      <EventGrid 
-        events={events} 
-        onToggleSave={toggleSaveEvent} 
-        isEventSaved={isEventSaved} 
+      <EventGrid
+        events={events}
+        onToggleSave={handleToggleAction}
+        isEventSaved={isEventSaved}
       />
     </section>
   );

@@ -1,66 +1,65 @@
-import { useMemo } from 'react';
-import { useEvents } from '../hooks/useEvents';
-import RecommendedEvents from '../components/RecommendedEvents';
+import { useMemo } from "react";
+import { useEvents } from "../hooks/useEvents";
+import RecommendedEvents from "../components/RecommendedEvents";
+import { getRecommendedEvents } from "events/utils/filterEvents";
 
 /**
- * RecommendedEventsFeature Component.
- * * A "Smart Component" (Feature Orchestrator) that acts as the data provider 
- * for the recommendation domain.
+ * RecommendedEventsFeature Component (Feature Orchestrator).
+ * * A specialized "Smart Component" that serves as the data provider for the
+ * recommendation engine domain.
  * * @component
  * @category Features/Events
- * * @description
- * **Architectural Strategy**: 
- * This component specifically consumes `allEvents` (the master catalog) rather than 
- * the filtered `events` array. This ensures that recommendations remain persistent 
- * and visible even when the user applies specific filters or search terms in 
- * the main catalog.
- * * @hooks
- * - `useEvents`: Retrieves the full master event list from the global context.
- * - `useMemo`: Optimizes performance by memoizing the filtered recommendation 
- * list, preventing re-calculations on unrelated UI renders.
- * * @returns {JSX.Element|null} A section wrapping the RecommendedEvents list, 
- * or null if no recommended data is available.
+ * @description
+ * **Architectural Strategy**:
+ * To maintain a consistent User Experience, this component consumes `allEvents`
+ * (the master catalog) instead of the filtered `events` array. This decoupling
+ * ensures that recommendations stay visible in the sidebar even when the user
+ * applies restrictive search filters in the main view.
+ * * @returns {JSX.Element|null} The recommended events section or null if empty.
  */
 const RecommendedEventsFeature = () => {
   /**
-   * Global State Consumption:
-   * We extract 'allEvents' to keep the sidebar independent from the 
-   * user's current search/filter state in the main grid.
+   * Global State Consumption.
+   * Extracts the full master list from `EventsContext`.
    */
   const { allEvents } = useEvents();
 
   /**
-   * Memoized Filtering Strategy:
-   * 1. Filters only events explicitly flagged as 'isRecommended'.
-   * 2. Slices the result to the top 3 items to maintain sidebar aesthetics.
-   * 3. Dependencies: Only re-runs if the master catalog (allEvents) is updated.
+   * Memoized Recommendation Logic.
+   * * Process:
+   * 1. Invokes the `getRecommendedEvents` utility to filter by 'isRecommended' flag.
+   * 2. Limits the output to 3 items to preserve sidebar layout integrity.
+   * 3. Performance: Only re-computes if the master catalog structure changes.
+   * * @type {Array<Object>}
    */
   const recommended = useMemo(() => {
-    return allEvents
-      ?.filter((event) => event.isRecommended === true)
-      .slice(0, 3) || [];
+    return getRecommendedEvents(allEvents, { limit: 3 });
   }, [allEvents]);
 
   /**
-   * Conditional Rendering:
-   * If no events match the recommendation criteria, the component 
-   * returns null to keep the UI clean and avoid empty placeholders.
+   * Defensive Rendering.
+   * Returns null to avoid rendering empty headers or containers if the
+   * recommendation engine returns no matches.
    */
   if (recommended.length === 0) {
     return null;
   }
 
   return (
-    <section 
+    <section
       className="w-full animate-in fade-in duration-700"
       aria-labelledby="recommended-title"
     >
-      <h3 id="recommended-title" className="text-xl font-bold text-slate-800 mb-4 px-1">
+      <h3
+        id="recommended-title"
+        className="text-xl font-bold text-slate-800 mb-4 px-1"
+      >
         Recommended for you
       </h3>
-      
+
       {/* Presentational Layer:
-          Delegates the UI rendering to the stateless RecommendedEvents component.
+          Delegates the UI mapping and styling to the stateless 
+          RecommendedEvents presentational component.
       */}
       <RecommendedEvents events={recommended} />
     </section>

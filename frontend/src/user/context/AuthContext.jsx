@@ -1,138 +1,147 @@
-import { createContext, useState, useContext, useMemo, useCallback } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+} from "react";
+import { loginUser, registerUser } from "../services/authService";
 
 /**
- * @typedef {Object} User
- * @property {string} id - Unique identifier for the user.
- * @property {string} name - Display name of the user.
- * @property {string} email - Registered email address.
- * @property {string} role - Access level for RBAC (e.g., 'user', 'admin').
- */
-
-/**
- * @typedef {Object} AuthContextValue
- * @property {User|null} user - The current authenticated user object or null if guest.
- * @property {boolean} isAuthenticated - Derived flag for session status.
- * @property {boolean} isLoading - Tracks the status of asynchronous auth operations.
- * @property {function(Object): Promise<void>} login - Orchestrates the login sequence.
- * @property {function(): void} logout - Orchestrates the session termination.
- */
-
-/**
- * Global Authentication Context.
- * * This context serves as the Single Source of Truth for user identity 
- * and session persistence throughout the application lifecycle.
- * * @type {React.Context<AuthContextValue|null>}
+ * AuthContext Definition.
+ * Initialized as null to ensure it's only populated by the AuthProvider.
  */
 const AuthContext = createContext(null);
 
 /**
+ * Normalizes API response data into a consistent internal User object.
+ * @private
+ * @param {Object} responseData - Raw data from the Auth service.
+ * @returns {Object} Structured user data.
+ */
+const formatUserData = (responseData) => ({
+  id: responseData.userId,
+  email: responseData.email,
+  name: responseData.name,
+  token: responseData.token,
+});
+
+/**
  * AuthProvider Component.
- * * This provider encapsulates the authentication business logic. 
- * It synchronizes the in-memory React state with the browser's LocalStorage 
- * to ensure sessions persist across page reloads.
+ * * The central authority for authentication state. It manages user sessions,
+ * persistence via LocalStorage, and exposes high-level auth actions.
+ * * **Architectural Features**:
+ * 1. **State Hydration**: Automatically restores session from `localStorage` on init.
+ * 2. **Performance Optimization**: Memoizes the context value and callbacks to prevent
+ * unnecessary re-renders of the component tree.
+ * 3. **Error Boundary**: Includes defensive parsing for local storage data.
  * * @component
  * @category Context
- * @param {Object} props - Component properties.
- * @param {import("react").ReactNode} props.children - Component tree to be wrapped.
- * @returns {JSX.Element} The provider component with memoized session context.
  */
 export const AuthProvider = ({ children }) => {
-  /**
-   * Persistence Initialization:
-   * Employs a Lazy Initializer to sync state with LocalStorage.
-   * This logic only executes once during the initial mount.
+  /** * Session Initialization (Hydration).
+   * Attempts to sync the 'user' state with browser storage.
    */
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('auth_user');
+      const savedUser = localStorage.getItem("auth_user");
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (error) {
-      console.error("[AuthContext]: Hydration failed. LocalStorage data might be corrupted.", error);
+      console.error("[AuthContext]: Hydration failed.", error);
       return null;
     }
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [isLoading, setIsLoading] = useState(false);
+  const isAuthenticated = !!user;
 
   /**
-   * Login Sequence (Mock):
-   * Simulates an asynchronous handshake with an identity provider.
-   * Upon success, it updates both the persistence layer and the reactive state.
-   * * @async
-   * @param {Object} credentials - User identification (email, password).
-   * @throws {Error} If the credentials do not meet the mock criteria.
+   * Performs user registration and establishes a session.
+   * @async
+   * @function register
+   * @param {string} name
+   * @param {string} email
+   * @param {string} password
+   * @throws {Error} If the service request fails.
    */
-  const login = useCallback(async (credentials) => {
+  const register = useCallback(async (name, email, password) => {
     setIsLoading(true);
-    
     try {
-      // Simulate network latency for a realistic UX
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const responseData = await registerUser(name, email, password);
+      const userData = formatUserData(responseData);
 
-      /** @type {User} */
-      const userData = { 
-        id: 'u123', 
-        name: 'Nico Paez', 
-        email: credentials.email,
-        role: 'user'
-      };
-
-      // 1. Sync with browser storage
-      localStorage.setItem('auth_user', JSON.stringify(userData));
-      
-      // 2. Sync with React state
+      localStorage.setItem("auth_user", JSON.stringify(userData));
       setUser(userData);
-      setIsAuthenticated(true);
     } catch (error) {
-      console.error("[AuthContext]: Login operation failed.", error);
-      throw new Error("Invalid credentials. Please verify your data.");
+      console.error("[AuthContext]: Register failed.", error.message);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   /**
-   * Logout Sequence:
-   * Explicitly clears the identity data from the browser's storage 
-   * and resets the application's global state.
+   * Authenticates an existing user.
+   * @async
+   * @function login
+   * @param {string} email
+   * @param {string} password
+   * @throws {Error} If credentials or service fail.
    */
-  const logout = useCallback(() => {
-    localStorage.removeItem('auth_user');
-    setUser(null);
-    setIsAuthenticated(false);
+  const login = useCallback(async (email, password) => {
+    setIsLoading(true);
+    try {
+      const responseData = await loginUser(email, password);
+      const userData = formatUserData(responseData);
+
+      localStorage.setItem("auth_user", JSON.stringify(userData));
+      setUser(userData);
+    } catch (error) {
+      console.error("[AuthContext]: Login failed.", error.message);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   /**
-   * Memoized Provider Value:
-   * Prevents downstream consumer components (like ProtectedRoutes or Navbars) 
-   * from re-rendering unless a significant change occurs in the session data.
+   * Terminates the current session and clears local storage.
+   * @function logout
    */
-  const value = useMemo(() => ({
-    user,
-    isAuthenticated,
-    isLoading,
-    login,
-    logout
-  }), [user, isAuthenticated, isLoading, login, logout]);
+  const logout = useCallback(() => {
+    localStorage.removeItem("auth_user");
+    setUser(null);
+  }, []);
+
+  /**
+   * Memoized Context Value.
+   * Prevents re-rendering of all consumers unless the specific auth state changes.
+   */
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      isLoading,
+      register,
+      login,
+      logout,
+    }),
+    [user, isAuthenticated, isLoading, register, login, logout]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 /**
- * useAuthContext Hook.
- * * Low-level internal utility to consume the raw AuthContext.
- * Note: Components should generally use the 'useAuth' facade hook instead.
- * * @hook
- * @returns {AuthContextValue} The current authentication state and management methods.
- * @throws {Error} If invoked outside the boundary of an AuthProvider.
+ * Custom Hook: useAuthContext.
+ * Specialized hook to access Auth state with an built-in provider check.
+ * @throws {Error} If used outside of an AuthProvider.
+ * @returns {Object} Auth context value.
  */
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error(
-      "useAuthContext failure: The component must be nested within an <AuthProvider />."
-    );
+    throw new Error("useAuthContext must be used within an AuthProvider");
   }
   return context;
 };
