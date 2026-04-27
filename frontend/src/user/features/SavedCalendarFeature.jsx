@@ -1,55 +1,66 @@
-import { useMemo, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useEvents } from '../../events/hooks/useEvents';
-import { useUser } from '../context/UserContext';
-import SavedEventsCalendar from '../components/SavedEventsCalendar';
-import { addMonths, subMonths, setMonth } from 'date-fns';
+import { useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEvents } from "../../events/hooks/useEvents";
+import { useUser } from "../context/UserContext";
+import SavedEventsCalendar from "../components/SavedEventsCalendar";
+import { addMonths, subMonths, setMonth } from "date-fns";
+import { groupSavedEventsByDate } from "events/utils/eventTransformers";
 
 /**
- * SavedCalendarFeature Component.
- * * This "Smart Component" (Feature) orchestrates the logic for the User's Saved Events Calendar.
- * It manages the date navigation state, filters the global event catalog based on 
- * the user's saved IDs, and maps them into a date-indexed dictionary for efficient rendering.
- * * Architectural Role:
- * Acts as the Data Orchestrator for the presentation-only SavedEventsCalendar component.
+ * SavedCalendarFeature Component (Smart/Feature Orchestrator).
+ * * This orchestrator bridges the global event catalog with the user's private data.
+ * It manages the temporal state (navigation between months) and transforms raw
+ * event arrays into a high-performance dictionary indexed by date.
+ * * **Core Responsibilities**:
+ * 1. **Data Indexing**: Filters and groups events using `groupSavedEventsByDate` to
+ * optimize lookup during calendar grid rendering.
+ * 2. **Navigation Logic**: Controls the temporal window (month/year) without
+ * affecting global state.
+ * 3. **Stable API Delivery**: Memoizes event handlers to prevent unnecessary
+ * re-renders of the specialized `SavedEventsCalendar` UI.
  * * @component
- * @category Features
- * @returns {JSX.Element} The orchestrated SavedEventsCalendar.
+ * @category Features/User
+ * @returns {JSX.Element} The orchestrated SavedEventsCalendar with live user data.
  */
 const SavedCalendarFeature = () => {
   const navigate = useNavigate();
+
+  /** * Domain Hook Consumption:
+   * Retrieves the master event list and the user's bookmarked IDs.
+   */
   const { events } = useEvents();
   const { savedIds } = useUser();
-  
+
   /**
-   * Current focus date of the calendar.
-   * Managed at the Feature level to keep the UI component stateless.
+   * Calendar Viewport State:
+   * Tracks which month/year the user is currently inspecting.
    */
   const [currentDate, setCurrentDate] = useState(new Date());
 
   /**
-   * Data Orchestration:
-   * Filters events saved by the user and transforms them into a map { "YYYY-MM-DD": [Event, ...] }
-   * Memoized to prevent heavy recalculations on every render.
+   * Data Orchestration (Memoized):
+   * Transforms the flat event list into an O(1) lookup dictionary.
+   * Re-calculates only when the catalog changes or the user saves/unsaves an event.
    */
   const eventsByDate = useMemo(() => {
-    return events
-      .filter((event) => savedIds.includes(event.id))
-      .reduce((acc, event) => {
-        const dateKey = event.date; // Expects "YYYY-MM-DD"
-        if (!acc[dateKey]) acc[dateKey] = [];
-        acc[dateKey].push(event);
-        return acc;
-      }, {});
+    return groupSavedEventsByDate(events, savedIds);
   }, [events, savedIds]);
 
   /**
-   * Navigation Handlers:
-   * Memoized using useCallback to maintain stable references when passed to the UI component.
+   * Navigation Handlers (Memoized):
+   * stable references are crucial for the performance of the pure UI component.
    */
-  const handleDateClick = useCallback((dateKey) => {
-    navigate(`/user/saved-events?date=${dateKey}`);
-  }, [navigate]);
+
+  /**
+   * Redirects to the detailed list view for a specific date using URL parameters.
+   * @param {string} dateKey - The ISO date string (YYYY-MM-DD).
+   */
+  const handleDateClick = useCallback(
+    (dateKey) => {
+      navigate(`/user/saved-events?date=${dateKey}`);
+    },
+    [navigate]
+  );
 
   const handleNextMonth = useCallback(() => {
     setCurrentDate((prev) => addMonths(prev, 1));
@@ -59,14 +70,18 @@ const SavedCalendarFeature = () => {
     setCurrentDate((prev) => subMonths(prev, 1));
   }, []);
 
+  /**
+   * Directly sets the calendar month focus.
+   * @param {number} index - Month index from 0 (Jan) to 11 (Dec).
+   */
   const handleSelectMonth = useCallback((index) => {
     setCurrentDate((prev) => setMonth(prev, index));
   }, []);
 
   return (
-    <SavedEventsCalendar 
+    <SavedEventsCalendar
       currentDate={currentDate}
-      eventsMap={eventsByDate} 
+      eventsMap={eventsByDate}
       onDateClick={handleDateClick}
       onNextMonth={handleNextMonth}
       onPrevMonth={handlePrevMonth}

@@ -1,68 +1,66 @@
-import { useState } from 'react';
-import { useEvents } from '../hooks/useEvents';
-import EventGrid from '../components/EventGrid';
+import { useState, useMemo } from "react";
+import { useEvents } from "../hooks/useEvents";
+import EventGrid from "../components/EventGrid";
+import { filterEventsByTime } from "events/utils/eventHelpers";
 
 /**
  * @typedef {Object} FilterButton
- * @property {string} id - Unique identifier for the filter (e.g., '24h', '7d').
- * @property {string} label - The text displayed on the button.
+ * @property {string} id - Unique identifier for the filter window (e.g., '24h', '7d').
+ * @property {string} label - The human-readable text displayed on the button.
  */
 
 /**
- * UpcomingListFeature Component.
- * * * This feature-level orchestrator manages the "Upcoming Experiences" view.
- * * It provides a time-based filtering interface allowing users to toggle between 
- * different proximity windows (24 hours, 7 days, 30 days, or all).
- * * The component handles chronological filtering logic by comparing current 
- * system time against event dates.
- * * @component
- * @category Features
- * @returns {JSX.Element} A structured layout containing time filters and a 
- * responsive grid of filtered events.
+ * UpcomingListFeature Component (Feature Orchestrator).
+ *
+ * This smart component manages the "Upcoming Experiences" view, providing a
+ * time-based filtering interface. It coordinates the logic for selecting
+ * specific proximity windows and ensures the display is updated based on
+ * chronological criteria.
+ *
+ * @component
+ * @category Features/Events
+ * @returns {JSX.Element} A layout featuring interactive time filters and a
+ * responsive event grid.
  */
 const UpcomingListFeature = () => {
+  /** * Global State Consumption.
+   * Accesses the event collection and loading status from the Events context.
+   */
   const { events, loading } = useEvents();
-  
-  /**
-   * timeFilter State:
-   * Controls the current active time window for the event collection.
-   * @type {string} '24h' | '7d' | '30d' | 'all'
-   */
-  const [timeFilter, setTimeFilter] = useState('7d');
 
   /**
-   * Date Filtering Engine:
-   * Memoizes (via IIFE) the filtered collection based on the selected time window.
-   * It excludes past events and calculates the day difference for each item.
-   * @returns {Array<Object>} The subset of events that fall within the time range.
+   * timeFilter State.
+   * Tracks the currently active temporal window.
+   * @type {'24h' | '7d' | '30d' | 'all'}
    */
-  const filteredEvents = (() => {
-    const now = new Date();
-    
-    return events.filter(event => {
-      const eventDate = new Date(event.date);
-      const timeDiff = eventDate - now;
-      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+  const [timeFilter, setTimeFilter] = useState("7d");
 
-      // Only include future events
-      if (timeDiff < 0) return false;
+  /**
+   * Date Filtering Logic.
+   * Memoizes the event subset based on the selected time window.
+   * This prevents expensive re-filtering operations during unrelated
+   * re-renders unless the source data or filter changes.
+   * @returns {Array<Object>} Subset of events falling within the selected range.
+   */
+  const filteredEvents = useMemo(() => {
+    return filterEventsByTime(events, timeFilter);
+  }, [events, timeFilter]);
 
-      if (timeFilter === '24h') return daysDiff <= 1;
-      if (timeFilter === '7d') return daysDiff <= 7;
-      if (timeFilter === '30d') return daysDiff <= 30;
-      
-      return true; // For 'all' filter or default
-    });
-  })();
-
-  /** @type {FilterButton[]} */
+  /** * UI Configuration.
+   * Static definition of available filter buttons for the navigation bar.
+   * @type {FilterButton[]}
+   */
   const filterButtons = [
-    { id: '24h', label: 'Next 24 Hours' },
-    { id: '7d', label: 'This Week' },
-    { id: '30d', label: 'This Month' },
-    { id: 'all', label: 'All Upcoming' },
+    { id: "24h", label: "Next 24 Hours" },
+    { id: "7d", label: "This Week" },
+    { id: "30d", label: "This Month" },
+    { id: "all", label: "All Upcoming" },
   ];
 
+  /**
+   * Loading Guard.
+   * Visual feedback while the master event catalog is being populated.
+   */
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -75,13 +73,12 @@ const UpcomingListFeature = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-8 animate-fade-in">
-      
-      {/* Header & Filter Controls */}
+      {/* Feature Header & Filter Controls */}
       <header className="space-y-6">
         <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
           Upcoming Experiences
         </h2>
-        
+
         <nav className="flex flex-wrap gap-4" aria-label="Time filters">
           {filterButtons.map((btn) => (
             <button
@@ -89,8 +86,8 @@ const UpcomingListFeature = () => {
               onClick={() => setTimeFilter(btn.id)}
               className={`px-6 py-2 rounded-full font-medium transition-all duration-300 border ${
                 timeFilter === btn.id
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600'
+                  ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-105"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600"
               }`}
             >
               {btn.label}
@@ -99,15 +96,18 @@ const UpcomingListFeature = () => {
         </nav>
       </header>
 
-      {/* Results Section: Reusing the Atomic EventGrid */}
+      {/* Results Section: Presentational Layer */}
       <section aria-label="Filtered Events Grid">
         {filteredEvents.length > 0 ? (
           <EventGrid events={filteredEvents} />
         ) : (
+          /* Empty State Handler for filtered results */
           <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-            <p className="text-slate-500 text-lg">No events found for this specific period.</p>
-            <button 
-              onClick={() => setTimeFilter('all')}
+            <p className="text-slate-500 text-lg">
+              No events found for this specific period.
+            </p>
+            <button
+              onClick={() => setTimeFilter("all")}
               className="mt-4 text-blue-600 font-semibold hover:underline"
             >
               Show all upcoming events
@@ -115,7 +115,6 @@ const UpcomingListFeature = () => {
           </div>
         )}
       </section>
-
     </div>
   );
 };

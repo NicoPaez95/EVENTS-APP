@@ -1,101 +1,105 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useFormValidation } from '../hooks/useFormValidation';
-import RegisterForm from '../components/RegisterForm';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useFormValidation } from "../hooks/useFormValidation";
+import RegisterForm from "../components/RegisterForm";
+import { validateRegister } from "user/utils/authValidators";
 
 /**
- * RegisterFeature Component.
- * * This "Smart Component" orchestrates the account creation process. 
- * It manages the local loading state, triggers validation logic via hooks, 
- * and communicates with the AuthContext to register the user.
- * * Architectural Note:
- * It currently utilizes the 'login' method as a mock for the registration 
- * process until the backend implementation is completed.
- * * @component
- * @category Features
- * @returns {JSX.Element} The rendered registration orchestrator.
+ * RegisterFeature Component (Smart/Feature Orchestrator).
+ *
+ * This component orchestrates the user registration lifecycle. It bridges the
+ * gap between the presentational `RegisterForm` and the global `AuthContext`,
+ * managing asynchronous states and server-side error feedback.
+ *
+ * **Key Responsibilities**:
+ * 1. **Client-side Guarding**: Prevents submission if the `useFormValidation` hook
+ * detects invalid inputs.
+ * 2. **Domain Integration**: Delegates the actual API call and state persistence
+ * to the `register` function from `AuthContext`.
+ * 3. **Server Error Handling**: Manages a local `serverError` state to display
+ * feedback for issues like "Email already in use".
+ * 4. **Success Flow**: Redirects the user to their profile upon successful account creation.
+ *
+ * @component
+ * @category Features/User
+ * @returns {JSX.Element} The orchestrated registration flow with error handling.
  */
 const RegisterFeature = () => {
-  const { login } = useAuth(); 
+  const { register } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Validation Schema:
-   * Client-side rules for the registration flow.
-   * @param {Object} values - Current form fields.
-   * @returns {Object} Validation errors.
+  /** * Feature UI State.
+   * Tracks loading status and captures non-validation errors (e.g., Server 500 or 409).
    */
-  const validate = (values) => {
-    let errors = {};
-    if (!values.name) {
-      errors.name = "Full name is required";
-    }
-    
-    if (!values.email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-      errors.email = "Invalid email format";
-    }
-    
-    if (!values.password) {
-      errors.password = "Password is required";
-    } else if (values.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
-    }
-    
-    return errors;
-  };
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState(null);
 
-  /**
-   * Form Handling:
-   * useFormValidation centralizes the 'onChange' and 'error' state management.
+  /** * Form Logic Integration.
+   * Encapsulates the 'name', 'email', and 'password' state logic.
    */
   const { values, errors, handleChange, isValid } = useFormValidation(
-    { name: '', email: '', password: '' },
-    validate
+    { name: "", email: "", password: "" },
+    validateRegister
   );
 
   /**
-   * Submission Handler:
-   * Orchestrates the async flow between the UI and the AuthProvider.
-   * @param {Event} e - Form submission event.
+   * Orchestrates the registration submission.
    * @async
+   * @param {React.FormEvent} e - Form event object.
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Safety check using the validation schema
+    setServerError(null); // Reset server feedback on new attempt
+
+    // Step 1: Frontend Validation Check
     if (!isValid()) return;
 
     setIsLoading(true);
     try {
-      console.log("[RegisterFeature]: Creating account for", values.name);
-      
-      /**
-       * Note: 'login' is used here to simulate account creation and 
-       * immediate session establishment in the mock environment.
-       */
-      await login({ email: values.email, password: values.password }); 
-      
-      // Post-registration navigation
-      navigate('/profile');
+      console.log(
+        "[RegisterFeature]: Attempting to register user",
+        values.name
+      );
+
+      // Step 2: Invoke Auth Domain logic
+      // Arguments are passed individually as expected by the AuthProvider's register function
+      await register(values.name, values.email, values.password);
+
+      // Step 3: Success Navigation
+      navigate("/profile");
     } catch (error) {
-      console.error("[RegisterFeature Error]:", error);
+      // Step 4: Exception Handling
+      // Captures the 'throw error' from the service/context layer
+      setServerError(error.message);
+      console.error("[RegisterFeature Error]:", error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <RegisterForm 
-      values={values} 
-      errors={errors} 
-      onChange={handleChange} 
-      onSubmit={handleSubmit} 
-      isLoading={isLoading} 
-    />
+    <>
+      {/* Global Server Feedback Area: 
+          Displays errors that are not field-specific (e.g., connection issues). 
+      */}
+      {serverError && (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl mb-4 text-center text-sm font-medium animate-in fade-in slide-in-from-top-2"
+          role="alert"
+        >
+          {serverError}
+        </div>
+      )}
+
+      <RegisterForm
+        values={values}
+        errors={errors}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
+    </>
   );
 };
 

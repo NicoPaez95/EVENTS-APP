@@ -1,71 +1,100 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { useCheckout } from '../../hooks/useCheckout';
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useCheckout } from "../../hooks/useCheckout";
 
-// Sub-components for each step of the flow
-import QuantityStep from '../../components/CheckoutModal/QuantityStep';
-import PaymentStep from '../../components/CheckoutModal/PaymentStep';
-import ProcessingStep from '../../components/CheckoutModal/ProcessingStep';
-import SuccessStep from '../../components/CheckoutModal/SuccessStep';
+// Step-based sub-components
+import QuantityStep from "../../components/CheckoutModal/QuantityStep";
+import PaymentStep from "../../components/CheckoutModal/PaymentStep";
+import ProcessingStep from "../../components/CheckoutModal/ProcessingStep";
+import SuccessStep from "../../components/CheckoutModal/SuccessStep";
+
+/**
+ * @typedef {Object} EventData
+ * @property {string|number} id - Unique event identifier.
+ * @property {string} title - Event name.
+ * @property {number} price - Unit price per ticket.
+ */
 
 /**
  * CheckoutModal Component (Orchestrator).
- * * This "Smart Component" manages the entire ticket purchasing lifecycle.
- * It uses the `useCheckout` headless hook to handle business logic and 
- * coordinates the transitions between Quantity, Payment, Processing, and Success steps.
- * * It utilizes React Portals to render the modal outside the main DOM hierarchy
- * for better accessibility and Z-index management.
+ *
+ * This smart component manages the multi-step ticket purchasing flow.
+ * It handles state transitions between selection, payment, and confirmation
+ * using the `useCheckout` custom hook.
+ *
+ * Key features:
+ * - React Portals for Z-index isolation.
+ * - Body scroll locking during active state.
+ * - Simulated payment processing delay.
  *
  * @component
- * @category Features/Events/Checkout
- * * @param {Object} props - Component props.
- * @param {boolean} props.isOpen - Boolean flag to control modal visibility.
- * @param {Function} props.onClose - Callback to trigger the closing of the modal.
- * @param {Object} props.event - The event data object to be processed.
- * * @returns {React.ReactPortal|null} The rendered modal via Portal or null if closed.
+ * @category Features/Checkout
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isOpen - Visibility toggle for the modal.
+ * @param {Function} props.onClose - Callback to terminate the checkout process.
+ * @param {EventData} props.event - Data object of the event being purchased.
+ * @returns {React.ReactPortal|null} Teleported modal tree or null if closed.
  */
 const CheckoutModal = ({ isOpen, onClose, event }) => {
   const checkout = useCheckout(event);
 
   /**
-   * Effect to manage side effects during the modal lifecycle:
-   * 1. Resets the checkout state with a small delay when closing to prevent visual flickering.
-   * 2. Toggles body scroll overflow to prevent background scrolling when active.
+   * Effect: Modal Lifecycle & UX Management.
+   * - Prevents background scrolling by toggling `document.body` overflow.
+   * - Implements a 300ms delayed state reset on close to ensure smooth exit animations.
    */
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => checkout.resetCheckout(), 300);
       return () => clearTimeout(timer);
     }
-    
-    // Lock body scroll
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, checkout]);
+
+  /**
+   * Effect: Payment Processing Simulation.
+   * Automatically advances to the success step after a 3.5s delay
+   * when the checkout state enters the 'Processing' phase (Step 3).
+   */
+  useEffect(() => {
+    if (isOpen && checkout.currentStep === 3) {
+      const timer = setTimeout(() => {
+        checkout.nextStep();
+      }, 3500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, checkout.currentStep, checkout]);
+
+  // Early return to prevent rendering before hook initialization logic
   if (!isOpen) return null;
 
+  /**
+   * Main Modal JSX Structure.
+   * Defined as a constant to be passed into the Portal.
+   */
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop with blur effect */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onClose} 
+      {/* Backdrop: Handles click-to-close behavior */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
         aria-hidden="true"
       />
-      
-      {/* Modal Container */}
-      <div 
+
+      {/* Modal Surface */}
+      <div
         className="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300"
         role="dialog"
         aria-modal="true"
       >
-        
-        {/* Close Button */}
+        {/* Close UI Action */}
         <div className="absolute top-4 right-4 z-10">
-          <button 
+          <button
             onClick={onClose}
             aria-label="Close modal"
             className="text-gray-400 hover:text-gray-600 p-2 transition-colors"
@@ -75,20 +104,20 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
         </div>
 
         <div className="p-8">
-          {/* STEP 1: Quantity Selection */}
+          {/* STEP 1: Ticket Quantity Configuration */}
           {checkout.currentStep === 1 && (
-            <QuantityStep 
-              event={event} 
-              quantity={checkout.quantity} 
+            <QuantityStep
+              event={event}
+              quantity={checkout.quantity}
               totalAmount={checkout.totalAmount}
-              onQuantityChange={checkout.handleQuantity} 
-              onNext={checkout.nextStep} 
+              onQuantityChange={checkout.handleQuantity}
+              onNext={checkout.nextStep}
             />
           )}
 
-          {/* STEP 2: Payment Form & 3D Card Card */}
+          {/* STEP 2: Payment Credentials & Interactive Card */}
           {checkout.currentStep === 2 && (
-            <PaymentStep 
+            <PaymentStep
               paymentData={checkout.paymentData}
               totalAmount={checkout.totalAmount}
               onUpdate={checkout.updatePaymentData}
@@ -100,23 +129,21 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
             />
           )}
 
-          {/* STEP 3: Processing Screen */}
-          {checkout.currentStep === 3 && (
-            <ProcessingStep onNext={checkout.nextStep} />
-          )}
+          {/* STEP 3: Transaction Handshake (Visual Loader) */}
+          {checkout.currentStep === 3 && <ProcessingStep />}
 
-          {/* STEP 4: Final Confirmation & QR */}
+          {/* STEP 4: Success Confirmation & QR Receipt */}
           {checkout.currentStep === 4 && (
-            <SuccessStep 
-              event={event} 
-              quantity={checkout.quantity} 
-              ticketData={checkout.ticketData} 
-              onClose={onClose} 
+            <SuccessStep
+              event={event}
+              quantity={checkout.quantity}
+              ticketData={checkout.ticketData}
+              onClose={onClose}
             />
           )}
         </div>
 
-        {/* Security Decorative Footer */}
+        {/* Trust Badge Footer */}
         {checkout.currentStep < 4 && (
           <div className="bg-gray-50 py-3 border-t border-gray-100 flex justify-center items-center gap-2">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -129,10 +156,10 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
   );
 
   /**
-   * We render the content into the 'modal-root' div to ensure 
-   * it stays above all other UI elements.
+   * Teleports the modal content to the 'modal-root' element.
+   * Ensures the modal is rendered at the top level of the DOM.
    */
-  return createPortal(modalContent, document.getElementById('modal-root'));
+  return createPortal(modalContent, document.getElementById("modal-root"));
 };
 
 export default CheckoutModal;

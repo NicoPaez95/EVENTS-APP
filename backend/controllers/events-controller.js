@@ -33,7 +33,7 @@ import Event from '../models/event.js';
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
  */
-export const getAllEvents = async (req, res, next) => {
+ const getAllEvents = async (req, res, next) => {
   let events;
   try {
     events = await Event.find({});
@@ -56,7 +56,7 @@ export const getAllEvents = async (req, res, next) => {
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
  */
-export const getEventById = async (req, res, next) => {
+ const getEventById = async (req, res, next) => {
   const eventId = req.params.eid; 
   let event;
 
@@ -85,7 +85,7 @@ export const getEventById = async (req, res, next) => {
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
  */
-export const getEventByUserId = async (req, res, next) => {
+ const getEventByUserId = async (req, res, next) => {
   const userId = req.params.uid;
   let userEvents;
 
@@ -107,3 +107,5 @@ export const getEventByUserId = async (req, res, next) => {
     events: userEvents.map(event => event.toObject({ getters: true })) 
   });
 };
+
+export { getAllEvents, getEventById, getEventByUserId };

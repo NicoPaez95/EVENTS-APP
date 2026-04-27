@@ -8,9 +8,11 @@
  */
 
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import HttpError from './models/http-error.js';
 import eventsRoutes from './routes/events-routes.js';
+import userRoutes from './routes/users-routes.js';
 import { connectDB } from './config/db.js';
 
 // Initialize environment variables configuration
@@ -35,21 +37,22 @@ app.use(express.json());
  * Configures security headers to enable controlled cross-origin interaction 
  * between the React frontend and this API.
  */
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Headers', 
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-  next();
-});
-
+app.use(cors({
+  origin: 'http://localhost:3000', // Tu frontend
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept']
+}));
 /**
  * Domain-Specific Routes.
  * Mounting the events module at the /api/events prefix.
  */
 app.use('/api/events', eventsRoutes);
+
+/**
+ * Domain-Specific Routes.
+ * Mounting the users module at the /api/users prefix.
+ */
+app.use('/api/users', userRoutes);
 
 /**
  * Middleware: Unhandled Route Interceptor.

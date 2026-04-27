@@ -1,30 +1,33 @@
-import { categories } from '../data/categories.mock';
-import CategoryGrid from 'events/components/CategoryGrid';
-import { useEvents } from '../hooks/useEvents';
+import { categories } from "../data/categories.mock";
+import CategoryGrid from "events/components/CategoryGrid";
+import { useEvents } from "../hooks/useEvents";
 
 /**
  * CategoryEvents Feature Component.
- * * This "Smart Component" orchestrates the category selection experience.
- * It encapsulates the business logic for category filtering by consuming 
- * the global EventsContext, making it completely autonomous and 
- * decoupled from page-level props.
- * * @component
- * @category Features
- * @returns {JSX.Element} The orchestrated category selection section.
+ *
+ * This "Smart Component" (Orchestrator) manages the category selection logic.
+ * It encapsulates the filtering business logic by consuming the global
+ * `EventsContext`, allowing it to be dropped into any layout without
+ * requiring prop drilling from page-level components.
+ *
+ * @component
+ * @category Features/Events
+ * @returns {JSX.Element} A section containing the category selection interface.
  */
 const CategoryEvents = () => {
   /**
-   * Context Consumption:
-   * Retrieves the global handler for category selection. 
-   * This ensures that any click on the grid updates the application's 
-   * filtered event state globally.
+   * Hook: Global Event State Management.
+   * * Extracts `handleCategorySelect` to ensure that interactions within the grid
+   * trigger global state updates (e.g., filtering the main event list).
    */
   const { handleCategorySelect } = useEvents();
 
   return (
-    <section aria-labelledby="categories-title">
-      {/* Feature Header */}
-      <h2 
+    <section aria-labelledby="categories-title" className="py-8">
+      {/* Feature Header: 
+          Uses id for accessibility matching with aria-labelledby 
+      */}
+      <h2
         id="categories-title"
         className="text-2xl font-bold text-center p-4 m-2 font-display text-slate-900"
       >
@@ -32,12 +35,12 @@ const CategoryEvents = () => {
       </h2>
 
       {/* Presentational Layer:
-        Passes the static mock data and the global context handler 
-        to the decoupled Grid component.
+          Delegates the rendering of the grid to the UI component.
+          Injects static mock data and the state handler.
       */}
-      <CategoryGrid 
-        categories={categories} 
-        onCategoryClick={handleCategorySelect} 
+      <CategoryGrid
+        categories={categories}
+        onCategoryClick={handleCategorySelect}
       />
     </section>
   );
