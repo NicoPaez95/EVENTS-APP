@@ -1,3 +1,11 @@
+/**
+ * @file AuthContext.jsx
+ * @description Central authority for authentication state management.
+ * Handles user sessions, registration, and persistence logic with automated cache cleanup.
+ * @module context/AuthContext
+ * @author Nico Paez
+ */
+
 import {
   createContext,
   useState,
@@ -8,19 +16,33 @@ import {
 import { loginUser, registerUser } from "../services/authService";
 
 /**
- * AuthContext Definition.
- * Initialized as null to ensure it's only populated by the AuthProvider.
+ * @typedef {Object} UserData
+ * @property {string} id - Unique user identifier.
+ * @property {string} email - User email address.
+ * @property {string} name - User display name.
+ * @property {string} token - JWT authentication token.
  */
+
+/**
+ * @typedef {Object} AuthContextInterface
+ * @property {UserData|null} user - The current authenticated user object.
+ * @property {boolean} isAuthenticated - Flag indicating if a session is active.
+ * @property {boolean} isLoading - Loading state for async operations.
+ * @property {Function} register - Function to create a new account.
+ * @property {Function} login - Function to start a new session.
+ * @property {Function} logout - Function to end the session and clear cache.
+ */
+
 const AuthContext = createContext(null);
 
 /**
  * Normalizes API response data into a consistent internal User object.
  * @private
  * @param {Object} responseData - Raw data from the Auth service.
- * @returns {Object} Structured user data.
+ * @returns {UserData} Structured user data.
  */
 const formatUserData = (responseData) => ({
-  id: responseData.userId,
+  id: responseData.userId || responseData.id,
   email: responseData.email,
   name: responseData.name,
   token: responseData.token,
@@ -28,95 +50,69 @@ const formatUserData = (responseData) => ({
 
 /**
  * AuthProvider Component.
- * * The central authority for authentication state. It manages user sessions,
- * persistence via LocalStorage, and exposes high-level auth actions.
- * * **Architectural Features**:
- * 1. **State Hydration**: Automatically restores session from `localStorage` on init.
- * 2. **Performance Optimization**: Memoizes the context value and callbacks to prevent
- * unnecessary re-renders of the component tree.
- * 3. **Error Boundary**: Includes defensive parsing for local storage data.
- * * @component
- * @category Context
+ * @component
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components.
+ * @returns {JSX.Element}
  */
 export const AuthProvider = ({ children }) => {
-  /** * Session Initialization (Hydration).
-   * Attempts to sync the 'user' state with browser storage.
-   */
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem("auth_user");
       return savedUser ? JSON.parse(savedUser) : null;
     } catch (error) {
-      console.error("[AuthContext]: Hydration failed.", error);
+      console.error("[AuthContext] Hydration Error:", error);
       return null;
     }
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const isAuthenticated = !!user;
+
+  // Derived state: boolean flag for quick checks
+  const isAuthenticated = useMemo(() => !!user, [user]);
 
   /**
-   * Performs user registration and establishes a session.
-   * @async
-   * @function register
-   * @param {string} name
-   * @param {string} email
-   * @param {string} password
-   * @throws {Error} If the service request fails.
+   * Internal wrapper for auth requests to reduce boilerplate.
+   * @private
    */
-  const register = useCallback(async (name, email, password) => {
+  const handleAuthRequest = useCallback(async (requestFn, ...args) => {
     setIsLoading(true);
     try {
-      const responseData = await registerUser(name, email, password);
+      const responseData = await requestFn(...args);
       const userData = formatUserData(responseData);
 
       localStorage.setItem("auth_user", JSON.stringify(userData));
       setUser(userData);
+      return userData;
     } catch (error) {
-      console.error("[AuthContext]: Register failed.", error.message);
+      console.error(`[AuthContext] Operation Failed:`, error.message);
       throw error;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  /**
-   * Authenticates an existing user.
-   * @async
-   * @function login
-   * @param {string} email
-   * @param {string} password
-   * @throws {Error} If credentials or service fail.
-   */
-  const login = useCallback(async (email, password) => {
-    setIsLoading(true);
-    try {
-      const responseData = await loginUser(email, password);
-      const userData = formatUserData(responseData);
+  const register = useCallback(
+    (name, email, password) =>
+      handleAuthRequest(registerUser, name, email, password),
+    [handleAuthRequest]
+  );
 
-      localStorage.setItem("auth_user", JSON.stringify(userData));
-      setUser(userData);
-    } catch (error) {
-      console.error("[AuthContext]: Login failed.", error.message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const login = useCallback(
+    (email, password) => handleAuthRequest(loginUser, email, password),
+    [handleAuthRequest]
+  );
 
-  /**
-   * Terminates the current session and clears local storage.
-   * @function logout
-   */
   const logout = useCallback(() => {
-    localStorage.removeItem("auth_user");
-    setUser(null);
+    try {
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("user_saved_events");
+      setUser(null);
+    } catch (error) {
+      console.error("[AuthContext] Logout Error:", error);
+    }
   }, []);
 
-  /**
-   * Memoized Context Value.
-   * Prevents re-rendering of all consumers unless the specific auth state changes.
-   */
   const value = useMemo(
     () => ({
       user,
@@ -133,10 +129,9 @@ export const AuthProvider = ({ children }) => {
 };
 
 /**
- * Custom Hook: useAuthContext.
- * Specialized hook to access Auth state with an built-in provider check.
- * @throws {Error} If used outside of an AuthProvider.
- * @returns {Object} Auth context value.
+ * Hook to access AuthContext.
+ * @throws {Error} If used outside of AuthProvider.
+ * @returns {AuthContextInterface}
  */
 export const useAuthContext = () => {
   const context = useContext(AuthContext);

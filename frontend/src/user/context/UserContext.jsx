@@ -1,186 +1,107 @@
 /**
  * @file UserContext.jsx
- * @description Global state management for user-specific data and interactions.
- * Orchestrates synchronization between MongoDB persistence and local UI state
- * for saved events, implementing optimistic updates for enhanced UX.
+ * @description Global state provider for user preferences and persistent data.
+ * Implements a local-first synchronization strategy for saved events.
  * @module context/UserContext
  * @author Nico Paez
  */
 
 import {
   createContext,
-  useState,
   useContext,
+  useState,
+  useEffect,
   useCallback,
   useMemo,
-  useEffect,
 } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuthContext } from "./AuthContext";
 import { fetchSavedEventsIds, updateSavedEvent } from "../services/userService";
 
 /**
  * @typedef {Object} UserContextValue
- * @property {Array<string>} savedIds - Collection of event identifiers bookmarked by the user.
- * @property {boolean} loading - Flag indicating asynchronous data synchronization.
- * @property {function(string|number): Promise<void>} toggleSaveEvent - Orchestrates save/unsave logic with backend persistence.
- * @property {function(string|number): boolean} isEventSaved - Evaluates if a specific event is in the user's collection.
+ * @property {string[]} savedIds - Array of saved event IDs.
+ * @property {(id: string|number) => Promise<void>} toggleSavedEvent - Async toggle handler.
+ * @property {(id: string|number) => boolean} isSaved - Status checker.
  */
 
-/**
- * Context object for User domain state.
- * @type {React.Context<UserContextValue|null>}
- */
 const UserContext = createContext(null);
 
-/**
- * UserProvider Component.
- * Acts as the Single Source of Truth for user-centric features.
- * Integrates with AuthContext to ensure data belongs to the authenticated session.
- *
- * @component
- * @param {Object} props
- * @param {React.ReactNode} props.children - Component tree to be wrapped.
- * @returns {JSX.Element}
- */
 export const UserProvider = ({ children }) => {
-  // Destructuring normalized values from our useAuth hook
-  const { userId, token, isLoggedIn } = useAuth();
+  const { user, isAuthenticated } = useAuthContext();
+  const userId = user?.id;
+  const token = user?.token;
 
-  const [savedIds, setSavedIds] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [savedIds, setSavedIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user_saved_events");
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("[UserContext] Hydration Error:", error);
+      return [];
+    }
+  });
 
-  /**
-   * Effect: Data Synchronization.
-   * Hydrates the local state from MongoDB whenever the authentication status changes.
-   * Clears state on logout.
-   */
+  // Synchronize local state with remote API
   useEffect(() => {
-    const loadSavedData = async () => {
-      if (isLoggedIn && userId && token) {
-        setLoading(true);
+    const synchronizeData = async () => {
+      if (isAuthenticated && userId && token) {
         try {
           const ids = await fetchSavedEventsIds(userId, token);
-          // Ensure all IDs are stored as strings for consistent comparison
           const normalizedIds = ids.map((id) => id.toString());
           setSavedIds(normalizedIds);
+          localStorage.setItem(
+            "user_saved_events",
+            JSON.stringify(normalizedIds)
+          );
         } catch (err) {
-          console.error("[UserContext] Error loading saved events:", err);
-        } finally {
-          setLoading(false);
+          console.error("[UserContext] Sync Error:", err.message);
         }
-      } else {
+      } else if (!isAuthenticated) {
         setSavedIds([]);
+        localStorage.removeItem("user_saved_events");
       }
     };
+    synchronizeData();
+  }, [isAuthenticated, userId, token]);
 
-    loadSavedData();
-  }, [isLoggedIn, userId, token]);
-
-  /**
-   * Checks if an event is currently bookmarked by the user.
-   * Performs type-agnostic comparison via string normalization.
-   *
-   * @function isEventSaved
-   * @param {string|number} eventId - The identifier of the event to verify.
-   * @returns {boolean}
-   */
-  const isEventSaved = useCallback(
-    (eventId) => {
-      if (!eventId) return false;
-      return savedIds.some((id) => id.toString() === eventId.toString());
+  const handleToggleEvent = useCallback(
+    async (eventId) => {
+      if (!isAuthenticated) return;
+      try {
+        const updatedIds = await updateSavedEvent(userId, eventId, token);
+        const normalizedIds = updatedIds.map((id) => id.toString());
+        setSavedIds(normalizedIds);
+        localStorage.setItem(
+          "user_saved_events",
+          JSON.stringify(normalizedIds)
+        );
+      } catch (err) {
+        console.error("[UserContext] Toggle Error:", err);
+        throw err;
+      }
     },
+    [isAuthenticated, userId, token]
+  );
+
+  const isSaved = useCallback(
+    (id) => (id ? savedIds.includes(id.toString()) : false),
     [savedIds]
   );
 
-  /**
-   * Toggles the bookmark status of an event.
-   *
-   * Process:
-   * 1. Validates session.
-   * 2. Executes Optimistic UI Update.
-   * 3. Persists change to MongoDB via PATCH request.
-   * 4. Reconciles state or performs rollback on failure.
-   *
-   * @async
-   * @function toggleSaveEvent
-   * @param {string|number} eventId - The target event identifier.
-   * @returns {Promise<void>}
-   */
-  const toggleSaveEvent = useCallback(
-    async (eventId) => {
-      if (!isLoggedIn || !userId) {
-        console.warn("[UserContext] Unauthorized attempt to toggle event.");
-        return;
-      }
-
-      const eventIdStr = eventId.toString();
-      const wasSaved = savedIds.some((id) => id.toString() === eventIdStr);
-
-      // --- STAGE 1: Optimistic UI Update ---
-      setSavedIds((prevIds) => {
-        const isCurrentlyIn = prevIds.some(
-          (id) => id.toString() === eventIdStr
-        );
-        return isCurrentlyIn
-          ? prevIds.filter((id) => id.toString() !== eventIdStr)
-          : [...prevIds, eventIdStr];
-      });
-
-      try {
-        // --- STAGE 2: Backend Persistence ---
-        const response = await updateSavedEvent(userId, eventIdStr, token);
-
-        // --- STAGE 3: Final State Reconciliation ---
-        if (response && response.savedEvents) {
-          setSavedIds(response.savedEvents.map((id) => id.toString()));
-        }
-      } catch (err) {
-        console.error("[UserContext] Persistence failed, reverting UI:", err);
-
-        // --- STAGE 4: Error Recovery (Rollback) ---
-        setSavedIds((prevIds) => {
-          const isIncluded = prevIds.some((id) => id.toString() === eventIdStr);
-          if (wasSaved && !isIncluded) return [...prevIds, eventIdStr];
-          if (!wasSaved && isIncluded)
-            return prevIds.filter((id) => id.toString() !== eventIdStr);
-          return prevIds;
-        });
-      }
-    },
-    [isLoggedIn, userId, token, savedIds]
-  );
-
-  /**
-   * Memoized Context Value.
-   * Optimizes performance by preventing unnecessary re-renders of consuming components.
-   */
   const value = useMemo(
     () => ({
       savedIds,
-      toggleSaveEvent,
-      [isEventSaved.name]: isEventSaved, // Explicitly naming for JSDoc clarity
-      isEventSaved,
-      loading,
+      toggleSavedEvent: handleToggleEvent,
+      isSaved,
     }),
-    [savedIds, toggleSaveEvent, isEventSaved, loading]
+    [savedIds, handleToggleEvent, isSaved]
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-/**
- * Custom hook to consume the UserContext.
- *
- * @example
- * const { savedIds, toggleSaveEvent } = useUser();
- *
- * @throws {Error} If used outside of a UserProvider.
- * @returns {UserContextValue} The user state and actions.
- */
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
+  if (!context) throw new Error("useUser must be used within a UserProvider");
   return context;
 };

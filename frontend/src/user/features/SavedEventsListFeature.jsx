@@ -1,3 +1,11 @@
+/**
+ * @file SavedEventsListFeature.jsx
+ * @description Smart component that orchestrates the "My Saved Experiences" view.
+ * It manages data filtering based on user bookmarks and temporal URL parameters.
+ * @module features/user/SavedEventsListFeature
+ * @author Nico Paez
+ */
+
 import { useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
@@ -6,44 +14,42 @@ import EventCard from "../../events/components/EventCard";
 import { filterByIds, filterByDate } from "events/utils/filterEvents";
 
 /**
- * SavedEventsListFeature Component (Smart/Feature Orchestrator).
+ * SavedEventsListFeature Component.
  *
- * This feature manages the "My Saved Experiences" view. It synchronizes the global
- * event catalog with the user's private bookmark collection, applying multi-stage
- * filtering based on user identity and temporal parameters from the URL.
- *
- * **Architectural Logic**:
- * 1. **URL Synchronization**: Listens to `?date=` query parameters to filter results
- * dynamically (linked to the Sidebar Calendar interaction).
- * 2. **Function Composition**: Chains pure utility functions (`filterByIds` -> `filterByDate`)
- * to derive the `displayList` without mutating original state.
- * 3. **Smart Injection**: Transforms static event data into interactive `EventCard`
- * components by injecting global `Auth` and `User` handlers.
+ * Responsibilities:
+ * - Synchronize the global event catalog with user-specific saved IDs.
+ * - Apply secondary filtering based on 'date' query parameters.
+ * - Provide feedback for loading, empty, and populated states.
  *
  * @component
  * @category Features/User
- * @returns {JSX.Element} A responsive grid of filtered events or a context-aware empty state.
+ * @returns {JSX.Element} The rendered saved events grid or empty state feedback.
  */
 const SavedEventsListFeature = () => {
   const { events, loading } = useEvents();
-  const { savedIds, isEventSaved, toggleSaveEvent } = useUser();
+
+  /**
+   * User Domain State:
+   * Corrected destructuring to match the updated UserContext API.
+   */
+  const { savedIds, isSaved, toggleSavedEvent } = useUser();
   const [searchParams] = useSearchParams();
 
-  /** * Temporal Filter: Captures the 'date' query param.
-   * This allows deep-linking to specific dates in the user's agenda.
+  /**
+   * Captures the 'date' query param for calendar-based filtering.
    */
   const dateFilter = searchParams.get("date");
 
   /**
-   * Data Derived State (Memoized):
-   * Orchestrates the filtering pipeline. Re-calculates only when the catalog,
-   * bookmarks, or URL parameters change.
+   * displayList (Memoized State):
+   * Chains pure filtering functions to derive the list without mutations.
+   * Re-calculates only when the catalog, bookmarks, or URL filter change.
    */
   const displayList = useMemo(() => {
-    // Stage 1: Filter the master catalog by the user's saved IDs
+    // Stage 1: Intersection between catalog and saved bookmarks
     let list = filterByIds(events, savedIds);
 
-    // Stage 2: Apply secondary date filtering if the URL param exists
+    // Stage 2: Optional temporal filtering
     if (dateFilter) {
       list = filterByDate(list, dateFilter);
     }
@@ -51,7 +57,10 @@ const SavedEventsListFeature = () => {
     return list;
   }, [events, savedIds, dateFilter]);
 
-  // Loading State: Provides visual feedback during catalog hydration
+  /**
+   * Loading State:
+   * Ensures visual consistency during data hydration.
+   */
   if (loading) {
     return (
       <div
@@ -66,7 +75,7 @@ const SavedEventsListFeature = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header Section: Context-aware title based on current filters */}
+      {/* Dynamic Header: Adapts based on active filters */}
       <header className="border-b border-slate-100 pb-6">
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight font-display">
           {dateFilter ? `Plans for ${dateFilter}` : "My Saved Experiences"}
@@ -77,26 +86,31 @@ const SavedEventsListFeature = () => {
         </p>
       </header>
 
-      {/* Content Area: Conditional rendering for data presence */}
+      {/* Main Content: Conditional rendering based on list length */}
       {displayList.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          role="list"
+        >
           {displayList.map((event) => (
             <EventCard
               key={event.id}
               {...event}
-              isSaved={isEventSaved(event.id)}
-              onToggleSave={toggleSaveEvent}
-              showRemoveButton={true} // UX Variant: Adds visual cues for deletion in the personal list
+              // Functional Props: Unified with UserContext naming
+              isSaved={isSaved(event.id)}
+              onToggleSave={toggleSavedEvent}
+              // UX Flag: Displays the 'Remove' UI variant for the personal collection
+              showRemoveButton={true}
             />
           ))}
         </div>
       ) : (
         /* Empty State: Encourages user to return to discovery flow */
         <div
-          className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 animate-in zoom-in-95 duration-300"
+          className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200"
           role="status"
         >
-          <p className="text-slate-400 text-lg">
+          <p className="text-slate-400 text-lg italic">
             Your collection is empty for this selection.
           </p>
           <Link

@@ -1,58 +1,75 @@
-// user/hooks/useToggleEventSave.js
+/**
+ * @file useToggleEventSave.js
+ * @description Use-case hook that orchestrates event saving logic with Authentication guards.
+ * It abstracts the complexity of coordinating state, notifications, and navigation.
+ * @module hooks/useToggleEventSave
+ * @author Nico Paez
+ */
+
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { useAuthContext } from "../context/AuthContext";
 import useNotification from "./useNotification";
 
 /**
  * @typedef {Object} ToggleEventSaveHook
- * @property {(id: string|number) => void} onToggleSave - Toggles save/unsave state for a given event.
- * @property {(id: string|number) => boolean} isEventSaved - Checks if an event is currently saved.
+ * @property {(id: string|number) => Promise<void>} onToggleSave - Protected function to toggle event state.
+ * @property {(id: string|number) => boolean} isEventSaved - Function to check current event status.
  */
 
 /**
- * useToggleEventSave (Use-Case Hook)
- *
- * Encapsulates the interaction logic for saving and unsaving events.
- * Acts as an orchestration layer between:
- * - User domain (state management)
- * - Notification system (UI feedback)
- *
- * Responsibilities:
- * - Toggle event persistence state
- * - Provide immediate user feedback via toasts
- * - Expose a clean interface for UI components
- *
- * This hook abstracts away domain coordination and should be used
- * by feature-level components instead of directly accessing UserContext.
- *
+ * Custom hook to handle event save/remove interactions.
+ * 
+ * Includes an Authentication Guard that redirects unauthenticated users to the login page
+ * and prevents unnecessary notification triggers.
+ * 
  * @hook
  * @category Hooks/User
  * @returns {ToggleEventSaveHook}
  */
 const useToggleEventSave = () => {
-    const { toggleSaveEvent, isEventSaved } = useUser();
+    const { toggleSavedEvent, isSaved } = useUser();
+    const { isAuthenticated } = useAuthContext();
     const { showToast } = useNotification();
+    const navigate = useNavigate();
 
     /**
-     * Handles save/unsave interaction for an event.
-     *
-     * @param {string|number} id - Unique identifier of the event.
-     * @returns {void}
+     * Executes the toggle action if the user is authenticated.
+     * 
+     * @async
+     * @param {string|number} id - The unique identifier of the event.
+     * @returns {Promise<void>}
      */
-    const handleToggleAction = (id) => {
-        const wasSaved = isEventSaved(id);
+    const handleToggleAction = async (id) => {
+        // 1. AUTHENTICATION GUARD
+        if (!isAuthenticated) {
+            showToast("Please login to save events", "info");
+            navigate("/login");
+            return;
+        }
 
-        toggleSaveEvent(id);
+        // 2. PRE-CHECK STATE
+        const wasSaved = isSaved(id);
 
-        if (wasSaved) {
-            showToast("Removed from calendar", "info");
-        } else {
-            showToast("Added! ✨", "success");
+        try {
+            // 3. PERSISTENCE LOGIC
+            await toggleSavedEvent(id);
+
+            // 4. CONTEXTUAL FEEDBACK
+            if (wasSaved) {
+                showToast("Removed from calendar", "info");
+            } else {
+                showToast("Added to your events! ✨", "success");
+            }
+        } catch (error) {
+            showToast("Operation failed. Please try again.", "error");
+            console.error("[useToggleEventSave] Error:", error.message);
         }
     };
 
     return {
         onToggleSave: handleToggleAction,
-        isEventSaved,
+        isEventSaved: isSaved,
     };
 };
 
