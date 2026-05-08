@@ -1,62 +1,113 @@
-// src/events/utils/eventHelpers.js
+<<<<<<< Updated upstream
+/**
+ * Advanced event filtering utility with adaptive logic.
+ * * This function performs a multi-layered search:
+ * 1. **Strict Match**: Filters by all provided criteria (AND logic).
+ * 2. **Adaptive Fallback**: If no strict matches are found, it expands the search:
+ * - Date: Searches for events within a +/- 3-day window.
+ * - Location/Category: Relaxes constraints to find partial matches.
+ * * @function
+ * @param {Array<Object>} events - The complete array of event objects.
+ * @param {Object} filters - Search criteria.
+ * @param {string} [filters.searchTerm=""] - Global text to match across title, category, or location.
+ * @param {string} [filters.category=""] - Specific category filter. Use 'all' to bypass category filtering.
+ * @param {string} [filters.date=""] - Target date string in YYYY-MM-DD format.
+ * @param {string} [filters.location=""] - Specific city or venue filter.
+ * @returns {Array<Object>} A filtered and prioritized subset of events.
+=======
+/**
+ * @file eventHelpers.js
+ * @description Utility functions for event manipulation, including adaptive filtering,
+ * recommendation extraction, and collection mapping.
+ * @module utils/eventHelpers
+ * @author Nico Paez
+ */
 
 /**
  * Advanced event filtering utility with an adaptive fallback mechanism.
- * * @description
- * This function operates in two execution stages:
- * 1. **Stage 1 (Strict Match)**: Applies an 'AND' logic across all active filters 
- * (Search, Category, Location, Date).
- * 2. **Stage 2 (Adaptive Fallback)**: If Stage 1 returns no results, the engine 
- * relaxes constraints to prevent "Zero State" fatigue:
- * - **Temporal Relaxation**: Searches for events within a +/- 3-day proximity window.
- * - **Logical OR Match**: Switches from 'AND' to 'OR' logic for text-based filters.
+ * 
+ * Logic Flow:
+ * 1. **Stage 1 (Strict Match)**: Applies 'AND' logic across all active filters.
+ * 2. **Stage 2 (Adaptive Fallback)**: If Stage 1 is empty, it relaxes constraints:
+ *    - Temporal: Searches +/- 3 days from the target date.
+ *    - Logical: Switches to 'OR' logic for text/category/location matches.
  *
- * @function
- * @category Utils/Events
- * @param {Array<Object>} events - The master catalog of event objects.
- * @param {Object} filters - User-defined search criteria.
- * @param {string} [filters.searchTerm=""] - Global text search across Title, Category, and City.
- * @param {string} [filters.category=""] - Target category. 'All' is ignored to show global results.
- * @param {string} [filters.date=""] - Specific date string in ISO YYYY-MM-DD format.
- * @param {string} [filters.location=""] - Geographical filter targeting City or Venue.
- * @returns {Array<Object>} A prioritized subset of events.
+ * @function filterEvents
+ * @param {Array<Object>} events - Master catalog of event objects.
+ * @param {Object} filters - Search criteria.
+ * @param {string} [filters.searchTerm=""] - Text search (Title, Category, City).
+ * @param {string} [filters.category=""] - Target category (ignores 'all').
+ * @param {string} [filters.date=""] - Specific date (ISO YYYY-MM-DD).
+ * @param {string} [filters.location=""] - Geographical filter (City or Venue).
+ * @returns {Array<Object>} A prioritized or relaxed subset of events.
+>>>>>>> Stashed changes
  */
 export const filterEvents = (events, filters) => {
+  if (!events) return [];
+
   let { searchTerm, category, date, location } = filters;
+<<<<<<< Updated upstream
+  
+  // Normalize category value: 'all' is treated as no filter
+=======
 
-  // Normalization: Treat 'all' as an inactive filter
+  // Normalization
+>>>>>>> Stashed changes
   if (category?.toLowerCase() === 'all') category = undefined;
+  const term = searchTerm?.trim().toLowerCase();
+  const loc = location?.trim().toLowerCase();
+  const cat = category?.trim().toLowerCase();
 
-  // --- STAGE 1: Strict Filtering (AND Logic) ---
+  // --- STAGE 1: Strict Filtering ---
   let results = events.filter((event) => {
+<<<<<<< Updated upstream
     const term = searchTerm?.toLowerCase();
-
+    
+=======
+>>>>>>> Stashed changes
     const matchesSearch = term
-      ? event.title?.toLowerCase().includes(term) ||
-      event.category?.toLowerCase().includes(term) ||
-      event.venue?.city?.toLowerCase().includes(term)
+      ? event.title.toLowerCase().includes(term) || 
+        event.category.toLowerCase().includes(term) ||
+        event.location.toLowerCase().includes(term)
       : true;
 
+<<<<<<< Updated upstream
     const matchesCategory = category
-      ? event.category?.toLowerCase().includes(category.toLowerCase())
+      ? event.category.toLowerCase().includes(category.toLowerCase())
       : true;
 
     const matchesLocation = location
-      ? event.venue?.city?.toLowerCase().includes(location.toLowerCase())
+      ? event.location.toLowerCase().includes(location.toLowerCase())
+=======
+    const matchesCategory = cat
+      ? event.category?.toLowerCase().includes(cat)
       : true;
 
-    const matchesDate = date ? event.date === date : true;
+    const matchesLocation = loc
+      ? event.venue?.city?.toLowerCase().includes(loc)
+>>>>>>> Stashed changes
+      : true;
+
+    const matchesDate = date ? event.date?.split('T')[0] === date : true;
 
     return matchesSearch && matchesCategory && matchesLocation && matchesDate;
   });
 
-  // --- STAGE 2: Adaptive Fallback (Fallback Logic) ---
+<<<<<<< Updated upstream
+  // --- STAGE 2: Adaptive Fallback (If no results found) ---
   if (results.length === 0) {
-
-    /** * Fallback A: Proximity Search (+/- 3 days)
-     * Triggered if a date was specified without conflicting text filters.
-     */
+    
+    // Fallback A: Date Proximity Search (+/- 3 days)
     if (date && !searchTerm && !category && !location) {
+=======
+  // --- STAGE 2: Adaptive Fallback ---
+  if (results.length === 0) {
+    /** 
+     * Fallback A: Proximity Search (+/- 3 days)
+     * Active only if a date was provided without other specific text filters.
+     */
+    if (date && !term && !cat && !loc) {
+>>>>>>> Stashed changes
       const targetDate = new Date(date);
       results = events.filter((event) => {
         const eventDate = new Date(event.date);
@@ -66,30 +117,44 @@ export const filterEvents = (events, filters) => {
       }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
 
-    /** * Fallback B: Relaxed Partial Matching (OR Logic)
-     * Broadens results by searching for any criteria match if specific ones fail.
-     */
+<<<<<<< Updated upstream
+    // Fallback B: Partial Term Matching
     if (results.length === 0 && (category || location || searchTerm)) {
       results = events.filter((event) => {
         return (
-          (category && event.category?.toLowerCase().includes(category.toLowerCase())) ||
-          (location && event.venue?.city?.toLowerCase().includes(location.toLowerCase())) ||
-          (searchTerm && event.title?.toLowerCase().includes(searchTerm.toLowerCase()))
+          (category && event.category.toLowerCase().includes(category.toLowerCase())) ||
+          (location && event.location.toLowerCase().includes(location.toLowerCase())) ||
+          (searchTerm && event.title.toLowerCase().includes(searchTerm.toLowerCase()))
+=======
+    /** 
+     * Fallback B: Relaxed Partial Matching (OR Logic)
+     * Triggered if text-based criteria are present but yielded no strict matches.
+     */
+    if (results.length === 0 && (cat || loc || term)) {
+      results = events.filter((event) => {
+        return (
+          (cat && event.category?.toLowerCase().includes(cat)) ||
+          (loc && event.venue?.city?.toLowerCase().includes(loc)) ||
+          (term && event.title?.toLowerCase().includes(term))
+>>>>>>> Stashed changes
         );
       });
     }
   }
 
   return results;
+<<<<<<< Updated upstream
+=======
 };
 
 /**
- * Extracts a subset of events explicitly flagged for promotion.
- * * @function
- * @param {Array<Object>} events - The master catalog.
- * @param {Object} options - Configuration for recommendations.
- * @param {number} [options.limit=3] - Maximum items to retrieve.
- * @returns {Array<Object>} List of curated recommended events.
+ * Extracts events explicitly flagged as recommended.
+ * 
+ * @function getRecommendedEvents
+ * @param {Array<Object>} events - Master catalog.
+ * @param {Object} [options] - Config options.
+ * @param {number} [options.limit=3] - Max number of items.
+ * @returns {Array<Object>} Curated recommendations.
  */
 export const getRecommendedEvents = (events, { limit = 3 } = {}) => {
   if (!events) return [];
@@ -100,26 +165,35 @@ export const getRecommendedEvents = (events, { limit = 3 } = {}) => {
 };
 
 /**
- * Filters a collection by matching identifiers against an allowed list.
- * Useful for rendering "Saved Items" or "Favorites".
- * * @function
- * @param {Array<Object>} events - Source event list.
- * @param {Array<string|number>} ids - Target list of saved event IDs.
- * @returns {Array<Object>} Filtered collection of events.
+ * Maps a list of IDs to their full event objects.
+ * Useful for displaying "Favorites" from a stored list of identifiers.
+ * 
+ * @function filterByIds
+ * @param {Array<Object>} events - Source list.
+ * @param {Array<string|number>} ids - Target IDs.
+ * @returns {Array<Object>} Found event objects.
  */
 export const filterByIds = (events, ids) => {
-  if (!events || !ids) return [];
-  return events.filter((event) => ids.includes(event.id));
+  if (!events || !ids || ids.length === 0) return [];
+
+  const idSet = new Set(ids.map(id => id.toString()));
+  return events.filter((event) => idSet.has(event.id?.toString()));
 };
 
 /**
- * Performs a precise date match filter.
- * * @function
- * @param {Array<Object>} events - Source event list.
- * @param {string} date - The target date (YYYY-MM-DD).
- * @returns {Array<Object>} Events matching the specific date or original list if no date provided.
+ * Performs a precise date match by ignoring time components.
+ * 
+ * @function filterByDate
+ * @param {Array<Object>} events - Source list.
+ * @param {string} date - Target date (YYYY-MM-DD).
+ * @returns {Array<Object>} Filtered list or original if date is missing.
  */
 export const filterByDate = (events, date) => {
   if (!events || !date) return events;
-  return events.filter((event) => event.date === date);
+
+  return events.filter((event) => {
+    const eventDateOnly = event.date?.split('T')[0];
+    return eventDateOnly === date;
+  });
+>>>>>>> Stashed changes
 };
