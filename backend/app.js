@@ -13,6 +13,7 @@ import dotenv from 'dotenv';
 import HttpError from './models/http-error.js';
 import eventsRoutes from './routes/events-routes.js';
 import userRoutes from './routes/users-routes.js';
+import weatherRoutes from './routes/weather-routes.js';
 import { connectDB } from './config/db.js';
 
 // Initialize environment variables configuration
@@ -21,7 +22,8 @@ dotenv.config();
 // Establish asynchronous connection to the database
 connectDB();
 
-/** * Express application instance.
+/** 
+ * Express application instance.
  * @type {import('express').Application} 
  */
 const app = express();
@@ -38,21 +40,29 @@ app.use(express.json());
  * between the React frontend and this API.
  */
 app.use(cors({
-  origin: 'http://localhost:3000', // Tu frontend
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept']
 }));
+
 /**
- * Domain-Specific Routes.
+ * Domain-Specific Routes: Events.
  * Mounting the events module at the /api/events prefix.
  */
 app.use('/api/events', eventsRoutes);
 
 /**
- * Domain-Specific Routes.
+ * Domain-Specific Routes: Users.
  * Mounting the users module at the /api/users prefix.
  */
 app.use('/api/users', userRoutes);
+
+/**
+ * Domain-Specific Routes: Weather Proxy.
+ * Provides real-time weather data by acting as a secure bridge 
+ * to external weather providers without exposing sensitive API credentials.
+ */
+app.use('/api/weather', weatherRoutes);
 
 /**
  * Middleware: Unhandled Route Interceptor.
@@ -69,7 +79,8 @@ app.use((req, res, next) => {
  * Middleware: Global Error Pipeline.
  * Standardizes API error responses. Ensures the client always receives 
  * a structured JSON payload even during catastrophic failures.
- * * @param {HttpError|Error} error - The caught exception.
+ * 
+ * @param {HttpError|Error} error - The caught exception.
  * @param {import('express').Request} req - Express request object.
  * @param {import('express').Response} res - Express response object.
  * @param {import('express').NextFunction} next - Express next function.
@@ -79,15 +90,16 @@ app.use((error, req, res, next) => {
   if (res.headerSent) {
     return next(error);
   }
-  
+
   res.status(error.code || 500);
-  res.json({ 
+  res.json({
     message: error.message || 'An internal server error occurred!',
     status: error.code || 500
   });
 });
 
-/** * Server execution port.
+/** 
+ * Server execution port.
  * @type {number|string} 
  */
 const PORT = process.env.PORT || 5000;
@@ -99,7 +111,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`
   🚀 Server properly initialized!
-  📡 API Base URL: http://localhost:${PORT}/api/events
+  📡 API Base URL: http://localhost:${PORT}/api
   🛠️  Execution Mode: ${process.env.NODE_ENV || 'Development'}
   `);
 });
