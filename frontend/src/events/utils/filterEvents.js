@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 /**
  * Advanced event filtering utility with adaptive logic.
  * * This function performs a multi-layered search:
@@ -46,13 +46,8 @@ export const filterEvents = (events, filters) => {
   if (!events) return [];
 
   let { searchTerm, category, date, location } = filters;
-<<<<<<< Updated upstream
-  
-  // Normalize category value: 'all' is treated as no filter
-=======
 
   // Normalization
->>>>>>> Stashed changes
   if (category?.toLowerCase() === 'all') category = undefined;
   const term = searchTerm?.trim().toLowerCase();
   const loc = location?.trim().toLowerCase();
@@ -60,32 +55,18 @@ export const filterEvents = (events, filters) => {
 
   // --- STAGE 1: Strict Filtering ---
   let results = events.filter((event) => {
-<<<<<<< Updated upstream
-    const term = searchTerm?.toLowerCase();
-    
-=======
->>>>>>> Stashed changes
     const matchesSearch = term
-      ? event.title.toLowerCase().includes(term) || 
-        event.category.toLowerCase().includes(term) ||
-        event.location.toLowerCase().includes(term)
+      ? event.title.toLowerCase().includes(term) ||
+      event.category.toLowerCase().includes(term) ||
+      event.location.toLowerCase().includes(term)
       : true;
 
-<<<<<<< Updated upstream
-    const matchesCategory = category
-      ? event.category.toLowerCase().includes(category.toLowerCase())
-      : true;
-
-    const matchesLocation = location
-      ? event.location.toLowerCase().includes(location.toLowerCase())
-=======
     const matchesCategory = cat
       ? event.category?.toLowerCase().includes(cat)
       : true;
 
     const matchesLocation = loc
       ? event.venue?.city?.toLowerCase().includes(loc)
->>>>>>> Stashed changes
       : true;
 
     const matchesDate = date ? event.date?.split('T')[0] === date : true;
@@ -93,21 +74,13 @@ export const filterEvents = (events, filters) => {
     return matchesSearch && matchesCategory && matchesLocation && matchesDate;
   });
 
-<<<<<<< Updated upstream
-  // --- STAGE 2: Adaptive Fallback (If no results found) ---
-  if (results.length === 0) {
-    
-    // Fallback A: Date Proximity Search (+/- 3 days)
-    if (date && !searchTerm && !category && !location) {
-=======
   // --- STAGE 2: Adaptive Fallback ---
   if (results.length === 0) {
-    /** 
+    /**
      * Fallback A: Proximity Search (+/- 3 days)
      * Active only if a date was provided without other specific text filters.
      */
     if (date && !term && !cat && !loc) {
->>>>>>> Stashed changes
       const targetDate = new Date(date);
       results = events.filter((event) => {
         const eventDate = new Date(event.date);
@@ -117,16 +90,7 @@ export const filterEvents = (events, filters) => {
       }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
 
-<<<<<<< Updated upstream
-    // Fallback B: Partial Term Matching
-    if (results.length === 0 && (category || location || searchTerm)) {
-      results = events.filter((event) => {
-        return (
-          (category && event.category.toLowerCase().includes(category.toLowerCase())) ||
-          (location && event.location.toLowerCase().includes(location.toLowerCase())) ||
-          (searchTerm && event.title.toLowerCase().includes(searchTerm.toLowerCase()))
-=======
-    /** 
+    /**
      * Fallback B: Relaxed Partial Matching (OR Logic)
      * Triggered if text-based criteria are present but yielded no strict matches.
      */
@@ -136,20 +100,17 @@ export const filterEvents = (events, filters) => {
           (cat && event.category?.toLowerCase().includes(cat)) ||
           (loc && event.venue?.city?.toLowerCase().includes(loc)) ||
           (term && event.title?.toLowerCase().includes(term))
->>>>>>> Stashed changes
         );
       });
     }
   }
 
   return results;
-<<<<<<< Updated upstream
-=======
 };
 
 /**
  * Extracts events explicitly flagged as recommended.
- * 
+ *
  * @function getRecommendedEvents
  * @param {Array<Object>} events - Master catalog.
  * @param {Object} [options] - Config options.
@@ -167,7 +128,7 @@ export const getRecommendedEvents = (events, { limit = 3 } = {}) => {
 /**
  * Maps a list of IDs to their full event objects.
  * Useful for displaying "Favorites" from a stored list of identifiers.
- * 
+ *
  * @function filterByIds
  * @param {Array<Object>} events - Source list.
  * @param {Array<string|number>} ids - Target IDs.
@@ -182,7 +143,7 @@ export const filterByIds = (events, ids) => {
 
 /**
  * Performs a precise date match by ignoring time components.
- * 
+ *
  * @function filterByDate
  * @param {Array<Object>} events - Source list.
  * @param {string} date - Target date (YYYY-MM-DD).
@@ -195,5 +156,4 @@ export const filterByDate = (events, date) => {
     const eventDateOnly = event.date?.split('T')[0];
     return eventDateOnly === date;
   });
->>>>>>> Stashed changes
 };
