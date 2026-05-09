@@ -69,6 +69,9 @@ const register = async (req, res, next) => {
  * 
  * @async
  * @function login
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
  */
 const login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -116,8 +119,12 @@ const login = async (req, res, next) => {
 
 /**
  * Retrieves all registered users excluding passwords.
+ * 
  * @async
  * @function getUsers
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
  */
 const getUsers = async (req, res, next) => {
   let users;
@@ -131,11 +138,21 @@ const getUsers = async (req, res, next) => {
 
 /**
  * Fetches the list of saved event IDs for a specific user.
+ * Includes a security check to ensure the requester owns the data.
+ * 
  * @async
  * @function getSavedEvents
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
  */
 const getSavedEvents = async (req, res, next) => {
   const userId = req.params.uid;
+
+  if (userId !== req.userData.userId) {
+    return next(new HttpError('Forbidden: You are not authorized to access these saved events.', 403));
+  }
+
   try {
     const user = await User.findById(userId);
     if (!user) return next(new HttpError('User not found', 404));
@@ -150,12 +167,21 @@ const getSavedEvents = async (req, res, next) => {
 /**
  * Toggles an event ID within the user's savedEvents collection.
  * Uses atomic Mongoose operations (addToSet/pull) for consistency.
+ * Includes a security check to ensure the requester is the account owner.
+ * 
  * @async
  * @function updateSavedEvents
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
  */
 const updateSavedEvents = async (req, res, next) => {
   const userId = req.params.uid;
   const { eventId } = req.body;
+
+  if (userId !== req.userData.userId) {
+    return next(new HttpError('Forbidden: You are not authorized to modify this user data.', 403));
+  }
 
   try {
     const user = await User.findById(userId);
