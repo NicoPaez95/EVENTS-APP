@@ -1,20 +1,3 @@
-
-/**
- * Advanced event filtering utility with adaptive logic.
- * * This function performs a multi-layered search:
- * 1. **Strict Match**: Filters by all provided criteria (AND logic).
- * 2. **Adaptive Fallback**: If no strict matches are found, it expands the search:
- * - Date: Searches for events within a +/- 3-day window.
- * - Location/Category: Relaxes constraints to find partial matches.
- * * @function
- * @param {Array<Object>} events - The complete array of event objects.
- * @param {Object} filters - Search criteria.
- * @param {string} [filters.searchTerm=""] - Global text to match across title, category, or location.
- * @param {string} [filters.category=""] - Specific category filter. Use 'all' to bypass category filtering.
- * @param {string} [filters.date=""] - Target date string in YYYY-MM-DD format.
- * @param {string} [filters.location=""] - Specific city or venue filter.
- * @returns {Array<Object>} A filtered and prioritized subset of events.
-=======
 /**
  * @file eventHelpers.js
  * @description Utility functions for event manipulation, including adaptive filtering,
@@ -40,7 +23,6 @@
  * @param {string} [filters.date=""] - Specific date (ISO YYYY-MM-DD).
  * @param {string} [filters.location=""] - Geographical filter (City or Venue).
  * @returns {Array<Object>} A prioritized or relaxed subset of events.
->>>>>>> Stashed changes
  */
 export const filterEvents = (events, filters) => {
   if (!events) return [];
@@ -49,27 +31,35 @@ export const filterEvents = (events, filters) => {
 
   // Normalization
   if (category?.toLowerCase() === 'all') category = undefined;
+
   const term = searchTerm?.trim().toLowerCase();
   const loc = location?.trim().toLowerCase();
   const cat = category?.trim().toLowerCase();
 
-  // --- STAGE 1: Strict Filtering ---
+  // --- STAGE 1: Strict Filtering (AND Logic) ---
   let results = events.filter((event) => {
+    // Defensive check: Ensure properties exist before calling toLowerCase()
+    const eventTitle = (event?.title || "").toLowerCase();
+    const eventCategory = (event?.category || "").toLowerCase();
+    const eventCity = (event?.venue?.city || "").toLowerCase();
+    const eventGeneralLocation = (event?.location || "").toLowerCase();
+
     const matchesSearch = term
-      ? event.title.toLowerCase().includes(term) ||
-      event.category.toLowerCase().includes(term) ||
-      event.location.toLowerCase().includes(term)
+      ? eventTitle.includes(term) ||
+      eventCategory.includes(term) ||
+      eventGeneralLocation.includes(term) ||
+      eventCity.includes(term)
       : true;
 
     const matchesCategory = cat
-      ? event.category?.toLowerCase().includes(cat)
+      ? eventCategory.includes(cat)
       : true;
 
     const matchesLocation = loc
-      ? event.venue?.city?.toLowerCase().includes(loc)
+      ? eventCity.includes(loc) || eventGeneralLocation.includes(loc)
       : true;
 
-    const matchesDate = date ? event.date?.split('T')[0] === date : true;
+    const matchesDate = date ? event?.date?.split('T')[0] === date : true;
 
     return matchesSearch && matchesCategory && matchesLocation && matchesDate;
   });
@@ -83,6 +73,7 @@ export const filterEvents = (events, filters) => {
     if (date && !term && !cat && !loc) {
       const targetDate = new Date(date);
       results = events.filter((event) => {
+        if (!event?.date) return false;
         const eventDate = new Date(event.date);
         const diffTime = Math.abs(eventDate.getTime() - targetDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -96,10 +87,14 @@ export const filterEvents = (events, filters) => {
      */
     if (results.length === 0 && (cat || loc || term)) {
       results = events.filter((event) => {
+        const eventTitle = (event?.title || "").toLowerCase();
+        const eventCategory = (event?.category || "").toLowerCase();
+        const eventCity = (event?.venue?.city || "").toLowerCase();
+
         return (
-          (cat && event.category?.toLowerCase().includes(cat)) ||
-          (loc && event.venue?.city?.toLowerCase().includes(loc)) ||
-          (term && event.title?.toLowerCase().includes(term))
+          (cat && eventCategory.includes(cat)) ||
+          (loc && eventCity.includes(loc)) ||
+          (term && eventTitle.includes(term))
         );
       });
     }
@@ -121,7 +116,7 @@ export const getRecommendedEvents = (events, { limit = 3 } = {}) => {
   if (!events) return [];
 
   return events
-    .filter((event) => event.isRecommended === true)
+    .filter((event) => event?.isRecommended === true)
     .slice(0, limit);
 };
 
@@ -138,7 +133,7 @@ export const filterByIds = (events, ids) => {
   if (!events || !ids || ids.length === 0) return [];
 
   const idSet = new Set(ids.map(id => id.toString()));
-  return events.filter((event) => idSet.has(event.id?.toString()));
+  return events.filter((event) => event?.id && idSet.has(event.id.toString()));
 };
 
 /**
@@ -153,7 +148,7 @@ export const filterByDate = (events, date) => {
   if (!events || !date) return events;
 
   return events.filter((event) => {
-    const eventDateOnly = event.date?.split('T')[0];
+    const eventDateOnly = event?.date?.split('T')[0];
     return eventDateOnly === date;
   });
 };
