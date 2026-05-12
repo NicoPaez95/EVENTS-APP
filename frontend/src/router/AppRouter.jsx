@@ -6,20 +6,24 @@ import SavedEventsPage from "../pages/user/SavedEventsPage";
 import Auth from "../pages/user/Auth";
 import Profile from "../pages/user/Profile";
 import ProtectedRoute from "../shared/components/guards/ProtectedRoute";
+import MainLayout from "../shared/components/Layout/MainLayout";
 
 /**
  * AppRouter Component (Root Navigation Orchestrator).
  *
- * This component centralizes the application's routing strategy using React Router v6.
- * It serves as the top-level orchestrator that maps browser URLs to Page-level components.
+ * This component centralizes the application's routing strategy. It acts as the
+ * top-level orchestrator that maps browser URLs to Page-level components while
+ * managing global UI states through Layout nesting.
  *
- * **Key Architectural Features**:
- * 1. **Dynamic Routing**: Implements parameter capturing via `:id` for event-specific views.
- * 2. **Authentication Guards**: Utilizes the `ProtectedRoute` wrapper to enforce session
- * validation on private user domains.
- * 3. **Unified Auth Handling**: Maps multiple authentication intents (login/register)
- * to a single domain orchestrator.
- * 4. **Resilience Logic**: Features a wildcard fallback to prevent dead-ends in the UX.
+ * Architectural Strategy:
+ * - Nested Routing: Leverages `MainLayout` as a wrapper to provide a persistent
+ *   UI Shell (Header/Sidebar) across primary discovery routes.
+ * - Guarded Access: Encapsulates private domains (Profile, Saved Events) within
+ *   the `ProtectedRoute` higher-order component to enforce authentication.
+ * - Dynamic Layouts: Conditionally configures the UI Shell (e.g., disabling
+ *   the sidebar for focused detail views) directly within the route definition.
+ * - Clean Auth Flow: Renders Authentication pages without the main layout to
+ *   ensure a distraction-free user experience.
  *
  * @component
  * @category Router
@@ -29,60 +33,59 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* --- Public Discovery Layer --- */}
+        {/* --- Primary UI Shell Layer (Standard View with Sidebar) --- */}
+        <Route element={<MainLayout />}>
+          {/**
+           * Home: The default discovery hub.
+           * Inherits the full MainLayout configuration.
+           */}
+          <Route path="/" element={<Home />} />
 
-        {/** Home entry point */}
-        <Route path="/" element={<Home />} />
+          {/** Upcoming Events: Filtered discovery stream */}
+          <Route path="/events/upcoming" element={<UpcomingEventsPage />} />
 
-        {/** * Dynamic Event Detail Route:
-         * Uses ':id' as a placeholder to allow EventDetailPage to perform
-         * contextual data fetching from the master catalog.
-         */}
-        <Route path="/events/:id" element={<EventDetailPage />} />
+          {/**
+           * Protected User Domain:
+           * Routes that require an active session and the persistent UI Shell.
+           */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/saved-events"
+            element={
+              <ProtectedRoute>
+                <SavedEventsPage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
 
-        {/** Filtered event discovery view */}
-        <Route path="/events/upcoming" element={<UpcomingEventsPage />} />
+        {/* --- Focused Content Layer (Full-width View, No Sidebar) --- */}
+        <Route
+          path="/events/:id"
+          element={
+            <MainLayout showSidebar={false}>
+              <EventDetailPage />
+            </MainLayout>
+          }
+        />
 
-        {/* --- Authentication Layer --- */}
-
-        {/** * Both login and registration flows are managed by the Auth orchestrator,
-         * which switches internal features based on the pathname.
+        {/* --- Independent Layer (Minimalist View, No Layout) --- */}
+        {/**
+         * Auth: Login and Registration flows.
+         * Rendered independently to maximize focus and minimize navigation noise.
          */}
         <Route path="/login" element={<Auth />} />
         <Route path="/register" element={<Auth />} />
 
-        {/* --- Private / Protected Layer --- */}
-
-        {/** * User Profile:
-         * Wrapped in ProtectedRoute to redirect unauthenticated users to /login.
-         */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-
-        {/** * Saved Events (Personal Agenda):
-         * Secure route for managing user-specific bookmarked events.
-         */}
-        <Route
-          path="/user/saved-events"
-          element={
-            <ProtectedRoute>
-              <SavedEventsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* --- Fallback & Safety Layer --- */}
-
-        {/** * Wildcard Redirect:
-         * Catches any undefined paths and performs a 'replace' redirect to Home.
-         * This prevents the history stack from growing with invalid URLs.
-         */}
+        {/* --- Global Fallback Layer --- */}
+        {/** Redirects any undefined paths back to the home entry point */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -1,32 +1,33 @@
-import HomeLayout from "../../shared/components/Layout/HomeLayout";
 import UserProfileFeature from "../../user/features/UserProfileFeature";
 
 /**
- * User Profile Page Component (Page Shell).
+ * User Profile Page Component.
  *
- * This component acts as a high-level route entry point. Its sole responsibility
- * is to define the structural context of the view by providing the necessary
- * Layout wrapper.
+ * This component acts as the high-level route entry point for the user's personal
+ * management area. Its sole responsibility is to define the structural context
+ * of the view within the application's routing hierarchy.
  *
- * **Architectural Strategy**:
- * Following a "Thin Page" architecture, this component avoids managing state or
- * business logic. Instead, it delegates all domain-specific operations (auth
- * checks, data fetching, and profile management) to the `UserProfileFeature`.
+ * Architectural Strategy:
+ * - Thin Page Pattern: The component avoids managing local state, side effects,
+ *   or business logic.
+ * - Feature Delegation: It serves as a container for the `UserProfileFeature`,
+ *   which acts as the "Smart Orchestrator" responsible for authentication
+ *   verification, data fetching from the User Domain, and profile management.
+ * - Decoupling: By keeping the Page "thin," the logic remains portable and
+ *   highly maintainable within the Feature layer.
  *
  * @component
  * @category Pages
- * @returns {JSX.Element} The Profile page structure within the HomeLayout context.
+ * @returns {JSX.Element} The Profile page shell orchestrating the UserProfileFeature.
  */
 const Profile = () => {
   return (
-    <HomeLayout>
-      {/* Feature Orchestration Layer:
-          This component is the "Smart" core that manages UserContext consumption, 
-          UI skeletons for loading states, and the integration of sub-features 
-          like Saved Events or Account Settings.
-      */}
-      <UserProfileFeature />
-    </HomeLayout>
+    /**
+     * UserProfileFeature:
+     * This orchestrator will handle the internal layout (tabs, settings, info)
+     * and communicate with the UserContext or API.
+     */
+    <UserProfileFeature />
   );
 };
 
