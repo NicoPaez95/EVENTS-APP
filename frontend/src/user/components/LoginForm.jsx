@@ -1,28 +1,30 @@
+import PrimaryButton from "shared/components/UI/PrimaryButton";
+
 /**
  * LoginForm Component (Presentational).
  *
  * This "Dumb" component is strictly responsible for rendering the login form
  * fields and handling visual validation states. It does not contain any
- * business logic, API calls, or state management.
+ * business logic, API calls, or state management, following the
+ * Presentational/Container pattern.
  *
  * Architectural Strategy:
- * - Layout Delegation: Following the Domain-Driven Design refactor, this
- *   component removed its own containers (bg, shadow, borders) to be
- *   perfectly hosted inside a parent `AuthCard`.
- * - Controlled Inputs: Relies entirely on props for value binding and
- *   event handling, making it highly testable and predictable.
- * - Reactive UI: Implements conditional styling based on the presence of
- *   validation errors and loading states.
+ * - Layout Delegation: Removed internal containers to be hosted inside a parent
+ *   AuthCard, allowing for modular UI composition.
+ * - Atomic Integration: Utilizes the shared PrimaryButton to standardize
+ *   action triggers and loading states across the application.
+ * - Reactive Validation: Dynamically applies error styling and ARIA-friendly
+ *   error messages based on the props received.
  *
  * @component
- * @category Components/User/UI
+ * @category Components/User
  *
  * @param {Object} props - Component properties.
  * @param {Object} props.values - The current state of the form fields (email, password).
  * @param {Object} props.errors - Validation error messages mapped by field name.
  * @param {Function} props.onChange - Input change handler to update the parent state.
  * @param {Function} props.onSubmit - Form submission handler.
- * @param {boolean} props.isLoading - UI state flag to toggle button animations and disable inputs.
+ * @param {boolean} props.isLoading - UI state flag to toggle button animations and disable interaction.
  *
  * @returns {JSX.Element} The rendered login form fields and action button.
  */
@@ -30,8 +32,9 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
   <form
     onSubmit={onSubmit}
     className="space-y-6 animate-in fade-in duration-500"
+    noValidate
   >
-    {/* Email Field Group: Manages focus and error visualization */}
+    {/* Email Field Group: Manages focus and validation visualization */}
     <div className="space-y-2">
       <label
         htmlFor="email"
@@ -47,6 +50,7 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
         value={values.email}
         onChange={onChange}
         autoComplete="email"
+        disabled={isLoading}
         className={`w-full px-4 py-3 border rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 ${
           errors.email
             ? "border-red-300 bg-red-50 focus:border-red-500"
@@ -60,7 +64,7 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
       )}
     </div>
 
-    {/* Password Field Group */}
+    {/* Password Field Group: Security credential input */}
     <div className="space-y-2">
       <label
         htmlFor="password"
@@ -76,26 +80,20 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
         value={values.password}
         onChange={onChange}
         autoComplete="current-password"
+        disabled={isLoading}
         className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500"
       />
     </div>
 
-    {/* Form Action Section: Handles the loading state transition */}
+    {/* Form Action Section: Standardized via PrimaryButton */}
     <div className="pt-4">
-      <button
+      <PrimaryButton
         type="submit"
-        disabled={isLoading}
-        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 disabled:bg-slate-300 disabled:shadow-none transition-all active:scale-[0.98] flex justify-center items-center"
+        isLoading={isLoading}
+        loadingText="SIGNING IN..."
       >
-        {isLoading ? (
-          <>
-            <span className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3"></span>
-            SIGNING IN...
-          </>
-        ) : (
-          "SIGN IN TO ACCOUNT"
-        )}
-      </button>
+        SIGN IN TO ACCOUNT
+      </PrimaryButton>
     </div>
   </form>
 );

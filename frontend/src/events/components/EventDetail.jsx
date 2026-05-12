@@ -1,4 +1,5 @@
 import BackButton from "../../shared/components/UI/BackButton";
+import PrimaryButton from "../../shared/components/UI/PrimaryButton";
 
 /**
  * EventDetail Component (Presentational).
@@ -7,22 +8,22 @@ import BackButton from "../../shared/components/UI/BackButton";
  * of a single event. Following the architectural pattern, it does not manage
  * state or side effects; it simply receives data and callbacks via props.
  *
- * Key Features:
- * - Uses shared `BackButton` for unified navigation.
- * - Displays a dynamic date badge calculated from UTC.
- * - Provides an interactive venue section to trigger map-related features.
- * - Adapts the Call-to-Action (CTA) label based on authentication status.
+ * Architectural Strategy:
+ * - Atomic UI: Integrates `PrimaryButton` for the main CTA, ensuring
+ *   consistent elevation and hover effects across the event lifecycle.
+ * - Decoupled Logic: All date parsing and conditional labeling are handled
+ *   locally for presentation, while the execution is delegated to the parent.
  *
  * @component
  * @category Components/Events
  *
  * @param {Object} props - Component properties.
- * @param {Object} props.event - The event data object (title, image, venue, category, etc.).
- * @param {boolean} props.isAuthenticated - Determines the CTA button text (Purchase vs. Login).
- * @param {Function} props.onSecureTickets - Logic orchestrator callback for the ticket flow.
- * @param {Function} props.onLocationClick - UI callback to focus or scroll to the map feature.
+ * @param {Object} props.event - The event data object.
+ * @param {boolean} props.isAuthenticated - Determines the CTA label.
+ * @param {Function} props.onSecureTickets - Logic orchestrator callback.
+ * @param {Function} props.onLocationClick - UI callback for map interaction.
  *
- * @returns {JSX.Element|null} The rendered event detail view or null if no data is present.
+ * @returns {JSX.Element|null} The rendered event detail view.
  */
 const EventDetail = ({
   event,
@@ -30,21 +31,15 @@ const EventDetail = ({
   onSecureTickets,
   onLocationClick,
 }) => {
-  // Guard clause for missing event data
   if (!event) return null;
 
-  /**
-   * UI Formatting:
-   * We extract date parts here for presentation only.
-   * Business logic for date parsing should remain in dateHelpers.js if reused.
-   */
   const eventDate = new Date(event.date);
   const day = eventDate.getUTCDate();
   const month = eventDate.toLocaleString("en-US", { month: "short" });
 
   return (
     <article className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
-      {/* 1. Navigation Header: Contextual actions and category badge */}
+      {/* 1. Navigation Header */}
       <header className="p-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
         <BackButton label="BACK TO EXPLORATION" />
 
@@ -54,7 +49,7 @@ const EventDetail = ({
       </header>
 
       <div className="flex flex-col md:flex-row">
-        {/* 2. Visual Hero: Event cover and floating date information */}
+        {/* 2. Visual Hero */}
         <div className="md:w-1/2 relative h-72 md:h-auto">
           <img
             src={
@@ -73,7 +68,7 @@ const EventDetail = ({
           </div>
         </div>
 
-        {/* 3. Information Section: Main content and action triggers */}
+        {/* 3. Information Section */}
         <div className="md:w-1/2 p-10 flex flex-col justify-between bg-white">
           <div className="space-y-8">
             <h1 className="text-4xl font-black text-slate-900 leading-[1.1] tracking-tight">
@@ -81,11 +76,10 @@ const EventDetail = ({
             </h1>
 
             <div className="space-y-4">
-              {/* Interactive Venue: Triggers location focus in the parent Feature */}
+              {/* Interactive Venue */}
               <div
                 onClick={onLocationClick}
                 className="group flex items-center gap-4 p-4 -ml-4 rounded-2xl cursor-pointer hover:bg-blue-50/80 transition-all duration-300 active:scale-[0.98]"
-                title="Click to view location on map"
               >
                 <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-200 group-hover:rotate-12 transition-transform">
                   📍
@@ -103,7 +97,7 @@ const EventDetail = ({
                 </div>
               </div>
 
-              {/* Static Time Indicator */}
+              {/* Time Indicator */}
               <div className="flex items-center gap-4 p-4 -ml-4">
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center text-2xl">
                   ⏰
@@ -132,13 +126,12 @@ const EventDetail = ({
             </div>
           </div>
 
-          {/* Core Action: Delegated to the Feature orchestrator */}
-          <button
-            onClick={onSecureTickets}
-            className="mt-12 w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-200 transform hover:-translate-y-1 active:translate-y-0 transition-all duration-300 uppercase tracking-widest"
-          >
-            {isAuthenticated ? "Secure Your Tickets" : "Sign In to Purchase"}
-          </button>
+          {/* Core Action: Standardized via PrimaryButton */}
+          <div className="mt-12">
+            <PrimaryButton onClick={onSecureTickets} size="lg">
+              {isAuthenticated ? "Secure Your Tickets" : "Sign In to Purchase"}
+            </PrimaryButton>
+          </div>
         </div>
       </div>
     </article>

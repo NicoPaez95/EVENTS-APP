@@ -1,3 +1,5 @@
+import PrimaryButton from "shared/components/UI/PrimaryButton";
+
 /**
  * RegisterForm Component (Presentational).
  *
@@ -6,12 +8,12 @@
  * logic, and API interactions to its parent feature orchestrator.
  *
  * Architectural Strategy:
+ * - Atomic Design Integration: Replaces standard button tags with the shared
+ *   PrimaryButton component to ensure consistent feedback and loading animations.
  * - Decoupled UI: Stripped of external margins and card containers to ensure
- *   perfect integration within the `AuthCard` layout component.
- * - Controlled Inputs: Implements a strict data-binding pattern where all
- *   values and change events are managed via props.
- * - Feedback States: Provides visual cues for validation errors and handles
- *   the submission button's interactive state during the loading lifecycle.
+ *   perfect integration within the unified AuthCard layout.
+ * - Data Consistency: Implements a strict controlled-input pattern where values,
+ *   errors, and change events are synchronized via props.
  *
  * @component
  * @category Components/User
@@ -21,7 +23,7 @@
  * @param {Object} props.errors - Object containing validation messages for specific fields.
  * @param {Function} props.onChange - Event handler for updating form state on input change.
  * @param {Function} props.onSubmit - Submission handler for the registration process.
- * @param {boolean} props.isLoading - Flag to indicate an active request; disables interaction and updates button text.
+ * @param {boolean} props.isLoading - Flag to indicate an active request; disables interaction and updates button state.
  *
  * @returns {JSX.Element} The rendered registration form.
  */
@@ -30,6 +32,7 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
     <form
       className="space-y-5 animate-in fade-in duration-500"
       onSubmit={onSubmit}
+      noValidate
     >
       {/* Name Identification Group */}
       <div className="space-y-2">
@@ -46,7 +49,8 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
           value={values.name}
           onChange={onChange}
           placeholder="Nico Paez"
-          className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500"
+          disabled={isLoading}
+          className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 disabled:opacity-70"
         />
       </div>
 
@@ -64,11 +68,12 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
           type="email"
           value={values.email}
           onChange={onChange}
+          disabled={isLoading}
           className={`w-full px-4 py-3 border rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 ${
             errors.email
               ? "border-red-300 focus:border-red-500"
               : "border-slate-200 focus:border-blue-500"
-          }`}
+          } disabled:opacity-70`}
         />
         {errors.email && (
           <p className="mt-1 text-xs text-red-600 font-medium ml-1">
@@ -91,19 +96,20 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
           type="password"
           value={values.password}
           onChange={onChange}
-          className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500"
+          disabled={isLoading}
+          className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 disabled:opacity-70"
         />
       </div>
 
-      {/* Submission Layer: Responsive to loading state */}
+      {/* Submission Layer: Standardized via PrimaryButton */}
       <div className="pt-4">
-        <button
+        <PrimaryButton
           type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95 disabled:bg-slate-300"
+          isLoading={isLoading}
+          loadingText="CREATING ACCOUNT..."
         >
-          {isLoading ? "CREATING ACCOUNT..." : "CREATE FREE ACCOUNT"}
-        </button>
+          CREATE FREE ACCOUNT
+        </PrimaryButton>
       </div>
     </form>
   );
