@@ -1,11 +1,20 @@
+/**
+ * @file SavedEventsCalendar.jsx
+ * @description Presentational high-fidelity calendar interface component.
+ * Visualizes user-saved events mapping inside a structural monthly grid arrangement.
+ * @module components/user/SavedEventsCalendar
+ * @author Nico Paez
+ */
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { getCalendarGrid } from "../../shared/utils/dateHelpers";
+import ActionLink from "../../shared/components/UI/ActionLink";
 
 /**
- * UI Icons & Constants.
+ * Static UI Icon representing a downwards arrow indicator.
  * Stored outside the component to prevent redundant memory allocation during re-renders.
+ * @type {JSX.Element}
  */
 const CHEVRON_DOWN = (
   <svg
@@ -24,6 +33,11 @@ const CHEVRON_DOWN = (
   </svg>
 );
 
+/**
+ * Static UI Icon representing a left calendar paging arrow.
+ * Stored outside the component to prevent redundant memory allocation during re-renders.
+ * @type {JSX.Element}
+ */
 const CHEVRON_LEFT = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +55,11 @@ const CHEVRON_LEFT = (
   </svg>
 );
 
+/**
+ * Static UI Icon representing a right calendar paging arrow.
+ * Stored outside the component to prevent redundant memory allocation during re-renders.
+ * @type {JSX.Element}
+ */
 const CHEVRON_RIGHT = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +77,10 @@ const CHEVRON_RIGHT = (
   </svg>
 );
 
+/**
+ * Static abbreviation strings for calendar months layout lookup.
+ * @type {Array<string>}
+ */
 const MONTHS_SHORT = [
   "Jan",
   "Feb",
@@ -72,30 +95,28 @@ const MONTHS_SHORT = [
   "Nov",
   "Dec",
 ];
+
+/**
+ * Static initials representing structural weekdays titles mapping.
+ * @type {Array<string>}
+ */
 const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
 
 /**
  * SavedEventsCalendar Component (Presentational).
  *
- * A high-fidelity calendar interface that visualizes user-saved events in a
- * monthly grid. It focuses on providing a rich interactive experience through
- * custom tooltips and month navigation.
- *
- * **Architectural Logic**:
- * - **Grid Management**: Delegates complex date calculations to `getCalendarGrid`.
- * - **Data Indexing**: Uses an O(1) lookup strategy via `eventsMap` for date highlighting.
- * - **UX feedback**: Implements a local state for month picking and contextual tooltips.
+ * Implements an advanced UI monthly matrix layout. Resolves grid boundaries dynamically
+ * based on operational time anchors while isolating internal navigational layout open states.
  *
  * @component
- * @category Components/User
  * @param {Object} props - Component properties.
- * @param {Date} props.currentDate - The reference date for the active month.
- * @param {Object.<string, Array>} props.eventsMap - Hash map of events indexed by ISO date keys.
- * @param {Function} props.onDateClick - Callback when an active date cell is selected.
- * @param {Function} props.onNextMonth - Trigger to advance the temporal window.
- * @param {Function} props.onPrevMonth - Trigger to reverse the temporal window.
- * @param {Function} props.onSelectMonth - Direct jump to a specific month index (0-11).
- * @returns {JSX.Element} An interactive calendar grid with event-driven highlighting.
+ * @param {Date} props.currentDate - Core temporal anchor JavaScript date reference object representing the currently selected month context.
+ * @param {Object.<string, Array.<Object>>} [props.eventsMap={}] - A structured hash map mapping localized ISO date strings ("yyyy-MM-dd") to groups of event objects.
+ * @param {function} props.onDateClick - Event handler callback fired when interacting with an eligible calendar day cell. Receives an ISO date string.
+ * @param {function} props.onNextMonth - Control workflow callback triggered to step forward into the next consecutive month context.
+ * @param {function} props.onPrevMonth - Control workflow callback triggered to step backward into the previous consecutive month context.
+ * @param {function} props.onSelectMonth - Inline execution handler callback triggered during matrix navigation changes. Receives the explicit index integer.
+ * @returns {JSX.Element} A flexible interactive grid element encapsulating date cells and preview tooltips.
  */
 const SavedEventsCalendar = ({
   currentDate,
@@ -105,14 +126,21 @@ const SavedEventsCalendar = ({
   onPrevMonth,
   onSelectMonth,
 }) => {
-  /** * UI Interaction State.
-   * Manages transient interface states like dropdown visibility and hover previews.
+  /**
+   * Boolean state that controls the dropdown menu visibility for structural quick month selections.
+   * @type {[boolean, function]}
    */
   const [showMonthPicker, setShowMonthPicker] = useState(false);
+
+  /**
+   * Localized calendar string key targeting the single date node cell actively hovered by the user pointer.
+   * @type {[string|null, function]}
+   */
   const [hoveredDate, setHoveredDate] = useState(null);
 
-  /** * Grid Data Preparation.
-   * Extracts 'days' for rendering and 'blanks' for weekday alignment.
+  /**
+   * Destructured return arrays capturing days count and offsetting empty prefix cells.
+   * @type {{days: Array.<number>, blanks: Array.<null>}}
    */
   const { days, blanks } = getCalendarGrid(currentDate);
 
@@ -186,7 +214,7 @@ const SavedEventsCalendar = ({
         </div>
       </header>
 
-      {/* Week Header: Days of the week initials */}
+      {/* Week Header */}
       <div className="grid grid-cols-7 gap-2 mb-2">
         {WEEKDAYS_INITIALS.map((day, i) => (
           <div
@@ -200,13 +228,11 @@ const SavedEventsCalendar = ({
 
       {/* Primary Calendar Grid */}
       <div className="grid grid-cols-7 gap-2 relative">
-        {/* Padding cells for previous month overflow */}
         {blanks.map((_, i) => (
           <div key={`blank-${i}`} className="aspect-square"></div>
         ))}
 
         {days.map((day) => {
-          // Precise Date Key Generation for Map Lookup
           const dateInstance = new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
@@ -232,7 +258,7 @@ const SavedEventsCalendar = ({
                 {day}
               </button>
 
-              {/* Event Preview Tooltip: Displayed on hover for active dates */}
+              {/* Event Preview Tooltip */}
               {hoveredDate === dateKey && hasEvents && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] w-36 bg-white rounded-xl shadow-2xl border border-slate-100 p-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
@@ -255,12 +281,9 @@ const SavedEventsCalendar = ({
       </div>
 
       <footer className="mt-6 pt-3 border-t border-slate-100">
-        <Link
-          to="/user/saved-events"
-          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors block text-center uppercase tracking-widest"
-        >
-          View full collection →
-        </Link>
+        <ActionLink to="/user/saved-events" centered>
+          View full collection
+        </ActionLink>
       </footer>
     </section>
   );

@@ -1,15 +1,20 @@
 /**
  * @file EventCard.jsx
- * @description Presentational component for event summaries.
- * Features interactive states for bookmarking and navigation.
+ * @description Presentational component for displaying a summarized event card.
+ * Integrates atomic UI components for consistent typography, branding, and spacing.
  * @module components/events/EventCard
  * @author Nico Paez
  */
 
 import { Link } from "react-router-dom";
-import useNotification from "../../user/hooks/useNotification";
 import VenueInfo from "./VenueInfo";
+import ActionLink from "shared/components/UI/ActionLink";
+import EventDate from "shared/components/UI/EventDate";
 
+/**
+ * Static UI Icon representing a close or remove operation.
+ * @type {JSX.Element}
+ */
 const CLOSE_ICON = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -27,6 +32,12 @@ const CLOSE_ICON = (
   </svg>
 );
 
+/**
+ * Functional component that generates a dynamic heart icon based on the active bookmark state.
+ *
+ * @param {boolean} isSaved - Indicates whether the event is currently bookmarked by the user.
+ * @returns {JSX.Element} The rendered SVG icon with context-aware styles.
+ */
 const HEART_ICON = (isSaved) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -44,6 +55,25 @@ const HEART_ICON = (isSaved) => (
   </svg>
 );
 
+/**
+ * EventCard Presentational Component.
+ *
+ * Visualizes a clean, interactive summary layout for individual events. Accommodates
+ * dynamic bookmarking states and provides seamless link navigation to detailed event pages.
+ *
+ * @component
+ * @param {Object} props - Component properties.
+ * @param {string|number} props.id - Unique identifier for the event.
+ * @param {string} props.title - Title or headline of the event.
+ * @param {string} props.date - ISO or localized date string representing the event's schedule.
+ * @param {Object} props.venue - Spatial and structured information regarding the location.
+ * @param {string} props.category - Classification or taxonomy label of the event.
+ * @param {boolean} props.isSaved - Toggle that specifies if the event is shortlisted.
+ * @param {boolean} [props.showRemoveButton=false] - Optional switch to swap the heart button for a distinct removal style.
+ * @param {function} [props.onToggleSave] - Callback triggered when modifying the core save state. Receives the event's ID.
+ * @param {function} [props.onAction] - General-purpose secondary action handler execution hook. Receives the event's ID.
+ * @returns {JSX.Element} A themed, responsive grid item representing an event entity.
+ */
 const EventCard = ({
   id,
   title,
@@ -55,8 +85,12 @@ const EventCard = ({
   onToggleSave,
   onAction,
 }) => {
-  const { showToast } = useNotification();
-
+  /**
+   * Intercepts the interactive mouse events to cleanly isolate bubbling.
+   * Dispatches specialized event context upward through declarative callbacks.
+   *
+   * @param {React.MouseEvent<HTMLButtonElement>} e - Native React mouse click event argument.
+   */
   const handleAction = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -72,6 +106,7 @@ const EventCard = ({
 
   return (
     <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+      {/* Save/Remove Action Button */}
       <button
         onClick={handleAction}
         aria-label={showRemoveButton ? "Remove event" : "Save event"}
@@ -92,17 +127,14 @@ const EventCard = ({
         </header>
 
         <div className="mt-5 space-y-3">
-          <p className="text-xs text-slate-600 flex items-center gap-2">
-            <span className="opacity-70" aria-hidden="true">
-              📅
-            </span>{" "}
-            {date}
-          </p>
+          {/* Reusable Date Atom */}
+          <EventDate date={date} />
+
           <VenueInfo venue={venue} isClickable={false} />
         </div>
 
-        <footer className="mt-6 pt-4 border-t border-slate-50 text-xs font-bold text-blue-500 group-hover:text-blue-700 flex items-center gap-1 transition-colors">
-          View Details <span aria-hidden="true">→</span>
+        <footer className="mt-6 pt-4 border-t border-slate-50">
+          <ActionLink to={`/events/${id}`}>View Details</ActionLink>
         </footer>
       </Link>
     </article>

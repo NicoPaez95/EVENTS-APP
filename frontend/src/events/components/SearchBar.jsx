@@ -1,48 +1,62 @@
+/**
+ * @file SearchBar.jsx
+ * @description Intelligent multi-input navigation search bar component.
+ * Orchestrates autocomplete query parameters across title, category, and location domains
+ * utilizing unified UI atomic design wrappers.
+ * @module components/events/SearchBar
+ * @author Nico Paez
+ */
+
 import { useAutocomplete } from "../hooks/useAutocomplete";
+import PrimaryButton from "shared/components/UI/PrimaryButton";
+import PrimaryInput from "shared/components/UI/PrimaryInput";
 
 /**
- * Intelligent Navigation Search Bar.
- * * A reusable UI component that manages a multi-input search interface and local 
- * autocomplete state. It follows the "Dumb Component" pattern, staying decoupled 
- * from the global EventsContext by communicating strictly via props with its parent Feature.
- * * @component
- * @category Components
+ * SearchBar Presentational Component.
+ *
+ * Coordinates state extraction hooks with granular user filtering configurations. Drops explicit
+ * descriptive typography labels to maximize inline horizontal density on widescreen display viewports.
+ *
+ * @component
+ * @category Components/Events
  * @param {Object} props - Component properties.
- * @param {Function} props.onSearch - Callback to trigger the global filtering logic in the Context.
- * @param {Function} props.getTitleSuggestions - Provider for event title autocomplete results.
- * @param {Function} props.getCategorySuggestions - Provider for category-specific suggestions.
- * @param {Function} props.getLocationSuggestions - Provider for location-based suggestions.
- * @returns {JSX.Element} A styled, responsive search form with real-time feedback.
+ * @param {function} props.onSearch - Global submit callback pipeline method. Receives the aggregated state object containing all active query inputs.
+ * @param {function} props.getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
+ * @param {function} props.getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
+ * @param {function} props.getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
+ * @returns {JSX.Element} An interactive horizontal inline form encapsulating filters and autocomplete anchors.
  */
 const SearchBar = ({
   onSearch,
   getTitleSuggestions,
   getCategorySuggestions,
-  getLocationSuggestions
+  getLocationSuggestions,
 }) => {
   /**
-   * Internal Autocomplete Logic:
-   * Values: Current local state of all inputs.
-   * Suggestions: Filtered lists for titles, categories, and locations.
+   * Destructured custom autocomplete utilities handling local debounce states and form arrays.
+   * @type {{ values: Object, suggestions: Object, handleChange: function, selectSuggestion: function }}
    */
-  const { values, suggestions, handleChange, selectSuggestion } = useAutocomplete();
+  const { values, suggestions, handleChange, selectSuggestion } =
+    useAutocomplete();
 
   /**
-   * Synchronizes autocomplete selection with the global search state.
-   * Updates the local hook state and immediately notifies the parent Feature.
-   * * @param {string} field - The field identifier (searchTerm, category, location, or date).
-   * @param {string} value - The chosen suggestion or input value.
+   * Intercepts individual select operations from list suggestions to programmatically synchronization state keys.
+   * Fires an immediate search dispatch event to optimize user query responsiveness.
+   *
+   * @param {string} field - Domain target property identifier key inside the local value collection (e.g., 'searchTerm', 'category').
+   * @param {string} value - Selected text sequence parameter applied as the replacement payload.
    */
   const handleSelect = (field, value) => {
     selectSuggestion(field, value);
     const updatedValues = { ...values, [field]: value };
-    onSearch(updatedValues); 
+    onSearch(updatedValues);
   };
 
   /**
-   * Form Submission Handler:
-   * Prevents default browser behavior and executes search with all current local values.
-   * * @param {React.FormEvent} e - The form submission event.
+   * Default form execution wrapper preventing browser refresh loops.
+   * Projects the current input states upward through the assigned primary callback pipeline.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - Native React form submission event argument.
    */
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,24 +64,25 @@ const SearchBar = ({
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <form
+      onSubmit={handleSubmit}
       className="w-full bg-white shadow-lg p-5 flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100"
     >
       {/* --- Global/Title Search Section --- */}
       <div className="relative flex-1 min-w-[250px]">
-        <input
+        <PrimaryInput
           type="text"
           placeholder="What are you looking for?"
           value={values.searchTerm}
-          onChange={(e) => handleChange("searchTerm", e.target.value, getTitleSuggestions)}
-          className="w-full border border-slate-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          onChange={(e) =>
+            handleChange("searchTerm", e.target.value, getTitleSuggestions)
+          }
         />
         {suggestions.titles?.length > 0 && (
           <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-1">
             {suggestions.titles.map((event) => (
-              <li 
-                key={event.id} 
+              <li
+                key={event.id}
                 onClick={() => handleSelect("searchTerm", event.title)}
                 className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm border-b border-slate-50 last:border-none"
               >
@@ -80,18 +95,19 @@ const SearchBar = ({
 
       {/* --- Category Filter Section --- */}
       <div className="relative min-w-[180px]">
-        <input
+        <PrimaryInput
           type="text"
           placeholder="Category"
           value={values.category}
-          onChange={(e) => handleChange("category", e.target.value, getCategorySuggestions)}
-          className="w-full border border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 transition-all"
+          onChange={(e) =>
+            handleChange("category", e.target.value, getCategorySuggestions)
+          }
         />
         {suggestions.categories?.length > 0 && (
           <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.categories.map((cat) => (
-              <li 
-                key={cat} 
+              <li
+                key={cat}
                 onClick={() => handleSelect("category", cat)}
                 className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
               >
@@ -104,18 +120,19 @@ const SearchBar = ({
 
       {/* --- Location Filter Section --- */}
       <div className="relative min-w-[180px]">
-        <input
+        <PrimaryInput
           type="text"
           placeholder="Location"
           value={values.location}
-          onChange={(e) => handleChange("location", e.target.value, getLocationSuggestions)}
-          className="w-full border border-slate-200 p-3 rounded-xl outline-none focus:border-blue-500 transition-all"
+          onChange={(e) =>
+            handleChange("location", e.target.value, getLocationSuggestions)
+          }
         />
         {suggestions.locations?.length > 0 && (
           <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.locations.map((loc) => (
-              <li 
-                key={loc} 
+              <li
+                key={loc}
                 onClick={() => handleSelect("location", loc)}
                 className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
               >
@@ -127,19 +144,18 @@ const SearchBar = ({
       </div>
 
       {/* --- Date Picker Section --- */}
-      <input 
-        type="date" 
-        value={values.date} 
-        onChange={(e) => handleSelect("date", e.target.value)} 
-        className="border border-slate-200 p-3 rounded-xl outline-none cursor-pointer hover:bg-slate-50 transition-colors text-slate-600"
-      />
+      <div className="min-w-[160px]">
+        <PrimaryInput
+          type="date"
+          value={values.date}
+          onChange={(e) => handleSelect("date", e.target.value)}
+          className="cursor-pointer text-slate-600"
+        />
+      </div>
 
-      <button 
-        type="submit" 
-        className="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-md"
-      >
+      <PrimaryButton type="submit" fullWidth={false} className="px-10">
         Search
-      </button>
+      </PrimaryButton>
     </form>
   );
 };

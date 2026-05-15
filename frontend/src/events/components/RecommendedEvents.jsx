@@ -1,24 +1,41 @@
-import { Link } from 'react-router-dom';
+/**
+ * @file RecommendedEvents.jsx
+ * @description Presentational component that renders a curated vertical list of event previews.
+ * Designed specifically for application sidebars, utilizing atomic UI components to maintain
+ * design language consistency across the platform.
+ * @module components/events/RecommendedEvents
+ * @author Nico Paez
+ */
+
+import { Link } from "react-router-dom";
+import EventDate from "shared/components/UI/EventDate";
+import EventLocation from "shared/components/UI/EventLocation";
 
 /**
  * RecommendedEvents Presentational Component.
- * * Renders a curated vertical list of event previews specifically designed 
- * for the application sidebar. Each card serves as a navigation link 
- * to the detailed view of the event.
- * * @component
+ *
+ * Maps over a provided collection of event data models to display a clean,
+ * stacked layout of navigable preview cards optimized for secondary content areas.
+ *
+ * @component
  * @category Components/Events
  * @param {Object} props - Component properties.
- * @param {Array<Object>} props.events - A collection of event objects to be displayed.
- * @returns {JSX.Element} A themed container with a stack of navigable event cards.
+ * @param {Array<Object>} props.events - A collection of structured event entities to be rendered.
+ * @param {string|number} props.events[].id - Unique identifier for the event.
+ * @param {string} props.events[].title - Headline or title text of the event.
+ * @param {string} props.events[].date - Scheduled timestamp or formatted date string.
+ * @param {Object} [props.events[].venue] - Spatial context data structure for the event location.
+ * @param {string} [props.events[].venue.city] - The specific city name where the venue is located.
+ * @returns {JSX.Element} A themed sidebar container holding a stack of event links.
  */
 const RecommendedEvents = ({ events }) => {
   return (
-    <section 
+    <section
       className="bg-sky-50 p-5 rounded-2xl shadow-sm border border-slate-200"
       aria-labelledby="recommended-heading"
     >
-      <h2 
-        id="recommended-heading" 
+      <h2
+        id="recommended-heading"
         className="text-lg font-bold text-slate-800 mb-4 px-1"
       >
         Recommended Events
@@ -26,9 +43,9 @@ const RecommendedEvents = ({ events }) => {
 
       <div className="space-y-3">
         {events.map((event) => (
-          <Link 
-            key={event.id} 
-            to={`/events/${event.id}`} 
+          <Link
+            key={event.id}
+            to={`/events/${event.id}`}
             className="block group"
             aria-label={`View details for ${event.title}`}
           >
@@ -38,17 +55,12 @@ const RecommendedEvents = ({ events }) => {
               </h3>
 
               <div className="mt-2 space-y-1">
-                {/* Event Date Info */}
-                <p className="text-xs text-slate-600 flex items-center gap-2">
-                  <span role="img" aria-label="Date symbol">📅</span> 
-                  {event.date}
-                </p>
+                {/* Using atomic components ensures that date and location 
+                  look the same here as they do in EventCard or UpcomingEvents.
+                */}
+                <EventDate date={event.date} />
 
-                {/* Event Location Info - Mapping to venue.city */}
-                <p className="text-xs text-slate-500 flex items-center gap-2">
-                  <span role="img" aria-label="Location symbol">📍</span> 
-                  {event.venue?.city || 'Location TBD'}
-                </p>
+                <EventLocation city={event.venue?.city} />
               </div>
             </article>
           </Link>

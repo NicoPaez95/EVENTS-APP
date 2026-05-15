@@ -14,6 +14,7 @@
   "description": "",
   "dependencies": {
     "@remix-run/router": "^1.23.2",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
     "process": "^0.11.10",
@@ -25,7 +26,8 @@
     "react-router-dom": "^6.30.3",
     "react-scripts": "^5.0.1",
     "scheduler": "^0.27.0",
-    "swiper": "^12.1.2"
+    "swiper": "^12.1.2",
+    "tailwind-merge": "^3.6.0"
   },
   "browserslist": {
     "production": [

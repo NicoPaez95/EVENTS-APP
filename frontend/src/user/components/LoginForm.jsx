@@ -1,101 +1,79 @@
 /**
- * LoginForm Component (Presentational).
+ * @file LoginForm.jsx
+ * @description Presentational form component for user authentication.
+ * A lean, decoupled layout container that delegates semantic validation text,
+ * interactive states, and typography to atomic UI structures.
+ * @module components/user/LoginForm
+ * @author Nico Paez
+ */
+
+import PrimaryButton from "shared/components/UI/PrimaryButton";
+import PrimaryInput from "shared/components/UI/PrimaryInput";
+
+/**
+ * LoginForm Presentational Component.
  *
- * This "Dumb" component is strictly responsible for rendering the login form
- * fields and handling visual validation states. It does not contain any
- * business logic, API calls, or state management.
- *
- * Architectural Strategy:
- * - Layout Delegation: Following the Domain-Driven Design refactor, this
- *   component removed its own containers (bg, shadow, borders) to be
- *   perfectly hosted inside a parent `AuthCard`.
- * - Controlled Inputs: Relies entirely on props for value binding and
- *   event handling, making it highly testable and predictable.
- * - Reactive UI: Implements conditional styling based on the presence of
- *   validation errors and loading states.
+ * Implements a standard semantic accessibility tree form. Isolates view presentation layers,
+ * offloading internal attribute mutations and network async payloads up to parent controller structures.
  *
  * @component
- * @category Components/User/UI
- *
+ * @category Components/User
  * @param {Object} props - Component properties.
- * @param {Object} props.values - The current state of the form fields (email, password).
- * @param {Object} props.errors - Validation error messages mapped by field name.
- * @param {Function} props.onChange - Input change handler to update the parent state.
- * @param {Function} props.onSubmit - Form submission handler.
- * @param {boolean} props.isLoading - UI state flag to toggle button animations and disable inputs.
- *
- * @returns {JSX.Element} The rendered login form fields and action button.
+ * @param {Object} props.values - Hash map storing data state parameters actively managed by the form hooks.
+ * @param {string} props.values.email - The current string sequence typed inside the email context node.
+ * @param {string} props.values.password - The current private string sequence typed inside the password context node.
+ * @param {Object} props.errors - Hash map capturing localized error alert feedback messages mapped by element name keys.
+ * @param {string} [props.errors.email] - Feedback log message identifying email structural syntax schema violations.
+ * @param {string} [props.errors.password] - Feedback log message identifying password validation restriction issues.
+ * @param {function} props.onChange - Unified mutation event callback listener targeted to process character entry shifts.
+ * @param {function} props.onSubmit - Execution interceptor pipeline method triggered upon form submission.
+ * @param {boolean} props.isLoading - UI status block toggle that freezes interactions and signals active asynchronous request batches.
+ * @returns {JSX.Element} A structured authentication wrapper enclosing input fields and action buttons.
  */
 const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
   <form
     onSubmit={onSubmit}
     className="space-y-6 animate-in fade-in duration-500"
+    noValidate
   >
-    {/* Email Field Group: Manages focus and error visualization */}
-    <div className="space-y-2">
-      <label
-        htmlFor="email"
-        className="block text-sm font-bold text-slate-700 ml-1"
-      >
-        Email Address
-      </label>
-      <input
-        id="email"
-        type="email"
-        name="email"
-        placeholder="your@email.com"
-        value={values.email}
-        onChange={onChange}
-        autoComplete="email"
-        className={`w-full px-4 py-3 border rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 ${
-          errors.email
-            ? "border-red-300 bg-red-50 focus:border-red-500"
-            : "border-slate-200 focus:border-blue-500"
-        }`}
-      />
-      {errors.email && (
-        <p className="text-red-500 text-xs mt-1 font-medium ml-1 animate-in slide-in-from-top-1">
-          {errors.email}
-        </p>
-      )}
-    </div>
+    {/* Atomic Integration: 
+        PrimaryInput handles label, input, and error messages internally.
+    */}
+    <PrimaryInput
+      label="Email Address"
+      id="email"
+      name="email"
+      type="email"
+      placeholder="your@email.com"
+      value={values.email}
+      onChange={onChange}
+      error={errors.email}
+      disabled={isLoading}
+      autoComplete="email"
+    />
 
-    {/* Password Field Group */}
-    <div className="space-y-2">
-      <label
-        htmlFor="password"
-        className="block text-sm font-bold text-slate-700 ml-1"
-      >
-        Password
-      </label>
-      <input
-        id="password"
-        type="password"
-        name="password"
-        placeholder="••••••••"
-        value={values.password}
-        onChange={onChange}
-        autoComplete="current-password"
-        className="w-full px-4 py-3 border border-slate-200 rounded-2xl transition-all outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500"
-      />
-    </div>
+    <PrimaryInput
+      label="Password"
+      id="password"
+      name="password"
+      type="password"
+      placeholder="••••••••"
+      value={values.password}
+      onChange={onChange}
+      error={errors.password}
+      disabled={isLoading}
+      autoComplete="current-password"
+    />
 
-    {/* Form Action Section: Handles the loading state transition */}
+    {/* Form Action Section: Standardized via PrimaryButton */}
     <div className="pt-4">
-      <button
+      <PrimaryButton
         type="submit"
-        disabled={isLoading}
-        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 disabled:bg-slate-300 disabled:shadow-none transition-all active:scale-[0.98] flex justify-center items-center"
+        isLoading={isLoading}
+        loadingText="SIGNING IN..."
       >
-        {isLoading ? (
-          <>
-            <span className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3"></span>
-            SIGNING IN...
-          </>
-        ) : (
-          "SIGN IN TO ACCOUNT"
-        )}
-      </button>
+        SIGN IN TO ACCOUNT
+      </PrimaryButton>
     </div>
   </form>
 );
