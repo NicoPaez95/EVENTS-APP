@@ -1,47 +1,52 @@
 import BackButton from "../../shared/components/UI/BackButton";
 import PrimaryButton from "../../shared/components/UI/PrimaryButton";
+import { formatEventDate } from "../../shared/utils/dateHelpers";
 
 /**
  * EventDetail Component (Presentational).
  *
  * This "Dumb" component is strictly responsible for rendering the detailed view
- * of a single event. Following the architectural pattern, it does not manage
- * state or side effects; it simply receives data and callbacks via props.
+ * of a single event experience. Following the domain-driven architecture, it contains
+ * zero business logic or mutation side-effects, relying exclusively on props and
+ * shared presentation utilities to resolve visual tokens.
  *
  * Architectural Strategy:
- * - Atomic UI: Integrates `PrimaryButton` for the main CTA, ensuring
- *   consistent elevation and hover effects across the event lifecycle.
- * - Decoupled Logic: All date parsing and conditional labeling are handled
- *   locally for presentation, while the execution is delegated to the parent.
+ * - Atomic UI Integration: Incorporates `BackButton` and `PrimaryButton` to guarantee uniform
+ *   interaction design patterns across feature boundaries.
+ * - Presentation Tokenization: Outsources complex ISO timestamp slicing to the shared date
+ *   utility layer, keeping the markup clean and isolated from localization side effects.
  *
  * @component
  * @category Components/Events
  *
  * @param {Object} props - Component properties.
- * @param {Object} props.event - The event data object.
- * @param {boolean} props.isAuthenticated - Determines the CTA label.
- * @param {Function} props.onSecureTickets - Logic orchestrator callback.
- * @param {Function} props.onLocationClick - UI callback for map interaction.
+ * @param {Object} props.event - The comprehensive domain event data object.
+ * @param {boolean} props.isAuthenticated - Context flag to switch the main CTA workflow label.
+ * @param {Function} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
+ * @param {Function} props.onLocationClick - Viewport manipulation callback to focus logistical interfaces.
+ * @param {Function} props.onBack - Router navigation utility callback to transition back through session history.
  *
- * @returns {JSX.Element|null} The rendered event detail view.
+ * @returns {JSX.Element|null} The completed, responsive event detail presentation tree, or null if unassigned.
  */
 const EventDetail = ({
   event,
   isAuthenticated,
   onSecureTickets,
   onLocationClick,
+  onBack,
 }) => {
   if (!event) return null;
 
-  const eventDate = new Date(event.date);
-  const day = eventDate.getUTCDate();
-  const month = eventDate.toLocaleString("en-US", { month: "short" });
+  // Delegated presentation parsing via shared utility layer
+  const dateTokens = formatEventDate(event.date);
+  const day = dateTokens?.day || "--";
+  const month = dateTokens?.month || "TBD";
 
   return (
     <article className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
       {/* 1. Navigation Header */}
       <header className="p-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-        <BackButton label="BACK TO EXPLORATION" />
+        <BackButton onClick={onBack} label="BACK TO EXPLORATION" />
 
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
           {event.category}
@@ -58,6 +63,7 @@ const EventDetail = ({
             alt={`Cover for ${event.title}`}
             className="w-full h-full object-cover"
           />
+          {/* Specific custom presentation layout for the Hero badge */}
           <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl text-center shadow-2xl border border-white/20 min-w-[80px]">
             <span className="block text-3xl font-black text-blue-600 leading-none">
               {day}
