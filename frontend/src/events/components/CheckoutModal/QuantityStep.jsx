@@ -1,5 +1,6 @@
 import React from "react";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
+import { formatCurrency } from "../../utils/paymentFormatter";
 
 /**
  * QuantityStep Component (Presentational).
@@ -13,7 +14,7 @@ import PrimaryButton from "shared/components/UI/PrimaryButton";
  * @param {Object} props - Component props.
  * @param {Object} props.event - Event data (title, location, price).
  * @param {number} props.quantity - Current ticket count.
- * @param {number} props.totalAmount - Calculated price.
+ * @param {number} props.totalAmount - Calculated raw price.
  * @param {Function} props.onQuantityChange - Increment/decrement callback.
  * @param {Function} props.onNext - Progression callback.
  *
@@ -48,7 +49,7 @@ const QuantityStep = ({
           <div>
             <p className="font-bold text-gray-900">General Admission</p>
             <p className="text-sm text-blue-600 font-medium">
-              ${event?.price?.toLocaleString() || "0"} per ticket
+              {formatCurrency(event?.price || 0)} per ticket
             </p>
           </div>
 
@@ -81,12 +82,12 @@ const QuantityStep = ({
         <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-2xl font-black text-gray-900">
-            ${totalAmount?.toLocaleString() || "0"}
+            {formatCurrency(totalAmount)}
           </span>
         </div>
       </div>
 
-      {/* Action Button: Refactored to use PrimaryButton */}
+      {/* Action Button */}
       <PrimaryButton onClick={onNext} size="lg">
         Confirm and Continue
       </PrimaryButton>

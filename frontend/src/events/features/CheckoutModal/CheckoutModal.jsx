@@ -22,11 +22,6 @@ import SuccessStep from "../../components/CheckoutModal/SuccessStep";
  * It handles state transitions between selection, payment, and confirmation
  * using the `useCheckout` custom hook.
  *
- * Key features:
- * - React Portals for Z-index isolation.
- * - Body scroll locking during active state.
- * - Simulated payment processing delay.
- *
  * @component
  * @category Features/Checkout
  * @param {Object} props - Component props.
@@ -55,28 +50,8 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
     };
   }, [isOpen, checkout]);
 
-  /**
-   * Effect: Payment Processing Simulation.
-   * Automatically advances to the success step after a 3.5s delay
-   * when the checkout state enters the 'Processing' phase (Step 3).
-   */
-  useEffect(() => {
-    if (isOpen && checkout.currentStep === 3) {
-      const timer = setTimeout(() => {
-        checkout.nextStep();
-      }, 3500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, checkout.currentStep, checkout]);
-
-  // Early return to prevent rendering before hook initialization logic
   if (!isOpen) return null;
 
-  /**
-   * Main Modal JSX Structure.
-   * Defined as a constant to be passed into the Portal.
-   */
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop: Handles click-to-close behavior */}
@@ -129,7 +104,7 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
             />
           )}
 
-          {/* STEP 3: Transaction Handshake (Visual Loader) */}
+          {/* STEP 3: Transaction Handshake (Visual Loader managed by useCheckout async logic) */}
           {checkout.currentStep === 3 && <ProcessingStep />}
 
           {/* STEP 4: Success Confirmation & QR Receipt */}
@@ -155,10 +130,6 @@ const CheckoutModal = ({ isOpen, onClose, event }) => {
     </div>
   );
 
-  /**
-   * Teleports the modal content to the 'modal-root' element.
-   * Ensures the modal is rendered at the top level of the DOM.
-   */
   return createPortal(modalContent, document.getElementById("modal-root"));
 };
 

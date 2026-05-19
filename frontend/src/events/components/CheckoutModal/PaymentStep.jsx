@@ -1,14 +1,7 @@
-/**
- * @file PaymentStep.jsx
- * @description Presentational form component for managing checkout payment methods.
- * Integrates atomic inputs and custom triggers to handle interactive 3D credit card flipping animations.
- * @module components/checkout/PaymentStep
- * @author Nico Paez
- */
-
 import React from "react";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
 import PrimaryInput from "shared/components/UI/PrimaryInput";
+import { formatCurrency } from "../../utils/paymentFormatter";
 
 /**
  * PaymentStep Presentational Component.
@@ -23,7 +16,7 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  * @param {string} props.paymentData.cardNumber - Numerical sequence token representation string for the credit card.
  * @param {string} props.paymentData.expiry - Structured date shorthand notation string representing target expiration bounds ("MM/YY").
  * @param {string} props.paymentData.cvc - Card verification value security cipher token.
- * @param {number|string} props.totalAmount - Aggregated numeric value of invoice parameters translated to final checkout cost.
+ * @param {number} props.totalAmount - Aggregated numeric value of invoice parameters translated to final checkout cost.
  * @param {function} props.onUpdate - Callback dispatch function triggered when editing field entities. Receives an operational state subset block.
  * @param {function} props.onNext - Pipeline control navigation callback targeting sequential step execution flow.
  * @param {function} props.onPrev - Pipeline control navigation callback targeting historical step backflow.
@@ -113,7 +106,7 @@ const PaymentStep = ({
         )}
       </div>
 
-      {/* 3. INPUTS FORM: Using PrimaryInput */}
+      {/* 3. INPUTS FORM */}
       <div className="space-y-4">
         <PrimaryInput
           placeholder="Card Number"
@@ -149,7 +142,7 @@ const PaymentStep = ({
           Back
         </button>
         <PrimaryButton onClick={onNext} fullWidth={false} className="flex-[2]">
-          Pay ${totalAmount}
+          Pay {formatCurrency(totalAmount)}
         </PrimaryButton>
       </div>
     </div>

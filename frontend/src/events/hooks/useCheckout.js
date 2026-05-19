@@ -16,9 +16,11 @@ import { formatCardNumber, formatExpiryDate, formatCVC } from '../utils/paymentF
 
 /**
  * useCheckout Hook.
- * * A custom "Headless" hook that manages the complex state and business logic
+ * 
+ * A custom "Headless" hook that manages the complex state and business logic
  * for the multi-step event ticket purchasing flow.
- * * Key features:
+ * 
+ * Key features:
  * - Step-by-step navigation (Quantity -> Payment -> Processing -> Success).
  * - Automatic credit card field formatting.
  * - Simulated asynchronous payment processing with built-in demo error cases.
@@ -31,16 +33,16 @@ export const useCheckout = (event) => {
   // Navigation State
   const [currentStep, setCurrentStep] = useState(1);
   const [quantity, setQuantity] = useState(1);
-  
+
   // Payment Information State
   const [paymentData, setPaymentData] = useState({ cardNumber: '', expiry: '', cvc: '' });
   const [error, setError] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
-  
+
   // Post-Purchase Data State
   const [ticketData, setTicketData] = useState(null);
 
-  /** @type {number} The computed final price based on selected quantity. */
+  /** @type {number} The computed raw final price based on selected quantity. */
   const totalAmount = quantity * (event?.price || 0);
 
   /**
@@ -106,11 +108,11 @@ export const useCheckout = (event) => {
     currentStep,
     quantity,
     paymentData,
-    totalAmount,
+    totalAmount, // Retained as a raw numeric value to avoid presentation coupling inside headless state
     error,
     isFlipped,
     ticketData,
-    
+
     // Actions
     setIsFlipped,
     /** @param {number} val - Amount to add (use -1 for decrement). */
