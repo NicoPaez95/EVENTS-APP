@@ -7,9 +7,26 @@
  * @author Nico Paez
  */
 
+import React from "react";
 import { useAutocomplete } from "../hooks/useAutocomplete";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
 import PrimaryInput from "shared/components/UI/PrimaryInput";
+
+/**
+ * @typedef {Object} SearchFilters
+ * @property {string} searchTerm - Active textual keywords matching titles, general descriptions, or location tags.
+ * @property {string} category - Specific classification category criterion text.
+ * @property {string} location - Target municipality boundary constraint value.
+ * @property {string} date - Calendar temporal value tracking (YYYY-MM-DD).
+ */
+
+/**
+ * @typedef {Object} SearchBarProps
+ * @property {function(SearchFilters, boolean): void} onSearch - Global submit callback pipeline method. Receives the aggregated state object alongside a strictness evaluation execution flag.
+ * @property {function(string): Promise<Array>|Array} getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
+ * @property {function(string): Promise<Array>|Array} getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
+ * @property {function(string): Promise<Array>|Array} getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
+ */
 
 /**
  * SearchBar Presentational Component.
@@ -19,11 +36,7 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  *
  * @component
  * @category Components/Events
- * @param {Object} props - Component properties.
- * @param {function} props.onSearch - Global submit callback pipeline method. Receives the aggregated state object containing all active query inputs.
- * @param {function} props.getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
- * @param {function} props.getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
- * @param {function} props.getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
+ * @param {SearchBarProps} props - Component property payloads.
  * @returns {JSX.Element} An interactive horizontal inline form encapsulating filters and autocomplete anchors.
  */
 const SearchBar = ({
@@ -34,13 +47,13 @@ const SearchBar = ({
 }) => {
   /**
    * Destructured custom autocomplete utilities handling local debounce states and form arrays.
-   * @type {{ values: Object, suggestions: Object, handleChange: function, selectSuggestion: function }}
+   * @type {{ values: SearchFilters, suggestions: Object, handleChange: function, selectSuggestion: function }}
    */
   const { values, suggestions, handleChange, selectSuggestion } =
     useAutocomplete();
 
   /**
-   * Intercepts individual select operations from list suggestions to programmatically synchronization state keys.
+   * Intercepts individual select operations from list suggestions to programmatically synchronize state keys.
    * Fires an immediate search dispatch event to optimize user query responsiveness.
    *
    * @param {string} field - Domain target property identifier key inside the local value collection (e.g., 'searchTerm', 'category').
@@ -49,7 +62,7 @@ const SearchBar = ({
   const handleSelect = (field, value) => {
     selectSuggestion(field, value);
     const updatedValues = { ...values, [field]: value };
-    onSearch(updatedValues);
+    onSearch(updatedValues, false);
   };
 
   /**
@@ -60,7 +73,7 @@ const SearchBar = ({
    */
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(values);
+    onSearch(values, true);
   };
 
   return (
