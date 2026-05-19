@@ -14,9 +14,15 @@
  * @param {string} props.user.email - The primary contact email.
  * @returns {JSX.Element|null} The profile information card or null if user data is missing.
  */
+import {
+  getInitials,
+  getAvatarColorGradient,
+} from "shared/utils/avatarHelpers";
 const UserProfileCard = ({ user }) => {
   // Defensive Guard: Ensures the UI doesn't break if data is still being processed
   if (!user) return null;
+  const initials = getInitials(user.name);
+  const gradientClasses = getAvatarColorGradient(user.name);
 
   return (
     <section
@@ -31,6 +37,34 @@ const UserProfileCard = ({ user }) => {
       </h1>
 
       <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 mb-8 pb-6 border-b border-slate-50">
+          <div className="relative select-none shrink-0">
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="w-16 h-16 rounded-2xl object-cover border border-slate-100 shadow-sm"
+              />
+            ) : (
+              <div
+                className={`w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black tracking-wider bg-gradient-to-br shadow-inner ${gradientClasses}`}
+              >
+                {initials}
+              </div>
+            )}
+          </div>
+          <div>
+            <h1
+              id="profile-title"
+              className="text-2xl font-black text-slate-900 tracking-tight font-display"
+            >
+              User Profile
+            </h1>
+            <p className="text-sm text-slate-400 font-medium mt-0.5">
+              Manage your account details and personal credentials
+            </p>
+          </div>
+        </div>
         {/* Data Grid: Optimized for responsive scanning */}
         <article className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-8">
           <div>
