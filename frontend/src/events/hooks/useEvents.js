@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { EventsContext } from '../../shared/context/EventsContext';
+import { EventsContext } from '../context/EventsContext';
 
 /**
  * Custom Hook: useEvents.
@@ -21,7 +21,7 @@ import { EventsContext } from '../../shared/context/EventsContext';
  */
 export const useEvents = () => {
   const context = useContext(EventsContext);
-  
+
   /**
    * Defensive Programming:
    * Ensures that the hook is only used within its designated Provider.
@@ -34,6 +34,6 @@ export const useEvents = () => {
       'Check your App.jsx or Main.jsx to ensure the provider wraps this component tree.'
     );
   }
-  
+
   return context;
 };
