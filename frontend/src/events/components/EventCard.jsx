@@ -1,19 +1,22 @@
 /**
  * @file EventCard.jsx
- * @description Presentational component for displaying a summarized event card.
+ * @description Presentational component for displaying a summarized event card with defensive UI image handling.
  * Integrates atomic UI components for consistent typography, branding, and spacing.
  * @module components/events/EventCard
  * @author Nico Paez
  */
 
+import React from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import VenueInfo from "./VenueInfo";
 import ActionLink from "shared/components/UI/ActionLink";
 import EventDate from "shared/components/UI/EventDate";
+import { resolveEventImage } from "../utils/eventFallbackMapper";
 
 /**
  * Static UI Icon representing a close or remove operation.
- * @type {JSX.Element}
+ * @type {React.JSX.Element}
  */
 const CLOSE_ICON = (
   <svg
@@ -36,7 +39,7 @@ const CLOSE_ICON = (
  * Functional component that generates a dynamic heart icon based on the active bookmark state.
  *
  * @param {boolean} isSaved - Indicates whether the event is currently bookmarked by the user.
- * @returns {JSX.Element} The rendered SVG icon with context-aware styles.
+ * @returns {React.JSX.Element} The rendered SVG icon with context-aware styles.
  */
 const HEART_ICON = (isSaved) => (
   <svg
@@ -59,20 +62,23 @@ const HEART_ICON = (isSaved) => (
  * EventCard Presentational Component.
  *
  * Visualizes a clean, interactive summary layout for individual events. Accommodates
- * dynamic bookmarking states and provides seamless link navigation to detailed event pages.
+ * dynamic bookmarking states, lazy-loads images, and relies on structural domain mappers
+ * to absorb missing asset payloads without polluting the view with side-effects.
  *
  * @component
- * @param {Object} props - Component properties.
- * @param {string|number} props.id - Unique identifier for the event.
- * @param {string} props.title - Title or headline of the event.
- * @param {string} props.date - ISO or localized date string representing the event's schedule.
+ * @category Components
+ * @param {Object} props - The component properties.
+ * @param {string|number} props.id - Unique domain identifier from MongoDB.
+ * @param {string} props.title - Explicit display name of the event asset.
+ * @param {string} props.date - Temporal ISO operational schedule string.
  * @param {Object} props.venue - Spatial and structured information regarding the location.
  * @param {string} props.category - Classification or taxonomy label of the event.
+ * @param {string} [props.image] - Remote image URL string provided asynchronously by MongoDB.
  * @param {boolean} props.isSaved - Toggle that specifies if the event is shortlisted.
  * @param {boolean} [props.showRemoveButton=false] - Optional switch to swap the heart button for a distinct removal style.
  * @param {function} [props.onToggleSave] - Callback triggered when modifying the core save state. Receives the event's ID.
  * @param {function} [props.onAction] - General-purpose secondary action handler execution hook. Receives the event's ID.
- * @returns {JSX.Element} A themed, responsive grid item representing an event entity.
+ * @returns {React.JSX.Element} A themed, responsive grid item representing an event entity.
  */
 const EventCard = ({
   id,
@@ -80,6 +86,7 @@ const EventCard = ({
   date,
   venue,
   category,
+  image,
   isSaved,
   showRemoveButton = false,
   onToggleSave,
@@ -104,8 +111,11 @@ const EventCard = ({
     }
   };
 
+  // Resolve the visual fallback asset based on its business domain taxonomy category
+  const resolvedImage = resolveEventImage(category, image);
+
   return (
-    <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+    <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       {/* Save/Remove Action Button */}
       <button
         onClick={handleAction}
@@ -116,21 +126,35 @@ const EventCard = ({
         {showRemoveButton ? CLOSE_ICON : HEART_ICON(isSaved)}
       </button>
 
-      <Link to={`/events/${id}`} className="block p-5">
-        <header>
-          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md">
-            {category}
-          </span>
-          <h3 className="font-bold text-lg mt-4 text-slate-800 group-hover:text-blue-600 transition-colors leading-tight">
-            {title}
-          </h3>
-        </header>
+      {/* Visual Resource Header Mesh */}
+      <div className="relative w-full aspect-video bg-slate-50 overflow-hidden">
+        <img
+          src={resolvedImage}
+          alt={`Visual highlight for ${title}`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          loading="lazy"
+        />
+      </div>
 
-        <div className="mt-5 space-y-3">
-          {/* Reusable Date Atom */}
-          <EventDate date={date} />
+      <Link
+        to={`/events/${id}`}
+        className="block p-5 flex-grow flex flex-col justify-between"
+      >
+        <div>
+          <header>
+            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md">
+              {category}
+            </span>
+            <h3 className="font-bold text-lg mt-4 text-slate-800 group-hover:text-blue-600 transition-colors leading-tight line-clamp-2">
+              {title}
+            </h3>
+          </header>
 
-          <VenueInfo venue={venue} isClickable={false} />
+          <div className="mt-4 space-y-3">
+            {/* Reusable Date Atom */}
+            <EventDate date={date} />
+            <VenueInfo venue={venue} isClickable={false} />
+          </div>
         </div>
 
         <footer className="mt-6 pt-4 border-t border-slate-50">
@@ -139,6 +163,19 @@ const EventCard = ({
       </Link>
     </article>
   );
+};
+
+EventCard.propTypes = {
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  title: PropTypes.string.isRequired,
+  date: PropTypes.string.isRequired,
+  venue: PropTypes.object.isRequired,
+  category: PropTypes.string.isRequired,
+  image: PropTypes.string,
+  isSaved: PropTypes.bool.isRequired,
+  showRemoveButton: PropTypes.bool,
+  onToggleSave: PropTypes.func,
+  onAction: PropTypes.func,
 };
 
 export default EventCard;

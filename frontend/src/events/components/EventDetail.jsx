@@ -1,13 +1,16 @@
+import React from "react";
+import PropTypes from "prop-types";
 import BackButton from "../../shared/components/UI/BackButton";
 import PrimaryButton from "../../shared/components/UI/PrimaryButton";
 import { formatEventDate } from "../../shared/utils/dateHelpers";
+import { resolveEventImage } from "../utils/eventFallbackMapper";
 
 /**
  * EventDetail Component (Presentational).
  *
- * This "Dumb" component is strictly responsible for rendering the detailed view
- * of a single event experience. Following the domain-driven architecture, it contains
- * zero business logic or mutation side-effects, relying exclusively on props and
+ * This presentational "Dumb" component is strictly responsible for rendering the detailed view
+ * of a single event experience. Following domain-driven architectural constraints, it contains
+ * zero operational business logic or mutation side effects, relying exclusively on props and
  * shared presentation utilities to resolve visual tokens.
  *
  * Architectural Strategy:
@@ -15,18 +18,20 @@ import { formatEventDate } from "../../shared/utils/dateHelpers";
  *   interaction design patterns across feature boundaries.
  * - Presentation Tokenization: Outsources complex ISO timestamp slicing to the shared date
  *   utility layer, keeping the markup clean and isolated from localization side effects.
+ * - Defensive Rendering Fallbacks: Implements strict structural fallbacks and optional chaining
+ *   to absorb missing or malformed domain payloads without breaking the UI shell.
+ * - Intelligent Asset Mapping: Integrates `resolveEventImage` to dynamically mount contextual
+ *   category placeholders if the remote database layout is compromised.
  *
  * @component
  * @category Components/Events
- *
- * @param {Object} props - Component properties.
- * @param {Object} props.event - The comprehensive domain event data object.
- * @param {boolean} props.isAuthenticated - Context flag to switch the main CTA workflow label.
- * @param {Function} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
- * @param {Function} props.onLocationClick - Viewport manipulation callback to focus logistical interfaces.
- * @param {Function} props.onBack - Router navigation utility callback to transition back through session history.
- *
- * @returns {JSX.Element|null} The completed, responsive event detail presentation tree, or null if unassigned.
+ * @param {Object} props - The component properties.
+ * @param {Object} props.event - The comprehensive domain event data object from the repository.
+ * @param {boolean} props.isAuthenticated - Context flag used to toggle the main CTA workflow layout and label.
+ * @param {function} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
+ * @param {function} props.onLocationClick - Viewport manipulation callback to focus logistical map interfaces.
+ * @param {function} props.onBack - Router navigation utility callback to transition back through session history.
+ * @returns {React.JSX.Element|null} The completed, responsive event detail presentation tree, or null if unassigned.
  */
 const EventDetail = ({
   event,
@@ -37,10 +42,24 @@ const EventDetail = ({
 }) => {
   if (!event) return null;
 
-  // Delegated presentation parsing via shared utility layer
-  const dateTokens = formatEventDate(event.date);
+  // Defensive parsing against missing or malformed date signatures
+  const dateTokens = event?.date ? formatEventDate(event.date) : null;
   const day = dateTokens?.day || "--";
   const month = dateTokens?.month || "TBD";
+
+  // Destructuring with granular fallbacks for direct template consumption
+  const {
+    title = "Untitled Experience",
+    category = "Special Event",
+    description = "Experience something unique. This event showcases the best in its category within a premium environment.",
+    venue = {},
+  } = event;
+
+  // Strategic Asset Resolution: Securely evaluate event images using the domain utility
+  const resolvedImage = resolveEventImage(event?.category, event?.image);
+
+  const venueName = venue?.name || "Venue TBD";
+  const venueCity = venue?.city || "Unknown City";
 
   return (
     <article className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
@@ -49,7 +68,7 @@ const EventDetail = ({
         <BackButton onClick={onBack} label="BACK TO EXPLORATION" />
 
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
-          {event.category}
+          {category}
         </span>
       </header>
 
@@ -57,10 +76,8 @@ const EventDetail = ({
         {/* 2. Visual Hero */}
         <div className="md:w-1/2 relative h-72 md:h-auto">
           <img
-            src={
-              event.image || "https://via.placeholder.com/800x600?text=No+Image"
-            }
-            alt={`Cover for ${event.title}`}
+            src={resolvedImage}
+            alt={`Cover for ${title}`}
             className="w-full h-full object-cover"
           />
           {/* Specific custom presentation layout for the Hero badge */}
@@ -78,7 +95,7 @@ const EventDetail = ({
         <div className="md:w-1/2 p-10 flex flex-col justify-between bg-white">
           <div className="space-y-8">
             <h1 className="text-4xl font-black text-slate-900 leading-[1.1] tracking-tight">
-              {event.title}
+              {title}
             </h1>
 
             <div className="space-y-4">
@@ -86,6 +103,14 @@ const EventDetail = ({
               <div
                 onClick={onLocationClick}
                 className="group flex items-center gap-4 p-4 -ml-4 rounded-2xl cursor-pointer hover:bg-blue-50/80 transition-all duration-300 active:scale-[0.98]"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onLocationClick();
+                  }
+                }}
               >
                 <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-200 group-hover:rotate-12 transition-transform">
                   📍
@@ -95,10 +120,10 @@ const EventDetail = ({
                     Venue • <span className="text-blue-500">View Map</span>
                   </p>
                   <p className="text-xl font-bold text-slate-800 leading-tight">
-                    {event.venue?.name || "TBD"}
+                    {venueName}
                   </p>
                   <p className="text-sm font-medium text-slate-500">
-                    {event.venue?.city || "Unknown City"}, Argentina
+                    {venueCity}, Argentina
                   </p>
                 </div>
               </div>
@@ -126,8 +151,7 @@ const EventDetail = ({
                 Experience Details
               </h3>
               <p className="text-slate-600 leading-relaxed text-base">
-                {event.description ||
-                  "Experience something unique. This event showcases the best in its category within a premium environment."}
+                {description}
               </p>
             </div>
           </div>
@@ -142,6 +166,25 @@ const EventDetail = ({
       </div>
     </article>
   );
+};
+
+EventDetail.propTypes = {
+  event: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string,
+    category: PropTypes.string,
+    date: PropTypes.string,
+    description: PropTypes.string,
+    image: PropTypes.string,
+    venue: PropTypes.shape({
+      name: PropTypes.string,
+      city: PropTypes.string,
+    }),
+  }),
+  isAuthenticated: PropTypes.bool.isRequired,
+  onSecureTickets: PropTypes.func.isRequired,
+  onLocationClick: PropTypes.func.isRequired,
+  onBack: PropTypes.func.isRequired,
 };
 
 export default EventDetail;
