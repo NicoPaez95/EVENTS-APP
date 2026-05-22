@@ -6,15 +6,15 @@
  * @author Nico Paez
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
 import { format } from "date-fns";
 import { getCalendarGrid } from "../../shared/utils/dateHelpers";
 import ActionLink from "../../shared/components/UI/ActionLink";
 
 /**
- * Static UI Icon representing a downwards arrow indicator.
- * Stored outside the component to prevent redundant memory allocation during re-renders.
- * @type {JSX.Element}
+ * Static UI SVG Icon representing a generic chevron down vector asset.
+ * @type {React.JSX.Element}
  */
 const CHEVRON_DOWN = (
   <svg
@@ -34,9 +34,8 @@ const CHEVRON_DOWN = (
 );
 
 /**
- * Static UI Icon representing a left calendar paging arrow.
- * Stored outside the component to prevent redundant memory allocation during re-renders.
- * @type {JSX.Element}
+ * Static UI SVG Icon representing a generic chevron left vector asset.
+ * @type {React.JSX.Element}
  */
 const CHEVRON_LEFT = (
   <svg
@@ -56,9 +55,8 @@ const CHEVRON_LEFT = (
 );
 
 /**
- * Static UI Icon representing a right calendar paging arrow.
- * Stored outside the component to prevent redundant memory allocation during re-renders.
- * @type {JSX.Element}
+ * Static UI SVG Icon representing a generic chevron right vector asset.
+ * @type {React.JSX.Element}
  */
 const CHEVRON_RIGHT = (
   <svg
@@ -78,8 +76,8 @@ const CHEVRON_RIGHT = (
 );
 
 /**
- * Static abbreviation strings for calendar months layout lookup.
- * @type {Array<string>}
+ * Month short abbreviations used within the local dropdown popover interface.
+ * @type {Array.<string>}
  */
 const MONTHS_SHORT = [
   "Jan",
@@ -97,51 +95,40 @@ const MONTHS_SHORT = [
 ];
 
 /**
- * Static initials representing structural weekdays titles mapping.
- * @type {Array<string>}
+ * Weekday singular initials displayed at the top grid level layout of the component.
+ * @type {Array.<string>}
  */
 const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
 
 /**
  * SavedEventsCalendar Component (Presentational).
  *
- * Implements an advanced UI monthly matrix layout. Resolves grid boundaries dynamically
- * based on operational time anchors while isolating internal navigational layout open states.
+ * Renders a standard calendar structure to map bookmarked items. Implements high-performance
+ * event listeners for cell hovers, abstracting complex transformations to parent features.
  *
  * @component
- * @param {Object} props - Component properties.
- * @param {Date} props.currentDate - Core temporal anchor JavaScript date reference object representing the currently selected month context.
- * @param {Object.<string, Array.<Object>>} [props.eventsMap={}] - A structured hash map mapping localized ISO date strings ("yyyy-MM-dd") to groups of event objects.
- * @param {function} props.onDateClick - Event handler callback fired when interacting with an eligible calendar day cell. Receives an ISO date string.
- * @param {function} props.onNextMonth - Control workflow callback triggered to step forward into the next consecutive month context.
- * @param {function} props.onPrevMonth - Control workflow callback triggered to step backward into the previous consecutive month context.
- * @param {function} props.onSelectMonth - Inline execution handler callback triggered during matrix navigation changes. Receives the explicit index integer.
- * @returns {JSX.Element} A flexible interactive grid element encapsulating date cells and preview tooltips.
+ * @category Components
+ * @param {Object} props - The component properties.
+ * @param {Date} props.currentDate - Reference date object used to frame the current monthly view context.
+ * @param {Object.<string, Array.<Object>>} [props.eventsMap={}] - High-efficiency dictionary lookup mapping ISO timestamp strings to arrays of saved event objects.
+ * @param {string|null} props.selectedDate - The active full ISO string key indicating a single-day item selection.
+ * @param {function} props.onDateClick - Event handler triggered when clicking an eligible day cell wrapper. Receives the string ISO date key.
+ * @param {function} props.onNextMonth - Callback function responsible for advancing the temporal calendar state forward by one month.
+ * @param {function} props.onPrevMonth - Callback function responsible for rewinding the temporal calendar state backward by one month.
+ * @param {function} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index value.
+ * @returns {React.JSX.Element} The presentational interactive calendar shell mesh.
  */
 const SavedEventsCalendar = ({
   currentDate,
   eventsMap = {},
+  selectedDate,
   onDateClick,
   onNextMonth,
   onPrevMonth,
   onSelectMonth,
 }) => {
-  /**
-   * Boolean state that controls the dropdown menu visibility for structural quick month selections.
-   * @type {[boolean, function]}
-   */
   const [showMonthPicker, setShowMonthPicker] = useState(false);
-
-  /**
-   * Localized calendar string key targeting the single date node cell actively hovered by the user pointer.
-   * @type {[string|null, function]}
-   */
   const [hoveredDate, setHoveredDate] = useState(null);
-
-  /**
-   * Destructured return arrays capturing days count and offsetting empty prefix cells.
-   * @type {{days: Array.<number>, blanks: Array.<null>}}
-   */
   const { days, blanks } = getCalendarGrid(currentDate);
 
   return (
@@ -170,7 +157,7 @@ const SavedEventsCalendar = ({
             </div>
           </button>
 
-          {/* Month Selection Menu */}
+          {/* Month Selection Dropdown */}
           {showMonthPicker && (
             <div className="absolute top-12 left-0 z-50 bg-white border border-slate-200 shadow-2xl rounded-xl p-3 w-64 animate-in fade-in zoom-in-95 duration-200">
               <div className="grid grid-cols-3 gap-2">
@@ -195,7 +182,7 @@ const SavedEventsCalendar = ({
           )}
         </div>
 
-        {/* Navigation Buttons */}
+        {/* Navigation Controllers */}
         <div className="flex gap-1">
           <button
             onClick={onPrevMonth}
@@ -214,7 +201,7 @@ const SavedEventsCalendar = ({
         </div>
       </header>
 
-      {/* Week Header */}
+      {/* Week Day Labels */}
       <div className="grid grid-cols-7 gap-2 mb-2">
         {WEEKDAYS_INITIALS.map((day, i) => (
           <div
@@ -226,21 +213,33 @@ const SavedEventsCalendar = ({
         ))}
       </div>
 
-      {/* Primary Calendar Grid */}
+      {/* Days Grid */}
       <div className="grid grid-cols-7 gap-2 relative">
         {blanks.map((_, i) => (
           <div key={`blank-${i}`} className="aspect-square"></div>
         ))}
 
         {days.map((day) => {
-          const dateInstance = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            day
+          /**
+           * Build standard UTC midnights to eliminate time zone displacement offsets.
+           * This matches the exact ISO string schema used to index keys inside eventsMap.
+           */
+          const utcDate = new Date(
+            Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), day)
           );
-          const dateKey = format(dateInstance, "yyyy-MM-dd");
+          const dateKey = utcDate.toISOString();
+
           const dayEvents = eventsMap[dateKey] || [];
           const hasEvents = dayEvents.length > 0;
+          const isSelected = selectedDate === dateKey;
+
+          // Resolve dynamic layout styles for day buttons based on event status
+          let buttonStyles = "bg-slate-50 text-slate-400 cursor-default";
+          if (hasEvents) {
+            buttonStyles = isSelected
+              ? "bg-blue-800 text-white font-bold ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md"
+              : "bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-md scale-105";
+          }
 
           return (
             <div key={day} className="relative">
@@ -249,17 +248,13 @@ const SavedEventsCalendar = ({
                 onMouseLeave={() => setHoveredDate(null)}
                 onClick={() => hasEvents && onDateClick(dateKey)}
                 disabled={!hasEvents}
-                className={`w-full aspect-square rounded-lg flex items-center justify-center text-xs transition-all ${
-                  hasEvents
-                    ? "bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-md scale-105"
-                    : "bg-slate-50 text-slate-400 cursor-default"
-                }`}
+                className={`w-full aspect-square rounded-lg flex items-center justify-center text-xs transition-all ${buttonStyles}`}
               >
                 {day}
               </button>
 
-              {/* Event Preview Tooltip */}
-              {hoveredDate === dateKey && hasEvents && (
+              {/* Hover Tooltip Preview */}
+              {hoveredDate === dateKey && hasEvents && !isSelected && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] w-36 bg-white rounded-xl shadow-2xl border border-slate-100 p-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
                     <img
@@ -280,6 +275,7 @@ const SavedEventsCalendar = ({
         })}
       </div>
 
+      {/* Footer redirection asset link container */}
       <footer className="mt-6 pt-3 border-t border-slate-100">
         <ActionLink to="/user/saved-events" centered>
           View full collection
@@ -287,6 +283,16 @@ const SavedEventsCalendar = ({
       </footer>
     </section>
   );
+};
+
+SavedEventsCalendar.propTypes = {
+  currentDate: PropTypes.instanceOf(Date).isRequired,
+  eventsMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),
+  selectedDate: PropTypes.string,
+  onDateClick: PropTypes.func.isRequired,
+  onNextMonth: PropTypes.func.isRequired,
+  onPrevMonth: PropTypes.func.isRequired,
+  onSelectMonth: PropTypes.func.isRequired,
 };
 
 export default SavedEventsCalendar;

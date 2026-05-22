@@ -93,10 +93,8 @@ const EventCard = ({
   onAction,
 }) => {
   /**
-   * Intercepts the interactive mouse events to cleanly isolate bubbling.
-   * Dispatches specialized event context upward through declarative callbacks.
-   *
-   * @param {React.MouseEvent<HTMLButtonElement>} e - Native React mouse click event argument.
+   * Prevents standard router navigation propagation and coordinates callback actions.
+   * @param {React.MouseEvent<HTMLButtonElement>} e - Click event object.
    */
   const handleAction = (e) => {
     e.preventDefault();
@@ -111,12 +109,12 @@ const EventCard = ({
     }
   };
 
-  // Resolve the visual fallback asset based on its business domain taxonomy category
+  // Fall back to a default visual category asset if remote image property returns missing or broken
   const resolvedImage = resolveEventImage(category, image);
 
   return (
     <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
-      {/* Save/Remove Action Button */}
+      {/* Save/Remove Action Button - Safe from Link propagation */}
       <button
         onClick={handleAction}
         aria-label={showRemoveButton ? "Remove event" : "Save event"}
@@ -136,6 +134,7 @@ const EventCard = ({
         />
       </div>
 
+      {/* BODY LINK: Encapsulates informational text items in isolation to prevent layout collision */}
       <Link
         to={`/events/${id}`}
         className="block p-5 flex-grow flex flex-col justify-between"
@@ -151,16 +150,16 @@ const EventCard = ({
           </header>
 
           <div className="mt-4 space-y-3">
-            {/* Reusable Date Atom */}
             <EventDate date={date} />
             <VenueInfo venue={venue} isClickable={false} />
           </div>
         </div>
-
-        <footer className="mt-6 pt-4 border-t border-slate-50">
-          <ActionLink to={`/events/${id}`}>View Details</ActionLink>
-        </footer>
       </Link>
+
+      {/* FOOTER CONTAINER: Rendered adjacently to avoid nested interactive Link hierarchies */}
+      <footer className="px-5 pb-5 pt-4 border-t border-slate-50 mt-auto">
+        <ActionLink to={`/events/${id}`}>View Details</ActionLink>
+      </footer>
     </article>
   );
 };

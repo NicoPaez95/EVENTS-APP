@@ -1,5 +1,13 @@
-import { useMemo, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+/**
+ * @file SavedCalendarFeature.jsx
+ * @description Smart container and feature orchestrator component.
+ * Synchronizes global event catalogs, user bookmarks, and local calendar viewport states,
+ * handling side-effects and data transformations cleanly.
+ * @module features/user/SavedCalendarFeature
+ * @author Nico Paez
+ */
+
+import React, { useMemo, useState, useCallback } from "react";
 import { useEvents } from "../../events/hooks/useEvents";
 import { useUser } from "../context/UserContext";
 import SavedEventsCalendar from "../components/SavedEventsCalendar";
@@ -7,86 +15,99 @@ import { addMonths, subMonths, setMonth } from "date-fns";
 import { groupSavedEventsByDate } from "events/utils/eventTransformers";
 
 /**
- * SavedCalendarFeature Component (Smart/Feature Orchestrator).
- * * This orchestrator bridges the global event catalog with the user's private data.
- * It manages the temporal state (navigation between months) and transforms raw
- * event arrays into a high-performance dictionary indexed by date.
- * * **Core Responsibilities**:
- * 1. **Data Indexing**: Filters and groups events using `groupSavedEventsByDate` to
- * optimize lookup during calendar grid rendering.
- * 2. **Navigation Logic**: Controls the temporal window (month/year) without
- * affecting global state.
- * 3. **Stable API Delivery**: Memoizes event handlers to prevent unnecessary
- * re-renders of the specialized `SavedEventsCalendar` UI.
- * * @component
+ * SavedCalendarFeature Component (Smart / Feature Orchestrator).
+ *
+ * Orchestrates global event catalogs and personal bookmarks to manage calendar views
+ * and handle single-day event selections inline without routing mutations.
+ *
+ * @component
  * @category Features/User
- * @returns {JSX.Element} The orchestrated SavedEventsCalendar with live user data.
+ * @returns {React.JSX.Element} The orchestrated SavedEventsCalendar with responsive internal state.
  */
 const SavedCalendarFeature = () => {
-  const navigate = useNavigate();
-
-  /** * Domain Hook Consumption:
-   * Retrieves the master event list and the user's bookmarked IDs.
-   */
   const { events } = useEvents();
-  const { savedIds } = useUser();
+  const { savedIds = [] } = useUser(); // Ensure dynamic fallback to avoid mapping breaks
 
   /**
    * Calendar Viewport State:
    * Tracks which month/year the user is currently inspecting.
+   * @type {[Date, function]}
    */
   const [currentDate, setCurrentDate] = useState(new Date());
 
   /**
+   * Inline Selection State:
+   * Stores the selected ISO date string (YYYY-MM-DD) to render previews inside the same view.
+   * @type {[string|null, function]}
+   */
+  const [selectedDateKey, setSelectedDateKey] = useState(null);
+
+  /**
    * Data Orchestration (Memoized):
    * Transforms the flat event list into an O(1) lookup dictionary.
-   * Re-calculates only when the catalog changes or the user saves/unsaves an event.
+   * Forces re-evaluation explicitly when savedIds reference updates.
+   *
+   * @type {Object.<string, Array.<Object>>}
    */
   const eventsByDate = useMemo(() => {
+    // Structural integrity check to handle fast context updates safely
+    if (!events || !savedIds) return {};
     return groupSavedEventsByDate(events, savedIds);
-  }, [events, savedIds]);
+  }, [events, JSON.stringify(savedIds)]); // Stringify safety ensures deep array equality detection
 
   /**
-   * Navigation Handlers (Memoized):
-   * stable references are crucial for the performance of the pure UI component.
+   * Advances the calendar viewport state forward by exactly one month
+   * and clears active day selections to avoid cross-month visual bugs.
+   * @function
    */
-
-  /**
-   * Redirects to the detailed list view for a specific date using URL parameters.
-   * @param {string} dateKey - The ISO date string (YYYY-MM-DD).
-   */
-  const handleDateClick = useCallback(
-    (dateKey) => {
-      navigate(`/user/saved-events?date=${dateKey}`);
-    },
-    [navigate]
-  );
-
   const handleNextMonth = useCallback(() => {
     setCurrentDate((prev) => addMonths(prev, 1));
-  }, []);
-
-  const handlePrevMonth = useCallback(() => {
-    setCurrentDate((prev) => subMonths(prev, 1));
+    setSelectedDateKey(null);
   }, []);
 
   /**
-   * Directly sets the calendar month focus.
-   * @param {number} index - Month index from 0 (Jan) to 11 (Dec).
+   * Rewinds the calendar viewport state backward by exactly one month
+   * and clears active day selections to avoid cross-month visual bugs.
+   * @function
+   */
+  const handlePrevMonth = useCallback(() => {
+    setCurrentDate((prev) => subMonths(prev, 1));
+    setSelectedDateKey(null);
+  }, []);
+
+  /**
+   * Direct month alteration controller that modifies the current date state by index
+   * and resets active day selection flags.
+   * @function
+   * @param {number} index - The zero-indexed integer representation of the target month (0-11).
    */
   const handleSelectMonth = useCallback((index) => {
     setCurrentDate((prev) => setMonth(prev, index));
+    setSelectedDateKey(null);
+  }, []);
+
+  /**
+   * Captures the selected day key locally without triggering route changes.
+   * Toggles selection off if the same key is clicked sequentially.
+   * @function
+   * @param {string} dateKey - The full ISO timestamp string representation of the target date.
+   */
+  const handleDateClick = useCallback((dateKey) => {
+    setSelectedDateKey((prevKey) => (prevKey === dateKey ? null : dateKey));
   }, []);
 
   return (
-    <SavedEventsCalendar
-      currentDate={currentDate}
-      eventsMap={eventsByDate}
-      onDateClick={handleDateClick}
-      onNextMonth={handleNextMonth}
-      onPrevMonth={handlePrevMonth}
-      onSelectMonth={handleSelectMonth}
-    />
+    <div className="space-y-6">
+      <SavedEventsCalendar
+        currentDate={currentDate}
+        eventsMap={eventsByDate}
+        selectedDate={selectedDateKey}
+        onDateClick={handleDateClick}
+        onNextMonth={handleNextMonth}
+        onPrevMonth={handlePrevMonth}
+        onSelectMonth={handleSelectMonth}
+      />
+    </div>
   );
 };
 
