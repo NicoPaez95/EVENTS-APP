@@ -1,12 +1,22 @@
 /**
  * @file PrimaryInput.jsx
- * @description Atomic layout component providing a standardized, accessible input text field.
+ * @description Advanced atomic layout component providing a standardized, accessible input text field.
  * Safely manages integrated labels, conditional error validation contexts, and dynamic styling classes.
+ * Supports externalized reference forwarding interfaces through specific callback injection keys.
  * @module components/shared/UI/PrimaryInput
  * @author Nico Paez
  */
 
 import { cn } from "../../utils/cn";
+
+/**
+ * @typedef {Object} PrimaryInputProps
+ * @property {string} [label] - Optional descriptive text rendered inside a semantic `<label>` node above the input track.
+ * @property {string|boolean} [error] - Validation feedback string containing descriptive error logs. If truthy, shifts the input's visual themes.
+ * @property {string} [id] - Unique target reference string matching the semantic link bounds between labels and inputs.
+ * @property {string} [className=""] - Extra Tailwind utility style tokens passed from container views to customize input metrics.
+ * @property {React.RefObject<HTMLInputElement>} [inputRef] - Programmatic reference instance to grant external access directly into the raw HTML element.
+ */
 
 /**
  * PrimaryInput Atomic Component.
@@ -15,14 +25,17 @@ import { cn } from "../../utils/cn";
  * HTMLInputElement properties while managing structured error highlighting and semantic accessibility anchors.
  *
  * @component
- * @param {Object} props - Component properties including all standard HTML input attributes (e.g., type, value, placeholder, onChange, onFocus).
- * @param {string} [props.label] - Optional descriptive text rendered inside a semantic `<label>` node above the input track.
- * @param {string|boolean} [props.error] - Validation feedback string containing descriptive error logs. If truthy, shifts the input's visual themes.
- * @param {string} [props.id] - Unique target reference string matching the semantic link bounds between labels and inputs.
- * @param {string} [props.className=""] - Extra Tailwind utility style tokens passed from container views to customize input metrics.
- * @returns {JSX.Element} A flexible, interactive text entry layout node block.
+ * @param {PrimaryInputProps & React.InputHTMLAttributes<HTMLInputElement>} props - Component properties combining atomic extensions and standard HTML elements.
+ * @returns {React.JSX.Element} A flexible, interactive text entry layout node block.
  */
-const PrimaryInput = ({ label, error, id, className = "", ...props }) => {
+const PrimaryInput = ({
+  label,
+  error,
+  id,
+  className = "",
+  inputRef,
+  ...props
+}) => {
   return (
     <div className="space-y-2 w-full text-left">
       {label && (
@@ -36,6 +49,7 @@ const PrimaryInput = ({ label, error, id, className = "", ...props }) => {
       <div className="relative">
         <input
           id={id}
+          ref={inputRef}
           className={cn(
             // 1. Base default layout classes applied consistently
             "w-full px-4 py-3 border rounded-2xl transition-all outline-none",

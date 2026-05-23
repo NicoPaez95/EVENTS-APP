@@ -23,9 +23,10 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
 /**
  * @typedef {Object} SearchBarProps
  * @property {function(SearchFilters, boolean): void} onSearch - Global submit callback pipeline method. Receives the aggregated state object alongside a strictness evaluation execution flag.
- * @property {function(string): Promise<Array>|Array} getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
- * @property {function(string): Promise<Array>|Array} getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
- * @property {function(string): Promise<Array>|Array} getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
+ * @property {function(string): (Promise<Array<Object>>|Array<Object>)} getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
+ * @property {function(string): (Promise<Array<string>>|Array<string>)} getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
+ * @property {function(string): (Promise<Array<string>>|Array<string>)} getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
+ * @property {React.RefObject<HTMLInputElement>} [inputRef] - Externalized DOM reference instance to allow programmatic focusing loops on the primary text track.
  */
 
 /**
@@ -37,17 +38,22 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  * @component
  * @category Components/Events
  * @param {SearchBarProps} props - Component property payloads.
- * @returns {JSX.Element} An interactive horizontal inline form encapsulating filters and autocomplete anchors.
+ * @returns {React.JSX.Element} An interactive horizontal inline form encapsulating filters and autocomplete anchors.
  */
 const SearchBar = ({
   onSearch,
   getTitleSuggestions,
   getCategorySuggestions,
   getLocationSuggestions,
+  inputRef,
 }) => {
   /**
    * Destructured custom autocomplete utilities handling local debounce states and form arrays.
-   * @type {{ values: SearchFilters, suggestions: Object, handleChange: function, selectSuggestion: function }}
+   * @type {Object}
+   * @property {SearchFilters} values - Current state values for all filter tracking domains.
+   * @property {Object} suggestions - Managed maps tracking matching string matrices or entity arrays.
+   * @property {function(string, string, function): void} handleChange - Trigger bound to standard keystroke alterations.
+   * @property {function(string, string): void} selectSuggestion - Direct selection override state updater.
    */
   const { values, suggestions, handleChange, selectSuggestion } =
     useAutocomplete();
@@ -67,7 +73,7 @@ const SearchBar = ({
 
   /**
    * Default form execution wrapper preventing browser refresh loops.
-   * Projects the current input states upward through the assigned primary callback pipeline.
+   * Submits aggregate criteria to the upstream controller orchestrator.
    *
    * @param {React.FormEvent<HTMLFormElement>} e - Native React form submission event argument.
    */
@@ -84,6 +90,7 @@ const SearchBar = ({
       {/* --- Global/Title Search Section --- */}
       <div className="relative flex-1 min-w-[250px]">
         <PrimaryInput
+          inputRef={inputRef}
           type="text"
           placeholder="What are you looking for?"
           value={values.searchTerm}

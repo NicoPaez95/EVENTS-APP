@@ -44,13 +44,19 @@ import { useScrollToSectionOnSearch } from "../hooks/useScrollToSectionOnSearch"
 const EventsFeature = () => {
   /**
    * Destructured global event states and management utilities from domain context hook.
-   * @type {{ events: EventEntity[], loading: boolean, error: Object|null, clearFilters: function }}
+   * @type {Object}
+   * @property {EventEntity[]} events - Collection of parsed event domain entities.
+   * @property {boolean} loading - Operational flag tracking active data resolution cycles.
+   * @property {Object|null} error - Infrastructure error tracking metadata or instance reference.
+   * @property {function(): void} clearFilters - Pipeline modifier callback to strip out query state boundaries.
    */
   const { events, loading, error, clearFilters } = useEvents();
 
   /**
    * Destructured bookmark interaction handlers from user preference synchronization hook.
-   * @type {{ onToggleSave: function(string|number): void, isEventSaved: function(string|number): boolean }}
+   * @type {Object}
+   * @property {function(string|number): void} onToggleSave - Triggers state modification for personal catalogs.
+   * @property {function(string|number): boolean} isEventSaved - Conditional check reflecting personal persistence bounds.
    */
   const { onToggleSave, isEventSaved } = useToggleEventSave();
 
@@ -61,7 +67,18 @@ const EventsFeature = () => {
   const gridContainerRef = useScrollToSectionOnSearch();
 
   /**
-   * 1. Infrastructure Critical Failure Guard.
+   * Broadcasts a global system event notifying that a focus request has been initiated
+   * from the presentation header layer.
+   *
+   * @returns {void}
+   */
+  const handleSearchFocusTrigger = () => {
+    const focusEvent = new CustomEvent("app:search-focus-requested");
+    window.dispatchEvent(focusEvent);
+  };
+
+  /**
+   * Infrastructure Critical Failure Guard.
    * Intercepts the rendering pipeline to provide immediate feedback if the remote server fails.
    */
   if (!loading && error) {
@@ -76,7 +93,7 @@ const EventsFeature = () => {
   }
 
   /**
-   * 2. Actionable Empty State Guard.
+   * Actionable Empty State Guard.
    * Intercepts flow at orchestration level to inject business-driven recovery callbacks when data returns empty but successful.
    */
   if (!loading && (!events || events.length === 0)) {
@@ -94,7 +111,6 @@ const EventsFeature = () => {
     );
   }
 
-  /* 3. Domain Orchestration Core: Declarative pipeline structure compiling clean presentational sub-components */
   return (
     <section
       ref={gridContainerRef}
@@ -102,7 +118,10 @@ const EventsFeature = () => {
       className="animate-in fade-in duration-500 scroll-mt-10"
     >
       {/* Dynamic Header Composition */}
-      <EventsHeader isLoading={loading} />
+      <EventsHeader
+        isLoading={loading}
+        onSearchFocusRequested={handleSearchFocusTrigger}
+      />
 
       {/* Event Grid Layout Execution Layer */}
       <EventGrid
