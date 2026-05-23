@@ -3,6 +3,7 @@
  * @description Master domain orchestration component for the event discovery layout.
  * Acts as a Clean Architecture Smart Controller, resolving domain hook dependencies,
  * managing network error boundaries, and coordinating pure presentational components.
+ * Listens for systemic broadcast search signals to focus its layout grid automatically.
  * @module features/events/EventsFeature
  * @author Nico Paez
  */
@@ -13,6 +14,7 @@ import EventsHeader from "../components/EventsHeader";
 import EventGrid from "../components/EventGrid";
 import EmptyState from "shared/components/UI/EmptyState";
 import useToggleEventSave from "../../user/hooks/useToggleEventSave";
+import { useScrollToSectionOnSearch } from "../hooks/useScrollToSectionOnSearch";
 
 /**
  * @typedef {Object} EventVenue
@@ -37,7 +39,7 @@ import useToggleEventSave from "../../user/hooks/useToggleEventSave";
  *
  * @component
  * @category Features/Events
- * @returns {JSX.Element} A declarative orchestrator layout displaying structural content states.
+ * @returns {React.JSX.Element} A declarative orchestrator layout displaying structural content states.
  */
 const EventsFeature = () => {
   /**
@@ -51,6 +53,12 @@ const EventsFeature = () => {
    * @type {{ onToggleSave: function(string|number): void, isEventSaved: function(string|number): boolean }}
    */
   const { onToggleSave, isEventSaved } = useToggleEventSave();
+
+  /**
+   * DOM Reference used to programmatically anchor viewport physics upon search execution.
+   * @type {React.RefObject<HTMLElement>}
+   */
+  const gridContainerRef = useScrollToSectionOnSearch();
 
   /**
    * 1. Infrastructure Critical Failure Guard.
@@ -89,8 +97,9 @@ const EventsFeature = () => {
   /* 3. Domain Orchestration Core: Declarative pipeline structure compiling clean presentational sub-components */
   return (
     <section
+      ref={gridContainerRef}
       aria-label="Event Results"
-      className="animate-in fade-in duration-500"
+      className="animate-in fade-in duration-500 scroll-mt-10"
     >
       {/* Dynamic Header Composition */}
       <EventsHeader isLoading={loading} />

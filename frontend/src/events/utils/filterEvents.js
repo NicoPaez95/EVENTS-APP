@@ -49,7 +49,7 @@
 export const filterEvents = (events, filters, isStrict = false) => {
   if (!events) return [];
 
-  let { searchTerm, category, date, location } = filters;
+  let { searchTerm, category, date, location } = filters || {};
 
   if (category?.toLowerCase() === "all") category = undefined;
 
@@ -163,4 +163,19 @@ export const filterByIds = (events, ids) => {
 export const filterByDate = (events, dateString) => {
   if (!events || !dateString) return [];
   return events.filter((event) => event?.date?.split("T")[0] === dateString);
+};
+
+/**
+ * Evaluates whether a custom query filter dictionary contains at least one active, non-empty criteria.
+ * Essential for suppressing global window custom event side-effects when form mutations are sterile.
+ *
+ * @function hasActiveFilterCriteria
+ * @param {CatalogQueryFilters} filters - Active search filter parameter configurations to validate.
+ * @returns {boolean} True if a clean text input or category constraint value actively exists.
+ */
+export const hasActiveFilterCriteria = (filters) => {
+  if (!filters) return false;
+  return Object.values(filters).some(
+    (val) => val !== undefined && val !== null && val.toString().trim().length > 0
+  );
 };
