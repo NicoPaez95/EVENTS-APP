@@ -1,65 +1,59 @@
-import { useState, useMemo } from "react";
+/**
+ * @file UpcomingListFeature.jsx
+ * @description Feature orchestrator component that manages the "Upcoming Experiences" view.
+ * Coordinates time-based proximity filters with global bookmark persistence synchronization hooks.
+ * @module features/events/UpcomingListFeature
+ * @author Nico Paez
+ */
+
+import React, { useState, useMemo } from "react";
 import { useEvents } from "../hooks/useEvents";
 import EventGrid from "../components/EventGrid";
 import { filterEventsByTime } from "events/utils/eventHelpers";
+import TimeFilterNav from "../../shared/components/UI/TimeFilterNav";
+import useToggleEventSave from "user/hooks/useToggleEventSave";
 
 /**
- * @typedef {Object} FilterButton
- * @property {string} id - Unique identifier for the filter window (e.g., '24h', '7d').
- * @property {string} label - The human-readable text displayed on the button.
- */
-
-/**
- * UpcomingListFeature Component (Feature Orchestrator).
+ * UpcomingListFeature Component.
  *
- * This smart component manages the "Upcoming Experiences" view, providing a
- * time-based filtering interface. It coordinates the logic for selecting
- * specific proximity windows and ensures the display is updated based on
- * chronological criteria.
+ * This smart orchestrator provides a time-window filtering boundary layer, managing state transitions
+ * between user session curation states and real-time chronological data structures.
  *
  * @component
  * @category Features/Events
- * @returns {JSX.Element} A layout featuring interactive time filters and a
- * responsive event grid.
+ * @returns {React.JSX.Element} Composed chronological discovery shell containing time filters and a populated results grid.
  */
 const UpcomingListFeature = () => {
-  /** * Global State Consumption.
-   * Accesses the event collection and loading status from the Events context.
+  /**
+   * User Session Bookmarking Hook.
+   * Pulls structural cross-domain handler states to toggle user bookmarks and intercept active selection ids.
+   */
+  const { onToggleSave, isEventSaved } = useToggleEventSave();
+
+  /**
+   * Global Catalog State Consumption.
+   * Extract historical core event metadata collection registries and active runtime data hydration flags.
    */
   const { events, loading } = useEvents();
 
   /**
-   * timeFilter State.
-   * Tracks the currently active temporal window.
+   * Internal Time Filter State.
+   * Tracks the currently active structural temporal window scope query parameter.
    * @type {'24h' | '7d' | '30d' | 'all'}
    */
   const [timeFilter, setTimeFilter] = useState("7d");
 
   /**
-   * Date Filtering Logic.
-   * Memoizes the event subset based on the selected time window.
-   * This prevents expensive re-filtering operations during unrelated
-   * re-renders unless the source data or filter changes.
-   * @returns {Array<Object>} Subset of events falling within the selected range.
+   * Date Pipeline Filtering Logic (Memoized).
+   * Prevents expensive iterative parsing re-filtering execution workflows during unrelated parent triggers.
    */
   const filteredEvents = useMemo(() => {
     return filterEventsByTime(events, timeFilter);
   }, [events, timeFilter]);
 
-  /** * UI Configuration.
-   * Static definition of available filter buttons for the navigation bar.
-   * @type {FilterButton[]}
-   */
-  const filterButtons = [
-    { id: "24h", label: "Next 24 Hours" },
-    { id: "7d", label: "This Week" },
-    { id: "30d", label: "This Month" },
-    { id: "all", label: "All Upcoming" },
-  ];
-
   /**
-   * Loading Guard.
-   * Visual feedback while the master event catalog is being populated.
+   * Hydration Guard.
+   * Renders visual scan feedback metrics while the main async catalog records are being populated.
    */
   if (loading) {
     return (
@@ -79,27 +73,20 @@ const UpcomingListFeature = () => {
           Upcoming Experiences
         </h2>
 
-        <nav className="flex flex-wrap gap-4" aria-label="Time filters">
-          {filterButtons.map((btn) => (
-            <button
-              key={btn.id}
-              onClick={() => setTimeFilter(btn.id)}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 border ${
-                timeFilter === btn.id
-                  ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-105"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600"
-              }`}
-            >
-              {btn.label}
-            </button>
-          ))}
-        </nav>
+        <TimeFilterNav
+          activeFilter={timeFilter}
+          onFilterChange={setTimeFilter}
+        />
       </header>
 
       {/* Results Section: Presentational Layer */}
       <section aria-label="Filtered Events Grid">
         {filteredEvents.length > 0 ? (
-          <EventGrid events={filteredEvents} />
+          <EventGrid
+            events={filteredEvents}
+            onToggleSave={onToggleSave}
+            isEventSaved={isEventSaved}
+          />
         ) : (
           /* Empty State Handler for filtered results */
           <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
@@ -107,6 +94,7 @@ const UpcomingListFeature = () => {
               No events found for this specific period.
             </p>
             <button
+              type="button"
               onClick={() => setTimeFilter("all")}
               className="mt-4 text-blue-600 font-semibold hover:underline"
             >
