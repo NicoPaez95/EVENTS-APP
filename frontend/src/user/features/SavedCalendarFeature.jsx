@@ -1,13 +1,13 @@
 /**
  * @file SavedCalendarFeature.jsx
- * @description Smart container and feature orchestrator component.
- * Synchronizes global event catalogs, user bookmarks, and local calendar viewport states,
- * handling side-effects and data transformations cleanly.
+ * @description Smart container and feature orchestrator component that coordinates global event catalogs,
+ * user bookmarks, and updates the local viewport while dispatching strict calendar query filters.
  * @module features/user/SavedCalendarFeature
  * @author Nico Paez
  */
 
 import React, { useMemo, useState, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
 import { useUser } from "../context/UserContext";
 import SavedEventsCalendar from "../components/SavedEventsCalendar";
@@ -15,93 +15,113 @@ import { addMonths, subMonths, setMonth } from "date-fns";
 import { groupSavedEventsByDate } from "events/utils/eventTransformers";
 
 /**
- * SavedCalendarFeature Component (Smart / Feature Orchestrator).
+ * SavedCalendarFeature Component.
  *
- * Orchestrates global event catalogs and personal bookmarks to manage calendar views
- * and handle single-day event selections inline without routing mutations.
+ * This feature-level smart orchestrator connects calendar viewport states with cross-domain
+ * context providers, translating atomic grid selections into explicit localized URL state updates.
  *
  * @component
  * @category Features/User
- * @returns {React.JSX.Element} The orchestrated SavedEventsCalendar with responsive internal state.
+ * @returns {React.JSX.Element} The structured calendar view integrated with dynamic contextual headers.
  */
 const SavedCalendarFeature = () => {
+  /**
+   * Global Catalog Context.
+   * Accesses core master event collection data layers.
+   */
   const { events } = useEvents();
-  const { savedIds = [] } = useUser(); // Ensure dynamic fallback to avoid mapping breaks
 
   /**
-   * Calendar Viewport State:
-   * Tracks which month/year the user is currently inspecting.
+   * User Domain State Consumption.
+   * Pulls localized user configuration arrays to manage bookmark references safely.
+   */
+  const { savedIds = [] } = useUser();
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  /**
+   * Calendar Viewport State.
+   * Tracks the active month and year calendar matrix currently being inspected by the user.
    * @type {[Date, function]}
    */
   const [currentDate, setCurrentDate] = useState(new Date());
 
   /**
-   * Inline Selection State:
-   * Stores the selected ISO date string (YYYY-MM-DD) to render previews inside the same view.
-   * @type {[string|null, function]}
+   * Extracted Temporal Parameter.
+   * Reads the active query sequence directly from the URL browser boundaries to sync visual grid nodes.
+   * @type {string|null}
    */
-  const [selectedDateKey, setSelectedDateKey] = useState(null);
+  const activeUrlDate = searchParams.get("date");
 
   /**
-   * Data Orchestration (Memoized):
-   * Transforms the flat event list into an O(1) lookup dictionary.
-   * Forces re-evaluation explicitly when savedIds reference updates.
-   *
-   * @type {Object.<string, Array.<Object>>}
+   * O(1) Data Transformation Matrix (Memoized).
+   * Bundles linear master events mapping collections against active user selections into data blocks.
+   * Forces recalculation when user bookmark arrays deep-equality references update.
    */
   const eventsByDate = useMemo(() => {
-    // Structural integrity check to handle fast context updates safely
     if (!events || !savedIds) return {};
     return groupSavedEventsByDate(events, savedIds);
-  }, [events, JSON.stringify(savedIds)]); // Stringify safety ensures deep array equality detection
+  }, [events, JSON.stringify(savedIds)]);
 
   /**
-   * Advances the calendar viewport state forward by exactly one month
-   * and clears active day selections to avoid cross-month visual bugs.
+   * Advances the calendar viewport context forward sequentially by exactly one month.
    * @function
    */
   const handleNextMonth = useCallback(() => {
     setCurrentDate((prev) => addMonths(prev, 1));
-    setSelectedDateKey(null);
   }, []);
 
   /**
-   * Rewinds the calendar viewport state backward by exactly one month
-   * and clears active day selections to avoid cross-month visual bugs.
+   * Rewinds the calendar viewport context backward sequentially by exactly one month.
    * @function
    */
   const handlePrevMonth = useCallback(() => {
     setCurrentDate((prev) => subMonths(prev, 1));
-    setSelectedDateKey(null);
   }, []);
 
   /**
-   * Direct month alteration controller that modifies the current date state by index
-   * and resets active day selection flags.
+   * Intercepts directly specified month selections by index positions to update grid layouts.
    * @function
-   * @param {number} index - The zero-indexed integer representation of the target month (0-11).
+   * @param {number} index - The zero-indexed numerical representation of target months (0-11).
    */
   const handleSelectMonth = useCallback((index) => {
     setCurrentDate((prev) => setMonth(prev, index));
-    setSelectedDateKey(null);
   }, []);
 
   /**
-   * Captures the selected day key locally without triggering route changes.
-   * Toggles selection off if the same key is clicked sequentially.
+   * Dispatches the user to the list page with the selected date as a clean query parameter.
+   * Strips out structural time compound flags to prevent cross-timezone rendering anomalies.
+   *
    * @function
    * @param {string} dateKey - The full ISO timestamp string representation of the target date.
    */
-  const handleDateClick = useCallback((dateKey) => {
-    setSelectedDateKey((prevKey) => (prevKey === dateKey ? null : dateKey));
-  }, []);
+  const handleDateClick = useCallback(
+    (dateKey) => {
+      const cleanKey = dateKey.split("T")[0]; // Extracts clean sequence: "YYYY-MM-DD"
+      navigate(`/user/saved-events?date=${cleanKey}`);
+    },
+    [navigate]
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Contextual Header Layer */}
+      <header className="border-b border-slate-100 pb-4">
+        <h2 className="text-xl font-bold text-slate-800 tracking-tight uppercase font-display">
+          My Saved Events Calendar
+        </h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Visually explore and manage the customized experiences you have
+          reserved month by month.
+        </p>
+      </header>
+
+      {/* Presentational Calendar Component View */}
       <SavedEventsCalendar
         currentDate={currentDate}
         eventsMap={eventsByDate}
-        selectedDate={selectedDateKey}
+        selectedDate={activeUrlDate}
         onDateClick={handleDateClick}
         onNextMonth={handleNextMonth}
         onPrevMonth={handlePrevMonth}
