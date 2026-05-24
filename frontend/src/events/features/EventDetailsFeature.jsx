@@ -1,3 +1,12 @@
+/**
+ * @file EventDetailsFeature.jsx
+ * @description State container and data orchestrator for the event details experience.
+ * Coordinates route parsing, authentication state checking, modal states, micro-interactions (scrolling, highlighting),
+ * and domain-level recommendation computations.
+ * @module features/events/containers/EventDetailsFeature
+ * @author Nico Paez
+ */
+
 import { useState, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
@@ -24,57 +33,83 @@ import LoadingState from "../../shared/components/UI/LoadingState";
 import NotFound from "../../shared/components/UI/NotFound";
 
 /**
- * @typedef {Object} Event
- * @property {string|number} id
- * @property {Object} venue
- * @property {string} venue.name
- * @property {string} venue.city
+ * @typedef {Object} Venue
+ * @property {string} name - The legal or commercial name of the physical building/location.
+ * @property {string} city - The city name used for geospatial targeting and weather resolution.
  */
 
 /**
- * EventDetailsFeature (Orchestrator)
+ * @typedef {Object} Event
+ * @property {string|number} id - The unique atomic resource identification signature.
+ * @property {string} [title] - The human-readable name of the experience.
+ * @property {string} [category] - The operational classification tag for recommendation filters.
+ * @property {string} [date] - ISO string stamp or standard representation of the event calendar day.
+ * @property {string} [description] - Full length narrative detailing the event features.
+ * @property {string} [image] - Asset filename signature or fully-qualified URL for banner resolution.
+ * @property {Venue} venue - Embedded structural data regarding location logistics.
+ */
+
+/**
+ * EventDetailsFeature Component.
  *
- * Main container for the event detail experience.
- * Coordinates data retrieval, navigation guards, UI interactions,
- * and domain-level recommendations.
- *
- * Responsibilities:
- * - Resolve event by route param
- * - Handle auth-protected actions (checkout)
- * - Manage UI interactions (map focus, modal state)
- * - Provide related event recommendations
- * - Inject user interaction handlers (save/unsave)
+ * High-order smart container acting as the single source of truth for the details view.
+ * Handles side-effects, coordinates state machines, and enforces route safety metrics.
  *
  * @component
  * @category Features/Events
- * @returns {JSX.Element}
+ * @returns {React.JSX.Element} The completed feature presentation layout tree or structural fallback components.
  */
 const EventDetailsFeature = () => {
-  /** @type {{ id: string }} */
+  /**
+   * Route parameter dictionary containing the unique identification signature.
+   * @type {{ id: string }}
+   */
   const { id } = useParams();
 
+  /** @type {import('react-router-dom').NavigateFunction} */
   const navigate = useNavigate();
+
+  /** @type {import('react-router-dom').Location} */
   const location = useLocation();
 
+  /**
+   * Context state variables derived from the identity provider domain.
+   * @type {{ isAuthenticated: boolean }}
+   */
   const { isAuthenticated } = useAuth();
+
+  /**
+   * Cross-domain cross-cutting custom hook state bindings.
+   * @type {{ onToggleSave: function(string|number): void, isEventSaved: function(string|number): boolean }}
+   */
   const { onToggleSave, isEventSaved } = useToggleEventSave();
 
   /**
-   * Global event catalog (unfiltered source of truth)
+   * Data provider fetch payload boundaries.
+   * @type {{ allEvents: Event[], loading: boolean }}
    */
   const { allEvents, loading } = useEvents();
 
-  /** @type {[boolean, Function]} */
+  /**
+   * Toggle switch controlling visibility of the payment modal layer.
+   * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+   */
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  /** @type {React.RefObject<HTMLDivElement>} */
+  /**
+   * References the viewport scroll boundary node hosting the tracking map canvas.
+   * @type {React.RefObject<HTMLDivElement|null>}
+   */
   const mapSectionRef = useRef(null);
 
-  /** @type {[boolean, Function]} */
+  /**
+   * Reactive visual accent controller used to flash visual cues on the container node.
+   * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+   */
   const [isMapHighlighted, setIsMapHighlighted] = useState(false);
 
   /**
-   * Resolves the current event from the global catalog.
+   * Memoized target event derived via memory references parsing the global repository array.
    *
    * @type {Event | undefined}
    */
@@ -83,8 +118,8 @@ const EventDetailsFeature = () => {
   }, [allEvents, id]);
 
   /**
-   * Scrolls smoothly to the map section and applies
-   * a temporary visual highlight.
+   * Triggers a hardware-accelerated smooth viewport shift animation targeting the structural ref element,
+   * injecting temporary micro-interaction accent borders.
    *
    * @function
    * @returns {void}
@@ -102,9 +137,8 @@ const EventDetailsFeature = () => {
   };
 
   /**
-   * Handles secure ticket flow.
-   * Redirects unauthenticated users to login,
-   * preserving the current route for post-login return.
+   * Enforces transactional pipeline security filters.
+   * Intercepts anonymous actions, serializing history state parameters to support post-login redirection.
    *
    * @function
    * @returns {void}
@@ -118,7 +152,7 @@ const EventDetailsFeature = () => {
   };
 
   /**
-   * Computes related events using recommendation engine.
+   * Memoized array of structurally recommended companion events generated via the application heuristics engine.
    *
    * @type {Event[]}
    */
@@ -126,12 +160,12 @@ const EventDetailsFeature = () => {
     return getRelatedEvents(event, allEvents);
   }, [event, allEvents]);
 
-  // Loading State
+  // Early Return Isolation Layer: Repository Async Process Validation Interceptor
   if (loading) {
     return <LoadingState message="Loading experience details..." />;
   }
 
-  // Not Found State
+  // Early Return Isolation Layer: Domain Reference Validation Interceptor
   if (!event) {
     return (
       <NotFound
@@ -145,14 +179,14 @@ const EventDetailsFeature = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-12 animate-in fade-in duration-500 px-4">
-      {/* Checkout Modal */}
+      {/* Checkout Transactional Layer */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         event={event}
       />
 
-      {/* Event Detail Section */}
+      {/* Structural Experience Layout Frame */}
       <section aria-label="Event Details">
         <EventDetail
           event={event}
@@ -160,12 +194,14 @@ const EventDetailsFeature = () => {
           onSecureTickets={handleSecureTickets}
           onBack={() => navigate(-1)}
           onLocationClick={handleLocationFocus}
+          onToggleSave={onToggleSave}
+          isSaved={isEventSaved ? isEventSaved(event.id) : false}
         />
       </section>
 
-      {/* Layout Grid */}
+      {/* Secondary Context Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Recommendations */}
+        {/* Core Domain Recommendations Subtree */}
         <div className="lg:col-span-2 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Similar Experiences
@@ -178,7 +214,7 @@ const EventDetailsFeature = () => {
           />
         </div>
 
-        {/* Sidebar */}
+        {/* Informational Geospatial Sidebar Content Node */}
         <aside className="lg:col-span-1 space-y-8">
           <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
             Venue & Logistics
