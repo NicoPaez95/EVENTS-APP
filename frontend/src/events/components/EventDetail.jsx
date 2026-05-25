@@ -11,6 +11,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import BackButton from "../../shared/components/UI/BackButton";
 import PrimaryButton from "../../shared/components/UI/PrimaryButton";
+import BookmarkButton from "shared/components/UI/BookmarkButton";
 import { formatEventDate } from "../../shared/utils/dateHelpers";
 import { resolveEventImage } from "../utils/eventFallbackMapper";
 
@@ -24,6 +25,15 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  * @category Components/Events
  * @param {Object} props - The component properties.
  * @param {Object} props.event - The comprehensive domain event data object from the repository.
+ * @param {string|number} [props.event.id] - The resource identifier embedded in the event data.
+ * @param {string} [props.event.title] - The display title of the event asset.
+ * @param {string} [props.event.category] - Classification or taxonomy label of the event.
+ * @param {string} [props.event.date] - Temporal ISO operational schedule string.
+ * @param {string} [props.event.description] - Narrative detailing the specific experience.
+ * @param {string} [props.event.image] - Remote image URL string provided asynchronously.
+ * @param {Object} [props.event.venue] - Location structure containing spatial information.
+ * @param {string} [props.event.venue.name] - Named display location for the venue.
+ * @param {string} [props.event.venue.city] - City where the venue is physically situated.
  * @param {boolean} props.isAuthenticated - Context flag used to toggle the main CTA workflow layout and label.
  * @param {function(): void} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
  * @param {function(): void} props.onLocationClick - Viewport manipulation callback to focus logistical map interfaces.
@@ -31,8 +41,8 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  * @param {function(string|number): void} [props.onToggleSave] - Cross-domain handler callback used to toggle bookmark state persistence.
  * @param {boolean} [props.isSaved] - Reactive state flag indicating if this target event is pinned inside user preferences.
  * @param {function(string|number): void} [props.onAction] - Optional secondary cascading action payload dispatcher.
- * @param {boolean} [props.showRemoveButton] - Toggles rendering between the heart icon and a clear removal close node badge.
- * @param {string|number} [props.id] - The unique atomic resource identifier for the target event.
+ * @param {boolean} [props.showRemoveButton=false] - Toggles rendering between the heart icon and a clear removal close node badge.
+ * @param {string|number} [props.id] - The explicit unique atomic resource identifier passed directly to the component.
  * @returns {React.JSX.Element|null} The completed, responsive event detail presentation tree, or null if unassigned.
  */
 const EventDetail = ({
@@ -68,59 +78,30 @@ const EventDetail = ({
   const venueName = venue?.name || "Venue TBD";
   const venueCity = venue?.city || "Unknown City";
 
-  const CLOSE_ICON = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
-  );
-
-  const HEART_ICON = (isSavedState) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill={isSavedState ? "currentColor" : "none"}
-      stroke="currentColor"
-      className={`w-5 h-5 transition-colors ${isSavedState ? "text-red-500" : "text-slate-400"}`}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-      />
-    </svg>
-  );
-
   /**
-   * Intercepts incoming click events, preventing default link bubble routing propagation
-   * before firing upstream transactional state updates.
-   *
-   * @param {React.MouseEvent<HTMLButtonElement>} e - Native click interaction event wrapper.
+   * Safe extraction handler for bookmarking events. Resolves structural scoping discrepancies
+   * between direct top-level tracking identifiers and deeply nested payload attributes.
    */
-  const handleAction = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Use the explicit component id prop fallback to the resource event object level payload id
+  const handleBookmarkClick = () => {
     const targetId = id || event?.id;
+    if (!targetId) return;
 
     if (onToggleSave) {
       onToggleSave(targetId);
     }
-
     if (onAction) {
       onAction(targetId);
+    }
+  };
+
+  /**
+   * Keydown event handler to manage standard accessibility criteria for interactive role elements.
+   * @param {React.KeyboardEvent<HTMLDivElement>} e - React standard synthetic keyboard event payload.
+   */
+  const handleVenueKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onLocationClick();
     }
   };
 
@@ -144,20 +125,13 @@ const EventDetail = ({
             className="w-full h-full object-cover"
           />
 
-          {/* Interactive Bookmark Button: Relocated to the Top-Left Corner of the image layout container */}
-          <button
-            type="button"
-            onClick={handleAction}
-            aria-label={showRemoveButton ? "Remove event" : "Save event"}
-            className={`absolute top-6 left-6 z-10 p-3 rounded-full backdrop-blur-md shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20
-              ${
-                showRemoveButton
-                  ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
-                  : "bg-white/90 text-slate-400 hover:text-red-500"
-              }`}
-          >
-            {showRemoveButton ? CLOSE_ICON : HEART_ICON(isSaved)}
-          </button>
+          {/* Absolute Bookmark Action Placement */}
+          <BookmarkButton
+            isSaved={isSaved}
+            showRemoveButton={showRemoveButton}
+            onClick={handleBookmarkClick}
+            className="absolute top-6 left-6 z-10"
+          />
 
           {/* Calendar Date Badge: Positioned at the Top-Right Corner */}
           <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl text-center shadow-2xl border border-white/20 min-w-[80px]">
@@ -178,18 +152,13 @@ const EventDetail = ({
             </h1>
 
             <div className="space-y-4">
-              {/* Interactive Venue */}
+              {/* Interactive Venue Card */}
               <div
                 onClick={onLocationClick}
                 className="group flex items-center gap-4 p-4 -ml-4 rounded-2xl cursor-pointer hover:bg-blue-50/80 transition-all duration-300 active:scale-[0.98]"
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onLocationClick();
-                  }
-                }}
+                onKeyDown={handleVenueKeyDown}
               >
                 <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-200 group-hover:rotate-12 transition-transform">
                   📍

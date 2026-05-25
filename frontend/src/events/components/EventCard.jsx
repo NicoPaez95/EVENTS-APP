@@ -1,7 +1,7 @@
 /**
  * @file EventCard.jsx
  * @description Presentational component for displaying a summarized event card with defensive UI image handling.
- * Integrates atomic UI components for consistent typography, branding, and spacing.
+ * Integrates atomic UI components for consistent typography, branding, spacing, and bookmark isolation.
  * @module components/events/EventCard
  * @author Nico Paez
  */
@@ -12,58 +12,15 @@ import { Link } from "react-router-dom";
 import VenueInfo from "./VenueInfo";
 import ActionLink from "shared/components/UI/ActionLink";
 import EventDate from "shared/components/UI/EventDate";
+import BookmarkButton from "shared/components/UI/BookmarkButton";
 import { resolveEventImage } from "../utils/eventFallbackMapper";
-
-/**
- * Static UI Icon representing a close or remove operation.
- * @type {React.JSX.Element}
- */
-const CLOSE_ICON = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M6 18L18 6M6 6l12 12"
-    />
-  </svg>
-);
-
-/**
- * Functional component that generates a dynamic heart icon based on the active bookmark state.
- *
- * @param {boolean} isSaved - Indicates whether the event is currently bookmarked by the user.
- * @returns {React.JSX.Element} The rendered SVG icon with context-aware styles.
- */
-const HEART_ICON = (isSaved) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill={isSaved ? "currentColor" : "none"}
-    stroke="currentColor"
-    className={`w-5 h-5 transition-colors ${isSaved ? "text-red-500" : "text-slate-400"}`}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-    />
-  </svg>
-);
 
 /**
  * EventCard Presentational Component.
  *
  * Visualizes a clean, interactive summary layout for individual events. Accommodates
- * dynamic bookmarking states, lazy-loads images, and relies on structural domain mappers
- * to absorb missing asset payloads without polluting the view with side-effects.
+ * dynamic bookmarking states via isolated atomic components, lazy-loads images, and relies
+ * on structural domain mappers to absorb missing asset payloads without polluting the view.
  *
  * @component
  * @category Components
@@ -76,8 +33,8 @@ const HEART_ICON = (isSaved) => (
  * @param {string} [props.image] - Remote image URL string provided asynchronously by MongoDB.
  * @param {boolean} props.isSaved - Toggle that specifies if the event is shortlisted.
  * @param {boolean} [props.showRemoveButton=false] - Optional switch to swap the heart button for a distinct removal style.
- * @param {function} [props.onToggleSave] - Callback triggered when modifying the core save state. Receives the event's ID.
- * @param {function} [props.onAction] - General-purpose secondary action handler execution hook. Receives the event's ID.
+ * @param {function(string|number): void} [props.onToggleSave] - Callback triggered when modifying the core save state. Receives the event's ID.
+ * @param {function(string|number): void} [props.onAction] - General-purpose secondary action handler execution hook. Receives the event's ID.
  * @returns {React.JSX.Element} A themed, responsive grid item representing an event entity.
  */
 const EventCard = ({
@@ -92,37 +49,31 @@ const EventCard = ({
   onToggleSave,
   onAction,
 }) => {
-  /**
-   * Prevents standard router navigation propagation and coordinates callback actions.
-   * @param {React.MouseEvent<HTMLButtonElement>} e - Click event object.
-   */
-  const handleAction = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Fall back to a default visual category asset if remote image property returns missing or broken
+  const resolvedImage = resolveEventImage(category, image);
 
+  /**
+   * Dispatches the local unique identifier up into parent container layers
+   * to trigger underlying storage mutations or cross-cutting features.
+   */
+  const handleBookmarkClick = () => {
     if (onToggleSave) {
       onToggleSave(id);
     }
-
     if (onAction) {
       onAction(id);
     }
   };
 
-  // Fall back to a default visual category asset if remote image property returns missing or broken
-  const resolvedImage = resolveEventImage(category, image);
-
   return (
     <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
-      {/* Save/Remove Action Button - Safe from Link propagation */}
-      <button
-        onClick={handleAction}
-        aria-label={showRemoveButton ? "Remove event" : "Save event"}
-        className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-sm shadow-sm hover:scale-110 transition-all
-          ${showRemoveButton ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white" : "bg-white/80 text-slate-400 hover:text-red-500"}`}
-      >
-        {showRemoveButton ? CLOSE_ICON : HEART_ICON(isSaved)}
-      </button>
+      {/* Save/Remove Action Button - Positioned compactly at top-right corner over the visual grid mesh */}
+      <BookmarkButton
+        isSaved={isSaved}
+        showRemoveButton={showRemoveButton}
+        onClick={handleBookmarkClick}
+        className="absolute top-3 right-3 z-10 scale-90"
+      />
 
       {/* Visual Resource Header Mesh */}
       <div className="relative w-full aspect-video bg-slate-50 overflow-hidden">
