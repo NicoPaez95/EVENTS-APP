@@ -1,3 +1,12 @@
+/**
+ * @file AppRouter.jsx
+ * @description Centralized routing architecture mapping browser paths to domain views.
+ * Controls layout configuration wrapping and embeds top-level navigation dependent overlays.
+ * @module router/AppRouter
+ * @author Nico Paez
+ */
+
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "../pages/home/Home";
 import EventDetailPage from "../pages/events/EventDetailPage";
@@ -7,31 +16,29 @@ import Auth from "../pages/user/Auth";
 import Profile from "../pages/user/Profile";
 import ProtectedRoute from "../shared/components/guards/ProtectedRoute";
 import MainLayout from "../shared/components/Layout/MainLayout";
+import AuthModalContainer from "../shared/components/UI/AuthModalContainer";
 
 /**
  * AppRouter Component (Root Navigation Orchestrator).
  *
- * This component centralizes the application's routing strategy. It acts as the
- * top-level orchestrator that maps browser URLs to Page-level components while
- * managing global UI states through Layout nesting.
+ * Maps active path entities to declarative visual components while anchoring layout hierarchies.
  *
  * Architectural Strategy:
- * - Nested Routing: Leverages `MainLayout` as a wrapper to provide a persistent
- *   UI Shell (Header/Sidebar) across primary discovery routes.
- * - Guarded Access: Encapsulates private domains (Profile, Saved Events) within
- *   the `ProtectedRoute` higher-order component to enforce authentication.
- * - Dynamic Layouts: Conditionally configures the UI Shell (e.g., disabling
- *   the sidebar for focused detail views) directly within the route definition.
- * - Clean Auth Flow: Renders Authentication pages without the main layout to
- *   ensure a distraction-free user experience.
+ * - Nested Routing: Wraps standard paths within `MainLayout` to provide a unified shell structure.
+ * - Guarded Boundaries: Encapsulates user scopes under `ProtectedRoute` HOC parameters.
+ * - Global Portal Injection: Places `AuthModalContainer` directly under BrowserRouter to inherit
+ * navigation context metrics safely without throwing runtime instantiation exceptions.
  *
  * @component
  * @category Router
- * @returns {JSX.Element} The declarative routing tree wrapped in BrowserRouter.
+ * @returns {React.JSX.Element} The configuration tree wrapper initialized with browser connection contexts.
  */
 const AppRouter = () => {
   return (
     <BrowserRouter>
+      {/* Centralized UI portal container for unauthenticated guest interception alerts */}
+      <AuthModalContainer />
+
       <Routes>
         {/* --- Primary UI Shell Layer (Standard View with Sidebar) --- */}
         <Route element={<MainLayout />}>

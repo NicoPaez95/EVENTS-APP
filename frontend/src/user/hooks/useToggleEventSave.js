@@ -1,14 +1,14 @@
 /**
  * @file useToggleEventSave.js
  * @description Use-case hook that orchestrates event saving logic with Authentication guards.
- * It abstracts the complexity of coordinating state, notifications, and navigation.
+ * It abstracts the complexity of coordinating state, notifications, and soft interceptive modal triggers.
  * @module hooks/useToggleEventSave
  * @author Nico Paez
  */
 
-import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { useAuthContext } from "../context/AuthContext";
+import { useAuthModal } from "../../shared/context/AuthModalContext";
 import useNotification from "./useNotification";
 
 /**
@@ -19,32 +19,28 @@ import useNotification from "./useNotification";
 
 /**
  * Custom hook to handle event save/remove interactions.
- * 
- * Includes an Authentication Guard that redirects unauthenticated users to the login page
- * and prevents unnecessary notification triggers.
- * 
- * @hook
+ * * Includes an Authentication Interceptor Guard that captures unauthenticated user sessions,
+ * safely halting remote operations to reveal an informative sign-in prompt modal.
+ * * @hook
  * @category Hooks/User
- * @returns {ToggleEventSaveHook}
+ * @returns {ToggleEventSaveHook} Orchestration actions decoupled from presentation markup.
  */
 const useToggleEventSave = () => {
     const { toggleSavedEvent, isSaved } = useUser();
     const { isAuthenticated } = useAuthContext();
+    const { openAuthPrompt } = useAuthModal();
     const { showToast } = useNotification();
-    const navigate = useNavigate();
 
     /**
-     * Executes the toggle action if the user is authenticated.
-     * 
-     * @async
-     * @param {string|number} id - The unique identifier of the event.
-     * @returns {Promise<void>}
+     * Executes the toggle action if the user is authenticated, otherwise intercepts the operation.
+     * * @async
+     * @param {string|number} id - The unique identifier of the target event asset.
+     * @returns {Promise<void>} Resolves tracking transitions smoothly.
      */
     const handleToggleAction = async (id) => {
-        // 1. AUTHENTICATION GUARD
+        // 1. GUEST MODE & AUTHENTICATION INTERCEPTION GUARD
         if (!isAuthenticated) {
-            showToast("Please login to save events", "info");
-            navigate("/login");
+            openAuthPrompt();
             return;
         }
 
