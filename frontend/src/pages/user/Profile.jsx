@@ -1,4 +1,14 @@
+/**
+ * @file Profile.jsx
+ * @description User Profile Page Component acting as the routing entry point.
+ * Orchestrates high-level feature modules for profile management and user-curated catalogs.
+ * @module pages/user/Profile
+ * @author Nico Paez
+ */
+
+import React from "react";
 import UserProfileFeature from "../../user/features/UserProfileFeature";
+import SavedEventsListFeature from "user/features/SavedEventsListFeature";
 
 /**
  * User Profile Page Component.
@@ -9,25 +19,30 @@ import UserProfileFeature from "../../user/features/UserProfileFeature";
  *
  * Architectural Strategy:
  * - Thin Page Pattern: The component avoids managing local state, side effects,
- *   or business logic.
- * - Feature Delegation: It serves as a container for the `UserProfileFeature`,
- *   which acts as the "Smart Orchestrator" responsible for authentication
- *   verification, data fetching from the User Domain, and profile management.
- * - Decoupling: By keeping the Page "thin," the logic remains portable and
- *   highly maintainable within the Feature layer.
+ * or direct business logic.
+ * - Feature Composite: Acts as a clean structural layout wrapper that integrates two independent
+ * domain modules: `UserProfileFeature` (identity and settings) and `SavedEventsListFeature` (curated favorites).
+ * - Decoupling: Maintains features separated by business logic parameters, ensuring high code reusability.
  *
  * @component
  * @category Pages
- * @returns {JSX.Element} The Profile page shell orchestrating the UserProfileFeature.
+ * @returns {React.JSX.Element} The Profile page shell orchestrating layout feature branches.
  */
 const Profile = () => {
   return (
-    /**
-     * UserProfileFeature:
-     * This orchestrator will handle the internal layout (tabs, settings, info)
-     * and communicate with the UserContext or API.
-     */
-    <UserProfileFeature />
+    <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto px-4 py-6">
+      {/**
+       * User Identity Feature:
+       * Handles personal credentials layout dashboards, tabs, and avatar metadata states.
+       */}
+      <UserProfileFeature />
+
+      {/**
+       * User Collection Feature:
+       * Reusable domain list component displaying the reactive grid of saved event cards.
+       */}
+      <SavedEventsListFeature />
+    </div>
   );
 };
 
