@@ -34,6 +34,7 @@ import {
  * @property {string} title - Explicit display name of the experience.
  * @property {string} category - Classification taxonomy label.
  * @property {string} date - Temporal ISO operational schedule string.
+ * @property {number} price - Unit cost per single ticket entry directly mapped from the database.
  * @property {string} [location] - General geographical text fallback location.
  * @property {EventVenueEntity} venue - Structured physical facility entity tracking data.
  * @property {boolean} [isRecommended] - Flag driving structural administrative recommendations.

@@ -6,16 +6,11 @@
  * @author Nico Paez
  */
 
-/**
- * API Base URL derived from environment variables.
- * @constant {string}
- */
 const API_BASE_URL = import.meta.env?.VITE_API_URL || process.env.REACT_APP_API_URL;
 
 /**
  * Retrieves the complete collection of events from the remote server.
- * 
- * @async
+ * * @async
  * @function fetchEventsService
  * @throws {Error} If the server responds with a non-2xx status code or if a network error occurs.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of event objects.
@@ -32,22 +27,19 @@ const fetchEventsService = async () => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      /**
-       * Error Handling:
-       * Prioritizes specific error messages from the Express HttpError model.
-       */
       throw new Error(responseData.message || 'Failed to fetch events from the server.');
     }
 
     /**
-     * @property {Array} responseData.events - The payload containing the event list.
+     * Sanitization & Normalization Layer:
+     * Maps database fields into strict frontend domain attributes.
+     * Guarantees that 'price' is consistently treated as a clean operational float/number.
      */
-    return responseData.events;
+    return responseData.events.map((event) => ({
+      ...event,
+      price: event.price ? Number(event.price) : 0, // <-- Preparación defensiva para DB
+    }));
   } catch (error) {
-    /**
-     * Logging for development debugging.
-     * In a production environment, this could be sent to an error tracking service.
-     */
     console.error('[EventService] fetchEventsService Error:', error.message);
     throw error;
   }
