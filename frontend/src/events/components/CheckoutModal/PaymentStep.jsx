@@ -1,7 +1,21 @@
+/**
+ * @file PaymentStep.jsx
+ * @description Presentational component for the billing stage. Dispatches key/value pairs
+ * to the parent orchestrator mutation boundaries to guarantee input fluid reactive typing.
+ * Integrates masking and token limitation utilities to boost financial UX workflows.
+ * @module components/events/Checkout/PaymentStep
+ * @author Nico Paez
+ */
+
 import React from "react";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
 import PrimaryInput from "shared/components/UI/PrimaryInput";
-import { formatCurrency } from "../../utils/paymentFormatter";
+import {
+  formatCurrency,
+  formatCardNumber,
+  formatExpiryDate,
+  formatCVC,
+} from "../../../shared/utils/paymentFormatter"; // Update this path if you move it to shared/
 
 /**
  * PaymentStep Presentational Component.
@@ -15,14 +29,14 @@ import { formatCurrency } from "../../utils/paymentFormatter";
  * @param {Object} props.paymentData - Structured domain values capturing active user billing records.
  * @param {string} props.paymentData.cardNumber - Numerical sequence token representation string for the credit card.
  * @param {string} props.paymentData.expiry - Structured date shorthand notation string representing target expiration bounds ("MM/YY").
- * @param {string} props.paymentData.cvc - Card verification value security cipher token.
+ * @param {string} props.paymentData.cvv - Card verification value security cipher token.
  * @param {number} props.totalAmount - Aggregated numeric value of invoice parameters translated to final checkout cost.
- * @param {function} props.onUpdate - Callback dispatch function triggered when editing field entities. Receives an operational state subset block.
- * @param {function} props.onNext - Pipeline control navigation callback targeting sequential step execution flow.
- * @param {function} props.onPrev - Pipeline control navigation callback targeting historical step backflow.
+ * @param {function(string, string): void} props.onUpdate - Callback dispatch function triggered when editing field entities. Expects field name and raw string payload.
+ * @param {function(): void} props.onNext - Pipeline control navigation callback targeting sequential step execution flow.
+ * @param {function(): void} props.onPrev - Pipeline control navigation callback targeting historical step backflow.
  * @param {string|null} props.error - Localized descriptive message reporting upstream transaction execution errors.
  * @param {boolean} props.isFlipped - Interactive layout state toggle identifying if the 3D card wrapper mesh exposes its backface.
- * @param {function} props.setIsFlipped - Mutation dispatch callback handler dedicated to altering the spatial flip animation boundary states.
+ * @param {function(boolean): void} props.setIsFlipped - Mutation dispatch callback handler dedicated to altering the spatial flip animation boundary states.
  * @returns {JSX.Element} An interactive payment form accompanied by a dynamic card mesh visualization layer.
  */
 const PaymentStep = ({
@@ -80,7 +94,7 @@ const PaymentStep = ({
               </p>
               <div className="bg-gray-300 h-9 rounded flex items-center justify-end px-4">
                 <span className="text-gray-900 font-mono font-bold italic tracking-widest">
-                  {paymentData.cvc || "•••"}
+                  {paymentData.cvv || "•••"}
                 </span>
               </div>
             </div>
@@ -106,13 +120,15 @@ const PaymentStep = ({
         )}
       </div>
 
-      {/* 3. INPUTS FORM */}
+      {/* 3. INPUTS FORM WITH LIVE SANITIZATION HANDLERS */}
       <div className="space-y-4">
         <PrimaryInput
           placeholder="Card Number"
           value={paymentData.cardNumber}
           onFocus={() => setIsFlipped(false)}
-          onChange={(e) => onUpdate({ cardNumber: e.target.value })}
+          onChange={(e) =>
+            onUpdate("cardNumber", formatCardNumber(e.target.value))
+          }
           error={!!error}
         />
 
@@ -121,13 +137,15 @@ const PaymentStep = ({
             placeholder="MM/YY"
             value={paymentData.expiry}
             onFocus={() => setIsFlipped(false)}
-            onChange={(e) => onUpdate({ expiry: e.target.value })}
+            onChange={(e) =>
+              onUpdate("expiry", formatExpiryDate(e.target.value))
+            }
           />
           <PrimaryInput
             placeholder="CVC"
-            value={paymentData.cvc}
+            value={paymentData.cvv}
             onFocus={() => setIsFlipped(true)}
-            onChange={(e) => onUpdate({ cvc: e.target.value })}
+            onChange={(e) => onUpdate("cvv", formatCVC(e.target.value))}
           />
         </div>
       </div>

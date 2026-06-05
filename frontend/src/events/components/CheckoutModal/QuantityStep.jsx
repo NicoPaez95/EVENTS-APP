@@ -1,12 +1,13 @@
 import React from "react";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
-import { formatCurrency } from "../../utils/paymentFormatter";
+import { formatCurrency } from "../../../shared/utils/paymentFormatter";
 
 /**
  * QuantityStep Component (Presentational).
  *
  * Allows users to select ticket quantities. Integrates PrimaryButton for
  * flow progression to maintain visual consistency in the checkout funnel.
+ * Fixes stale arithmetic bugs by correctly providing absolute values instead of relative deltas.
  *
  * @component
  * @category Components/Events/Checkout
@@ -15,7 +16,7 @@ import { formatCurrency } from "../../utils/paymentFormatter";
  * @param {Object} props.event - Event data (title, location, price).
  * @param {number} props.quantity - Current ticket count.
  * @param {number} props.totalAmount - Calculated raw price.
- * @param {Function} props.onQuantityChange - Increment/decrement callback.
+ * @param {Function} props.onQuantityChange - Callback expecting the absolute new quantity integer.
  * @param {Function} props.onNext - Progression callback.
  *
  * @returns {JSX.Element}
@@ -56,7 +57,8 @@ const QuantityStep = ({
           {/* Quantity Selector Controls */}
           <div className="flex items-center gap-4 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
             <button
-              onClick={() => onQuantityChange(-1)}
+              type="button"
+              onClick={() => onQuantityChange(quantity - 1)}
               aria-label="Decrease quantity"
               className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 font-bold transition-colors active:scale-90"
             >
@@ -69,7 +71,8 @@ const QuantityStep = ({
               {quantity}
             </span>
             <button
-              onClick={() => onQuantityChange(1)}
+              type="button"
+              onClick={() => onQuantityChange(quantity + 1)}
               aria-label="Increase quantity"
               className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 font-bold transition-colors active:scale-90"
             >
@@ -78,7 +81,7 @@ const QuantityStep = ({
           </div>
         </div>
 
-        {/* Total Calculation Display */}
+        {"Total Calculation Display"}
         <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-2xl font-black text-gray-900">

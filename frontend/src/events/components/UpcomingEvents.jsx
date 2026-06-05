@@ -24,21 +24,11 @@ import EventDate from "shared/components/UI/EventDate";
  * @param {string|number} props.events[].id - Unique identifier for the event.
  * @param {string} props.events[].title - Headline or designation title text of the event.
  * @param {string} props.events[].date - Scheduled timestamp or formatted date string.
- * @returns {JSX.Element} A stylized card section wrapping a localized collection list.
+ * @returns {JSX.Element} A stylized card wrapping a localized collection list.
  */
 const UpcomingEvents = ({ events }) => {
   return (
-    <section
-      className="bg-blue-100 rounded-2xl p-5 shadow-sm border border-blue-200"
-      aria-labelledby="upcoming-sidebar-title"
-    >
-      <h2
-        id="upcoming-sidebar-title"
-        className="text-lg font-bold mb-4 text-blue-900"
-      >
-        Upcoming Events
-      </h2>
-
+    <div className="bg-blue-100 rounded-2xl p-5 shadow-sm border border-blue-200">
       <ul className="space-y-3 text-sm" role="list">
         {/* We display only the top 3 for maximum sidebar visual efficiency */}
         {events.slice(0, 3).map((event) => (
@@ -73,7 +63,7 @@ const UpcomingEvents = ({ events }) => {
       >
         View All Upcoming
       </ActionLink>
-    </section>
+    </div>
   );
 };
 

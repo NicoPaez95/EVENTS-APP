@@ -2,6 +2,7 @@
  * @file EventCard.jsx
  * @description Presentational component for displaying a summarized event card with defensive UI image handling.
  * Integrates atomic UI components for consistent typography, branding, spacing, and bookmark isolation.
+ * Completely decoupled from global side-effects, relying entirely on layout injection handlers.
  * @module components/events/EventCard
  * @author Nico Paez
  */
@@ -13,29 +14,42 @@ import VenueInfo from "./VenueInfo";
 import ActionLink from "shared/components/UI/ActionLink";
 import EventDate from "shared/components/UI/EventDate";
 import BookmarkButton from "shared/components/UI/BookmarkButton";
+import PrimaryButton from "shared/components/UI/PrimaryButton";
 import { resolveEventImage } from "../utils/eventFallbackMapper";
+
+/**
+ * @typedef {Object} EventVenue
+ * @property {string} name - Architectural moniker or venue name hosting the activity.
+ * @property {string} city - Metropolitan region location boundary.
+ */
+
+/**
+ * @typedef {Object} EventCardProps
+ * @property {string|number} id - Unique target primary domain identifier of the event.
+ * @property {string} title - Explicit display name of the event asset.
+ * @property {string} date - Temporal ISO operational schedule string.
+ * @property {EventVenue} venue - Geographic venue spatial compound entity.
+ * @property {string} category - Classification taxonomy label.
+ * @property {number} [price=0] - Direct commercial entry fee fetched from persistence layers.
+ * @property {string} [image] - Remote asset raw image path string signature.
+ * @property {boolean} isSaved - Evaluated reactive state flag matching user bookmarks catalog.
+ * @property {boolean} isInCart - Evaluated reactive state flag verifying presence within the shopping cart.
+ * @property {boolean} [showRemoveButton=false] - Operational toggle switch to display alternative removal elements.
+ * @property {Function} [onToggleSave] - Cross-domain handler callback used to toggle bookmark state persistence.
+ * @property {Function} [onCartToggle] - Business mutation callback dispatched to handle additions or removals from the shopping cart.
+ * @property {Function} [onDirectPurchase] - Interceptor hook dispatched when triggering immediate express checkout workflow.
+ * @property {Function} [onDetailNavigate] - Clean layout callback used to route browser location to an exclusive details view.
+ */
 
 /**
  * EventCard Presentational Component.
  *
- * Visualizes a clean, interactive summary layout for individual events. Accommodates
- * dynamic bookmarking states via isolated atomic components, lazy-loads images, and relies
- * on structural domain mappers to absorb missing asset payloads without polluting the view.
+ * A stateless, pure user interface element responsible for rendering a summarized preview tile of an event experience.
  *
  * @component
- * @category Components
- * @param {Object} props - The component properties.
- * @param {string|number} props.id - Unique domain identifier from MongoDB.
- * @param {string} props.title - Explicit display name of the event asset.
- * @param {string} props.date - Temporal ISO operational schedule string.
- * @param {Object} props.venue - Spatial and structured information regarding the location.
- * @param {string} props.category - Classification or taxonomy label of the event.
- * @param {string} [props.image] - Remote image URL string provided asynchronously by MongoDB.
- * @param {boolean} props.isSaved - Toggle that specifies if the event is shortlisted.
- * @param {boolean} [props.showRemoveButton=false] - Optional switch to swap the heart button for a distinct removal style.
- * @param {function(string|number): void} [props.onToggleSave] - Callback triggered when modifying the core save state. Receives the event's ID.
- * @param {function(string|number): void} [props.onAction] - General-purpose secondary action handler execution hook. Receives the event's ID.
- * @returns {React.JSX.Element} A themed, responsive grid item representing an event entity.
+ * @category Components/Events
+ * @param {EventCardProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The presentational event summary tile markup tree structure.
  */
 const EventCard = ({
   id,
@@ -43,40 +57,42 @@ const EventCard = ({
   date,
   venue,
   category,
+  price = 0,
   image,
   isSaved,
+  isInCart,
   showRemoveButton = false,
   onToggleSave,
-  onAction,
+  onCartToggle,
+  onDirectPurchase,
+  onDetailNavigate,
 }) => {
-  // Fall back to a default visual category asset if remote image property returns missing or broken
   const resolvedImage = resolveEventImage(category, image);
 
-  /**
-   * Dispatches the local unique identifier up into parent container layers
-   * to trigger underlying storage mutations or cross-cutting features.
-   */
-  const handleBookmarkClick = () => {
-    if (onToggleSave) {
-      onToggleSave(id);
-    }
-    if (onAction) {
-      onAction(id);
-    }
+  // Structural DTO data compilation pipeline optimized for external domain handlers consumption
+  const eventPayload = {
+    id,
+    title,
+    price,
+    image: resolvedImage,
+    category,
+    venue,
+    date,
   };
 
   return (
-    <article className="group relative bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
-      {/* Save/Remove Action Button - Positioned compactly at top-right corner over the visual grid mesh */}
+    <article className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full">
       <BookmarkButton
         isSaved={isSaved}
         showRemoveButton={showRemoveButton}
-        onClick={handleBookmarkClick}
+        onClick={() => onToggleSave && onToggleSave(id)}
         className="absolute top-3 right-3 z-10 scale-90"
       />
 
-      {/* Visual Resource Header Mesh */}
-      <div className="relative w-full aspect-video bg-slate-50 overflow-hidden">
+      <div
+        onClick={() => onDetailNavigate && onDetailNavigate(id)}
+        className="relative w-full aspect-video bg-slate-50 overflow-hidden cursor-pointer"
+      >
         <img
           src={resolvedImage}
           alt={`Visual highlight for ${title}`}
@@ -85,31 +101,67 @@ const EventCard = ({
         />
       </div>
 
-      {/* BODY LINK: Encapsulates informational text items in isolation to prevent layout collision */}
-      <Link
-        to={`/events/${id}`}
-        className="block p-5 flex-grow flex flex-col justify-between"
-      >
-        <div>
-          <header>
+      <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md">
               {category}
             </span>
-            <h3 className="font-bold text-lg mt-4 text-slate-800 group-hover:text-blue-600 transition-colors leading-tight line-clamp-2">
+            <span className="text-sm font-bold text-slate-900 font-display">
+              ${price.toLocaleString()}
+            </span>
+          </div>
+
+          <Link
+            to={`/events/${id}`}
+            className="block group-hover:text-blue-600 transition-colors"
+          >
+            <h3 className="font-bold text-lg text-slate-800 leading-tight line-clamp-2">
               {title}
             </h3>
-          </header>
+          </Link>
 
-          <div className="mt-4 space-y-3">
+          <div className="space-y-2 pt-1">
             <EventDate date={date} />
             <VenueInfo venue={venue} isClickable={false} />
           </div>
         </div>
-      </Link>
+      </div>
 
-      {/* FOOTER CONTAINER: Rendered adjacently to avoid nested interactive Link hierarchies */}
-      <footer className="px-5 pb-5 pt-4 border-t border-slate-50 mt-auto">
-        <ActionLink to={`/events/${id}`}>View Details</ActionLink>
+      <footer className="px-5 pb-5 pt-4 border-t border-slate-100 flex flex-col space-y-3 mt-auto">
+        <div className="flex items-center gap-2">
+          <PrimaryButton
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onDirectPurchase) onDirectPurchase(eventPayload);
+            }}
+            className="flex-1 text-xs py-3 px-4 rounded-xl tracking-wide shadow-sm"
+          >
+            Compra Directa
+          </PrimaryButton>
+
+          <button
+            type="button"
+            onClick={() => onCartToggle && onCartToggle(eventPayload)}
+            aria-label={
+              isInCart
+                ? "Remove experience from cart"
+                : "Add experience to cart"
+            }
+            className={`p-2.5 rounded-xl border transition-all duration-200 text-sm ${
+              isInCart
+                ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm font-bold"
+                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            {isInCart ? "✓" : "🛒"}
+          </button>
+        </div>
+
+        <div className="text-center pt-1">
+          <ActionLink to={`/events/${id}`}>View Details</ActionLink>
+        </div>
       </footer>
     </article>
   );
@@ -119,13 +171,20 @@ EventCard.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   title: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
-  venue: PropTypes.object.isRequired,
+  venue: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    city: PropTypes.string.isRequired,
+  }).isRequired,
   category: PropTypes.string.isRequired,
+  price: PropTypes.number,
   image: PropTypes.string,
   isSaved: PropTypes.bool.isRequired,
+  isInCart: PropTypes.bool.isRequired,
   showRemoveButton: PropTypes.bool,
   onToggleSave: PropTypes.func,
-  onAction: PropTypes.func,
+  onCartToggle: PropTypes.func,
+  onDirectPurchase: PropTypes.func,
+  onDetailNavigate: PropTypes.func,
 };
 
 export default EventCard;

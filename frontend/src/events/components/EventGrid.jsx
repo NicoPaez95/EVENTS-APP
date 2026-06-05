@@ -7,6 +7,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import EventCard from "./EventCard";
 import EventCardSkeleton from "./EventCardSkeleton";
 
@@ -26,8 +27,12 @@ import EventCardSkeleton from "./EventCardSkeleton";
  * @typedef {Object} EventGridProps
  * @property {Event[]} [events=[]] - Collection of dynamic domain event entities to iterate.
  * @property {boolean} [isLoading=false] - Operational infrastructure state flag enforcing skeleton mounting layers.
- * @property {function(string|number): void} onToggleSave - Pipeline handler tracking bookmark persistence mutations.
- * @property {function(string|number): boolean} [isEventSaved] - Structural selector evaluating active saved states.
+ * @property {Function} onToggleSave - Pipeline handler tracking bookmark preference persistence mutations.
+ * @property {Function} [isEventSaved] - Structural selector evaluating active user saved states.
+ * @property {Function} [onDirectPurchase] - Interceptor hook dispatched when triggering immediate express checkout flow.
+ * @property {Function} isInCart - Domain evaluation function to verify if an asset identifier resides inside the cart state.
+ * @property {Function} onCartToggle - Business mutation callback dispatched to handle additions or removals from the shopping cart.
+ * @property {Function} onDetailNavigate - Clean layout callback used to route browser location to an exclusive details view.
  */
 
 /**
@@ -39,13 +44,17 @@ import EventCardSkeleton from "./EventCardSkeleton";
  * @component
  * @category Components/Events
  * @param {EventGridProps} props - Component property payloads.
- * @returns {JSX.Element} An accessible and organized grid viewport matching current system states.
+ * @returns {React.JSX.Element} An accessible and organized grid viewport matching current system states.
  */
 const EventGrid = ({
   events = [],
   isLoading = false,
   onToggleSave,
   isEventSaved,
+  onDirectPurchase,
+  isInCart,
+  onCartToggle,
+  onDetailNavigate,
 }) => {
   /**
    * 1. Loading Structural State Guard
@@ -78,10 +87,25 @@ const EventGrid = ({
           {...event}
           onToggleSave={onToggleSave}
           isSaved={isEventSaved ? isEventSaved(event.id) : false}
+          isInCart={isInCart ? isInCart(event.id) : false}
+          onCartToggle={onCartToggle}
+          onDirectPurchase={onDirectPurchase}
+          onDetailNavigate={onDetailNavigate}
         />
       ))}
     </div>
   );
+};
+
+EventGrid.propTypes = {
+  events: PropTypes.array,
+  isLoading: PropTypes.bool,
+  onToggleSave: PropTypes.func.isRequired,
+  isEventSaved: PropTypes.func,
+  onDirectPurchase: PropTypes.func,
+  isInCart: PropTypes.func.isRequired,
+  onCartToggle: PropTypes.func.isRequired,
+  onDetailNavigate: PropTypes.func.isRequired,
 };
 
 export default EventGrid;
