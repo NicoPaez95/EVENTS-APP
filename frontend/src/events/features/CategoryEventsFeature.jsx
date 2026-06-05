@@ -1,7 +1,7 @@
 import { categories } from "../data/categories.mock";
 import CategoryGrid from "events/components/CategoryGrid";
 import { useEvents } from "../hooks/useEvents";
-
+import PageHeader from "shared/components/UI/PageHeader";
 /**
  * CategoryEvents Feature Component.
  *
@@ -14,7 +14,7 @@ import { useEvents } from "../hooks/useEvents";
  * @category Features/Events
  * @returns {JSX.Element} A section containing the category selection interface.
  */
-const CategoryEvents = () => {
+const CategoryEventsFeature = () => {
   /**
    * Hook: Global Event State Management.
    * * Extracts `handleCategorySelect` to ensure that interactions within the grid
@@ -27,13 +27,14 @@ const CategoryEvents = () => {
       {/* Feature Header: 
           Uses id for accessibility matching with aria-labelledby 
       */}
-      <h2
+      {/* Uniform centered category section anchor */}
+      <PageHeader
         id="categories-title"
-        className="text-2xl font-bold text-center p-4 m-2 font-display text-slate-900"
-      >
-        Browse by Category
-      </h2>
-
+        title="Browse by Category"
+        level={2}
+        align="center"
+        className="py-4 my-2"
+      />
       {/* Presentational Layer:
           Delegates the rendering of the grid to the UI component.
           Injects static mock data and the state handler.
@@ -46,4 +47,4 @@ const CategoryEvents = () => {
   );
 };
 
-export default CategoryEvents;
+export default CategoryEventsFeature;

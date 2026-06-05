@@ -1,133 +1,161 @@
 import { useState } from 'react';
-import { formatCardNumber, formatExpiryDate, formatCVC } from '../utils/paymentFormatter';
 
 /**
- * @typedef {Object} PaymentData
- * @property {string} cardNumber - The 16-digit card number with space formatting.
- * @property {string} expiry - The MM/YY expiration date.
- * @property {string} cvc - The 3-digit security code.
+ * @typedef {Object} CheckoutItem
+ * @property {string|number} id - The unique identifier for the event.
+ * @property {string} title - The title of the event.
+ * @property {number|string} price - The price per ticket (can be numerical or string formatted).
+ * @property {number} [quantity=1] - The number of tickets to purchase.
  */
 
 /**
- * @typedef {Object} TicketResult
- * @property {string} ticketId - A unique identifier for the generated ticket.
- * @property {string} qrValue - A JSON string payload for the QR code generation.
+ * Custom hook to manage the checkout wizard steps and payment processing.
+ * Safely normalizes input to handle both single event objects and array collections.
+ * * @param {CheckoutItem|CheckoutItem[]} [inputItems] - Single event item or array of items currently being purchased.
+ * @returns {Object} The checkout state, total amount, and step handlers.
  */
+export const useCheckout = (inputItems) => {
+  // 1. Defensive normalization: Ensure we always operate on a structural array
+  const items = Array.isArray(inputItems)
+    ? inputItems
+    : inputItems && inputItems.id
+      ? [{ ...inputItems, quantity: inputItems.quantity || 1 }]
+      : [];
 
-/**
- * useCheckout Hook.
- * 
- * A custom "Headless" hook that manages the complex state and business logic
- * for the multi-step event ticket purchasing flow.
- * 
- * Key features:
- * - Step-by-step navigation (Quantity -> Payment -> Processing -> Success).
- * - Automatic credit card field formatting.
- * - Simulated asynchronous payment processing with built-in demo error cases.
- * - Dynamic Ticket and QR code generation upon successful transaction.
- *
- * @param {Object} event - The selected event data from the domain.
- * @returns {Object} Checkout state and controller functions.
- */
-export const useCheckout = (event) => {
-  // Navigation State
-  const [currentStep, setCurrentStep] = useState(1);
-  const [quantity, setQuantity] = useState(1);
-
-  // Payment Information State
-  const [paymentData, setPaymentData] = useState({ cardNumber: '', expiry: '', cvc: '' });
-  const [error, setError] = useState(null);
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  // Post-Purchase Data State
-  const [ticketData, setTicketData] = useState(null);
-
-  /** @type {number} The computed raw final price based on selected quantity. */
-  const totalAmount = quantity * (event?.price || 0);
+  // 2. Sync single item quantity state to preserve backward compatibility with step components
+  const initialQuantity = items.length === 1 ? items[0].quantity : 1;
+  const [quantity, setQuantity] = useState(initialQuantity);
 
   /**
-   * Updates and formats payment field values.
-   * Ensures data integrity by applying specific formatting rules for cards and dates.
-   * @param {Partial<PaymentData>} newData - An object containing the fields to update.
+   * Defensive utility to sanitize and cast price properties to valid numbers.
+   * Prevents runtime calculations from crashing with NaN values.
+   * * @param {CheckoutItem} item - The checkout structural target asset.
+   * @returns {number} Clean numerical representation of the unit price.
    */
-  const updatePaymentData = (newData) => {
-    const updated = { ...newData };
-    if (updated.cardNumber !== undefined) updated.cardNumber = formatCardNumber(updated.cardNumber).substring(0, 19);
-    if (updated.expiry !== undefined) updated.expiry = formatExpiryDate(updated.expiry).substring(0, 5);
-    if (updated.cvc !== undefined) updated.cvc = formatCVC(updated.cvc).substring(0, 3);
-    setPaymentData(prev => ({ ...prev, ...updated }));
+  const getSafePrice = (item) => {
+    if (!item || item.price === undefined || item.price === null) return 0;
+
+    if (typeof item.price === 'string') {
+      // Strips currency characters, commas, or spaces to isolate numeric dots/digits
+      const sanitized = item.price.replace(/[^0-9.-]+/g, "");
+      return parseFloat(sanitized) || 0;
+    }
+
+    return Number(item.price) || 0;
+  };
+
+  // 3. Derive total amount dynamically with strict number casting fallbacks to prevent NaN
+  const totalAmount = items.length === 1
+    ? quantity * getSafePrice(items[0])
+    : items.reduce((sum, item) => sum + (getSafePrice(item) * (item.quantity || 1)), 0);
+
+  // 4. Manage wizard steps sequential state machine
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [error, setError] = useState(null);
+  const [ticketData, setTicketData] = useState(null);
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: "",
+    cardName: "",
+    expiry: "",
+    cvv: "",
+  });
+
+  /**
+   * Updates state modifiers for individual quantities inside Step 1.
+   * @param {number} newQuantity - Value to set.
+   * @returns {void}
+   */
+  const handleQuantity = (newQuantity) => {
+    if (newQuantity >= 1) setQuantity(newQuantity);
   };
 
   /**
-   * Orchestrates the payment submission process.
-   * 1. Resets previous errors and triggers the processing view.
-   * 2. Simulates a 2s server delay.
-   * 3. Validates against demo card numbers (e.g., 4000 triggers an error).
-   * 4. Generates a unique ticket and QR payload upon success.
-   * @async
+   * Updates payment data values securely based on field inputs.
+   * @param {string} field - Field identifier token.
+   * @param {string} value - User raw input payload.
+   * @returns {void}
+   */
+  const updatePaymentData = (field, value) => {
+    setPaymentData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  /**
+   * Advances the wizard workflow execution step.
+   * @returns {void}
+   */
+  const nextStep = () => setCurrentStep((prev) => prev + 1);
+
+  /**
+   * Rewinds the wizard workflow execution step.
+   * @returns {void}
+   */
+  const prevStep = () => setCurrentStep((prev) => prev - 1);
+
+  /**
+   * Triggers the asynchronous transactional handshake validation sequence.
+   * @returns {Promise<void>}
    */
   const handlePaymentSubmit = async () => {
     setError(null);
-    setCurrentStep(3); // Start Processing Step
+    setCurrentStep(3); // Transition to full Processing loader step
+    setIsProcessing(true);
 
     try {
-      // Simulate network latency for banking validation
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Demo logic: Card numbers starting with 4000 are rejected for testing purposes
-          if (paymentData.cardNumber.replace(/\s/g, '').startsWith('4000')) {
-            reject(new Error("Card declined. Use 4242 to test success."));
-          } else {
-            resolve();
-          }
-        }, 2000);
+      // Simulate real-time standard external gateway API latency (e.g., Stripe sandbox)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Mock operational credential payload returns upon authorization success
+      setTicketData({
+        reservationId: `RES-${Math.floor(100000 + Math.random() * 900000)}`,
+        qrPayload: "https://github.com/nicopaez",
       });
 
-      // --- TICKET GENERATION LOGIC ---
-      const generatedId = `TKT-${event.id}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      const qrPayload = JSON.stringify({
-        id: generatedId,
-        event: event.title,
-        qty: quantity,
-        user: "Demo User",
-        timestamp: new Date().toISOString()
-      });
-
-      setTicketData({ ticketId: generatedId, qrValue: qrPayload });
-      setCurrentStep(4); // Move to Success Step
+      setCurrentStep(4); // Advance to final Success screen view state
     } catch (err) {
-      // Recovery logic: return to payment form with error feedback
-      setError(err.message);
-      setCurrentStep(2);
-      setIsFlipped(false);
+      setError("The transaction could not be authorized. Please check your credit card data.");
+      setCurrentStep(2); // Rollback step boundary to let the user re-submit details
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  return {
-    // States
-    currentStep,
-    quantity,
-    paymentData,
-    totalAmount, // Retained as a raw numeric value to avoid presentation coupling inside headless state
-    error,
-    isFlipped,
-    ticketData,
+  /**
+   * Resets the entire processing state tree to original baselines on unmount or closure.
+   * @returns {void}
+   */
+  const resetCheckout = () => {
+    setCurrentStep(1);
+    setQuantity(initialQuantity);
+    setIsProcessing(false);
+    setIsFlipped(false);
+    setError(null);
+    setTicketData(null);
+    setPaymentData({
+      cardNumber: "",
+      cardName: "",
+      expiry: "",
+      cvv: "",
+    });
+  };
 
-    // Actions
+  return {
+    items,
+    quantity,
+    totalAmount,
+    currentStep,
+    isProcessing,
+    isFlipped,
+    error,
+    ticketData,
+    paymentData,
     setIsFlipped,
-    /** @param {number} val - Amount to add (use -1 for decrement). */
-    handleQuantity: (val) => setQuantity(prev => Math.max(1, prev + val)),
+    handleQuantity,
     updatePaymentData,
-    nextStep: () => setCurrentStep(prev => prev + 1),
-    /** Clears errors and moves back one step. */
-    prevStep: () => { setError(null); setCurrentStep(prev => prev - 1); },
+    nextStep,
+    prevStep,
     handlePaymentSubmit,
-    /** Resets the entire flow to its initial state (used when closing the modal). */
-    resetCheckout: () => {
-      setCurrentStep(1);
-      setError(null);
-      setTicketData(null);
-      setIsFlipped(false);
-    }
+    resetCheckout,
   };
 };

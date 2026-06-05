@@ -12,6 +12,7 @@ import EventGrid from "../components/EventGrid";
 import { filterEventsByTime } from "events/utils/eventHelpers";
 import TimeFilterNav from "../../shared/components/UI/TimeFilterNav";
 import useToggleEventSave from "user/hooks/useToggleEventSave";
+import PageHeader from "shared/components/UI/PageHeader";
 
 /**
  * UpcomingListFeature Component.
@@ -68,16 +69,14 @@ const UpcomingListFeature = () => {
   return (
     <div className="container mx-auto py-8 space-y-8 animate-fade-in">
       {/* Feature Header & Filter Controls */}
-      <header className="space-y-6">
-        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Upcoming Experiences
-        </h2>
+      <div className="space-y-6">
+        <PageHeader title="Upcoming Experiences" level={2} />
 
         <TimeFilterNav
           activeFilter={timeFilter}
           onFilterChange={setTimeFilter}
         />
-      </header>
+      </div>
 
       {/* Results Section: Presentational Layer */}
       <section aria-label="Filtered Events Grid">

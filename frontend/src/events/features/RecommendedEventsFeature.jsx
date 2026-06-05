@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useEvents } from "../hooks/useEvents";
 import RecommendedEvents from "../components/RecommendedEvents";
 import { getRecommendedEvents } from "events/utils/filterEvents";
-
+import PageHeader from "shared/components/UI/PageHeader";
 /**
  * RecommendedEventsFeature Component (Feature Orchestrator).
  * * A specialized "Smart Component" that serves as the data provider for the
@@ -50,12 +50,13 @@ const RecommendedEventsFeature = () => {
       className="w-full animate-in fade-in duration-700"
       aria-labelledby="recommended-title"
     >
-      <h3
+      {/* Standardized Section Header linked via accessibility anchors */}
+      <PageHeader
         id="recommended-title"
-        className="text-xl font-bold text-slate-800 mb-4 px-1"
-      >
-        Recommended for you
-      </h3>
+        title="Recommended for you"
+        level={3}
+        className="mb-4 px-1"
+      />
 
       {/* Presentational Layer:
           Delegates the UI mapping and styling to the stateless 

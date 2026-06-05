@@ -1,13 +1,13 @@
-import InteractiveMap from '../../shared/components/UI/InteractiveMap';
-import VenueInfo from '../components/VenueInfo';
-import { getExternalMapUrl } from '../utils/mapHelpers';
+import InteractiveMap from "../../shared/components/UI/InteractiveMap";
+import VenueInfo from "../components/VenueInfo";
+import { getExternalMapUrl } from "../utils/mapHelpers";
 
 /**
  * EventMapFeature Component.
  * Orchestrates the map view and external navigation links.
  */
 const EventMapFeature = ({ venue }) => {
-  // Verificación de seguridad
+  //Security verification
   if (!venue || !venue.lat || !venue.lng) return null;
 
   const googleMapsUrl = getExternalMapUrl(venue.lat, venue.lng, venue.name);
@@ -22,7 +22,7 @@ const EventMapFeature = ({ venue }) => {
           </p>
         </div>
 
-        {/* El "Puente" a Google Maps */}
+        {/*The "Bridge" to Google Maps */}
         <a
           href={googleMapsUrl}
           target="_blank"
@@ -33,15 +33,11 @@ const EventMapFeature = ({ venue }) => {
         </a>
       </header>
 
-      {/* Contenedor del Mapa Real */}
+      {/* Real Map Container */}
       <div className="w-full h-64 rounded-2xl overflow-hidden border border-slate-100 relative group">
-        <InteractiveMap
-          lat={venue.lat}
-          lng={venue.lng}
-          title={venue.name}
-        />
+        <InteractiveMap lat={venue.lat} lng={venue.lng} title={venue.name} />
 
-        {/* Overlay sutil para invitar a usar el link externo */}
+        {/*Subtle overlay to encourage the use of the external link */}
         <div className="absolute top-2 right-2 z-[400] opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-slate-500 shadow-sm border">
             {"Use 'Get Directions' for GPS"}

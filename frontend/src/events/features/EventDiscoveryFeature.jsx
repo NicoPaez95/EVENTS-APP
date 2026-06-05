@@ -23,7 +23,7 @@ import { hasActiveFilterCriteria } from "../utils/filterEvents";
  * @category Features
  * @returns {React.JSX.Element} Composed feature section hosting the autonomous search bar.
  */
-const EventDiscovery = () => {
+const EventDiscoveryFeature = () => {
   const { handleSearch, suggestions } = useEvents();
 
   /**
@@ -99,4 +99,4 @@ const EventDiscovery = () => {
   );
 };
 
-export default EventDiscovery;
+export default EventDiscoveryFeature;

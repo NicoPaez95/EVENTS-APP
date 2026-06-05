@@ -1,113 +1,104 @@
-/**
- * @file EventsFeature.jsx
- * @description Master domain orchestration component for the event discovery layout.
- * Acts as a Clean Architecture Smart Controller, resolving domain hook dependencies,
- * managing network error boundaries, and coordinating pure presentational components.
- * Listens for systemic broadcast search signals to focus its layout grid automatically.
- * @module features/events/EventsFeature
- * @author Nico Paez
- */
-
 import React from "react";
+import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import { useEvents } from "../hooks/useEvents";
+import { useCart } from "../../cart/context/CartContext";
+import useToggleEventSave from "../../user/hooks/useToggleEventSave";
+import { useScrollToSectionOnSearch } from "../hooks/useScrollToSectionOnSearch";
 import EventsHeader from "../components/EventsHeader";
 import EventGrid from "../components/EventGrid";
 import EmptyState from "shared/components/UI/EmptyState";
-import useToggleEventSave from "../../user/hooks/useToggleEventSave";
-import { useScrollToSectionOnSearch } from "../hooks/useScrollToSectionOnSearch";
 
 /**
- * @typedef {Object} EventVenue
- * @property {string} name - Architectural moniker or venue name hosting the activity.
- * @property {string} city - Metropolitan region location boundary.
- */
-
-/**
- * @typedef {Object} EventEntity
- * @property {string|number} id - Unique domain identifier.
- * @property {string} title - Explicit display name of the event asset.
- * @property {string} category - Classification taxonomy label.
- * @property {string} date - Temporal ISO operational schedule string.
- * @property {EventVenue} venue - Geographic venue spatial compound entity.
- */
-
-/**
- * EventsFeature Component.
- *
- * Coordinates data resolution states, network execution anomalies, and domain hooks
- * with modular presentation engines. Serves as a state-decoupled container layout.
+ * EventsFeature component acts as the smart orchestrator for the events domain.
+ * It manages context bindings, hooks resolution, and handles business workflow
+ * routing such as direct checkout execution and cart addition side-effects.
  *
  * @component
- * @category Features/Events
- * @returns {React.JSX.Element} A declarative orchestrator layout displaying structural content states.
+ * @param {Object} props - Component properties.
+ * @param {Function} [props.onDirectPurchase] - Optional external fast checkout context handler.
+ * @returns {React.ReactElement} The fully operational events feature container.
  */
-const EventsFeature = () => {
-  /**
-   * Destructured global event states and management utilities from domain context hook.
-   * @type {Object}
-   * @property {EventEntity[]} events - Collection of parsed event domain entities.
-   * @property {boolean} loading - Operational flag tracking active data resolution cycles.
-   * @property {Object|null} error - Infrastructure error tracking metadata or instance reference.
-   * @property {function(): void} clearFilters - Pipeline modifier callback to strip out query state boundaries.
-   */
+const EventsFeature = ({ onDirectPurchase }) => {
+  const navigate = useNavigate();
   const { events, loading, error, clearFilters } = useEvents();
-
-  /**
-   * Destructured bookmark interaction handlers from user preference synchronization hook.
-   * @type {Object}
-   * @property {function(string|number): void} onToggleSave - Triggers state modification for personal catalogs.
-   * @property {function(string|number): boolean} isEventSaved - Conditional check reflecting personal persistence bounds.
-   */
   const { onToggleSave, isEventSaved } = useToggleEventSave();
-
-  /**
-   * DOM Reference used to programmatically anchor viewport physics upon search execution.
-   * @type {React.RefObject<HTMLElement>}
-   */
   const gridContainerRef = useScrollToSectionOnSearch();
 
+  // Centralized cart domain context execution
+  const { addToCart, isInCart, removeFromCart } = useCart();
+
   /**
-   * Broadcasts a global system event notifying that a focus request has been initiated
-   * from the presentation header layer.
+   * Toggles the presence of an item inside the user application cart.
    *
-   * @returns {void}
+   * @param {Object} eventPayload - The structural data transfer object representing an event.
    */
-  const handleSearchFocusTrigger = () => {
-    const focusEvent = new CustomEvent("app:search-focus-requested");
-    window.dispatchEvent(focusEvent);
+  const handleCartToggle = (eventPayload) => {
+    if (isInCart(eventPayload.id)) {
+      removeFromCart(eventPayload.id);
+    } else {
+      addToCart(eventPayload);
+    }
   };
 
   /**
-   * Infrastructure Critical Failure Guard.
-   * Intercepts the rendering pipeline to provide immediate feedback if the remote server fails.
+   * Orchestrates the direct purchase procedural workflow pipeline.
+   * If an external callback override exists, it delegates control up;
+   * otherwise, it triggers fallback redirection via the standard cart view.
+   *
+   * @param {Object} eventPayload - The structural data transfer object representing an event.
    */
+  const handleDirectPurchaseWorkflow = (eventPayload) => {
+    try {
+      if (onDirectPurchase && typeof onDirectPurchase === "function") {
+        onDirectPurchase(eventPayload);
+        return;
+      }
+
+      if (!isInCart(eventPayload.id)) {
+        addToCart(eventPayload);
+      }
+      navigate("/cart");
+    } catch (err) {
+      console.error(
+        "❌ Critical error intercepted during direct purchase workflow execution:",
+        err
+      );
+    }
+  };
+
+  /**
+   * Routes the browser navigation stack cleanly towards the specific details page.
+   *
+   * @param {string|number} id - The unique target primary domain identifier of the event.
+   */
+  const handleDetailNavigate = (id) => {
+    navigate(`/events/${id}`);
+  };
+
   if (!loading && error) {
     return (
-      <EmptyState
-        title="Connection anomaly detected"
-        description="Our premium content servers are temporarily unreachable. Please check your network connection or try reloading the platform."
-        actionLabel="RETRY CONNECTION"
-        onAction={() => window.location.reload()}
-      />
+      <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <EmptyState
+          title="Connection Failure Detected"
+          description="A critical infrastructure error occurred while trying to resolve the available catalog from the server."
+          actionText="Reset Search Parameters"
+          onAction={clearFilters}
+        />
+      </div>
     );
   }
 
-  /**
-   * Actionable Empty State Guard.
-   * Intercepts flow at orchestration level to inject business-driven recovery callbacks when data returns empty but successful.
-   */
   if (!loading && (!events || events.length === 0)) {
     return (
-      <EmptyState
-        title="No exact events found matching your criteria"
-        description="We couldn't find any premium experiences for this specific selection. Clear your active filters to resume exploration."
-        actionLabel="RESET CATALOG FILTERS"
-        onAction={
-          clearFilters ||
-          (() =>
-            console.warn("Missing clearFilters linking inside useEvents hook."))
-        }
-      />
+      <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <EmptyState
+          title="No Results Found"
+          description="None of our current live experiences match the specific parameters defined in your search filters."
+          actionText="Clear All Filters"
+          onAction={clearFilters}
+        />
+      </div>
     );
   }
 
@@ -117,21 +108,29 @@ const EventsFeature = () => {
       aria-label="Event Results"
       className="animate-in fade-in duration-500 scroll-mt-10"
     >
-      {/* Dynamic Header Composition */}
       <EventsHeader
         isLoading={loading}
-        onSearchFocusRequested={handleSearchFocusTrigger}
+        onSearchFocusRequested={() =>
+          window.dispatchEvent(new CustomEvent("app:search-focus-requested"))
+        }
       />
 
-      {/* Event Grid Layout Execution Layer */}
       <EventGrid
         events={events}
         isLoading={loading}
         onToggleSave={onToggleSave}
         isEventSaved={isEventSaved}
+        isInCart={isInCart}
+        onCartToggle={handleCartToggle}
+        onDirectPurchase={handleDirectPurchaseWorkflow}
+        onDetailNavigate={handleDetailNavigate}
       />
     </section>
   );
+};
+
+EventsFeature.propTypes = {
+  onDirectPurchase: PropTypes.func,
 };
 
 export default EventsFeature;

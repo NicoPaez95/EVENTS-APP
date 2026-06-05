@@ -1,53 +1,39 @@
+/**
+ * @file UserProfileFeature.jsx
+ * @description Smart orchestration layer for the active user dashboard profile.
+ * Intercepts global security contexts and guarantees non-blocking pipeline transitions.
+ * @module user/features/UserProfileFeature
+ * @author Nico Paez
+ */
+
+import React from "react";
 import { useAuth } from "../hooks/useAuth";
 import UserProfileCard from "../components/UserProfileCard";
+import UserProfileSkeleton from "../components/UserProfileSkeleton"; // <--- Importación limpia
 
 /**
- * UserProfileFeature Component (Smart/Feature Orchestrator).
- * * This component serves as the data bridge for the user's profile view.
- * It coordinates with the `AuthContext` to retrieve the current session data
- * and manages the visual transition from a loading state to the final UI.
+ * UserProfileFeature Component.
  *
- * **Architectural Pattern**:
- * - **Smart/Dumb Separation**: This "Smart" component handles the logic (data fetching/auth state),
- * while delegating the layout and styling to the "Dumb" `UserProfileCard`.
- * - **Skeleton Loading**: Implements a native loading placeholder to prevent layout shifts
- * (CLS) and improve perceived performance.
+ * Smart domain controller managing the contextual validation tree for user credentials.
+ * Delegating execution wrappers directly to designated layout presentation blocks.
  *
  * @component
  * @category Features/User
- * @returns {JSX.Element} Either a skeleton loader or the populated profile card.
+ * @returns {React.JSX.Element} The active state view component matches.
  */
 const UserProfileFeature = () => {
-  /** * Domain State:
-   * Consumes the global 'user' object. If null, indicates the session is still
-   * being validated or hydrated from storage.
+  /**
+   * Domain State:
+   * Resolves the session profile payload from the central security handshake hook.
    */
   const { user } = useAuth();
 
-  /**
-   * Loading State (Skeleton):
-   * This block provides a visual bridge while 'AuthContext' initializes.
-   * Uses Tailwind's `animate-pulse` for a modern, non-blocking feedback.
-   */
+  // Guard: If context hasn't resolved user details, mount the matching visual skeleton
   if (!user) {
-    return (
-      <div
-        className="animate-pulse bg-white p-8 rounded-2xl shadow-sm border border-slate-100"
-        aria-hidden="true"
-      >
-        {/* Placeholder: Title */}
-        <div className="h-8 bg-slate-200 rounded w-1/4 mb-4"></div>
-
-        {/* Placeholder: Content rows */}
-        <div className="space-y-3">
-          <div className="h-4 bg-slate-100 rounded w-1/2"></div>
-          <div className="h-4 bg-slate-100 rounded w-1/3"></div>
-        </div>
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
 
-  // Final View: Injecting validated user data into the presentational card
+  // Final State: Deliver fully verified credentials into the presentation surface
   return <UserProfileCard user={user} />;
 };
 

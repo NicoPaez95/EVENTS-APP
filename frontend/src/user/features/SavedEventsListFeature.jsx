@@ -5,9 +5,8 @@
  * @module features/user/SavedEventsListFeature
  * @author Nico Paez
  */
-
 import { useMemo, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
 import { useUser } from "../context/UserContext";
 import EventCard from "../../events/components/EventCard";
@@ -16,6 +15,8 @@ import { filterByIds, filterByDate } from "events/utils/filterEvents";
 import { filterEventsByTime } from "events/utils/eventHelpers";
 import { parseISO, format } from "date-fns";
 import { es } from "date-fns/locale";
+import PageHeader from "shared/components/UI/PageHeader";
+import EmptyState from "shared/components/UI/EmptyState";
 
 /**
  * SavedEventsListFeature Component.
@@ -28,6 +29,8 @@ const SavedEventsListFeature = () => {
   const { events, loading } = useEvents();
   const { savedIds, isSaved, toggleSavedEvent } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const navigate = useNavigate();
 
   /**
    * Internal Time Filter State.
@@ -102,18 +105,15 @@ const SavedEventsListFeature = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Dynamic Header: Adapts based on active URL filters or selected time scope */}
       <header className="border-b border-slate-100 pb-6 space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight font-display">
-            {dateFilter
+        {/*Integrated Reusable Title*/}
+        <PageHeader
+          title={
+            dateFilter
               ? formatDynamicTitle(dateFilter)
-              : "Mis Experiencias Guardadas"}
-          </h1>
-          <p className="text-slate-500 font-medium">
-            {displayList.length}{" "}
-            {displayList.length === 1 ? "evento" : "eventos"} encontrados en tu
-            selección.
-          </p>
-        </div>
+              : "Mis Experiencias Guardadas"
+          }
+          description={`${displayList.length} ${displayList.length === 1 ? "evento" : "eventos"} encontrados en tu selección.`}
+        />
 
         {/* Integrated Reusable Time Filters Navigation */}
         <div className="pt-2">
@@ -142,20 +142,12 @@ const SavedEventsListFeature = () => {
         </div>
       ) : (
         /* Empty State Handler */
-        <div
-          className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200"
-          role="status"
-        >
-          <p className="text-slate-400 text-lg italic">
-            No tienes eventos programados para esta selección.
-          </p>
-          <Link
-            to="/"
-            className="inline-block mt-4 text-blue-600 font-bold hover:text-blue-800 transition-colors"
-          >
-            Explorar más eventos →
-          </Link>
-        </div>
+        <EmptyState
+          title="No tienes eventos programados para esta selección"
+          description="Tu lista de favoritos o el filtro seleccionado no registran experiencias activas en este momento."
+          actionLabel="EXPLORAR MÁS EVENTOS"
+          onAction={() => navigate("/")}
+        />
       )}
     </div>
   );

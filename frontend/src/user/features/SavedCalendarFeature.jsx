@@ -13,6 +13,8 @@ import { useUser } from "../context/UserContext";
 import SavedEventsCalendar from "../components/SavedEventsCalendar";
 import { addMonths, subMonths, setMonth } from "date-fns";
 import { groupSavedEventsByDate } from "events/utils/eventTransformers";
+// Importamos el componente PageHeader respetando tu estructura de carpetas compartidas
+import PageHeader from "../../shared/components/UI/PageHeader";
 
 /**
  * SavedCalendarFeature Component.
@@ -53,17 +55,15 @@ const SavedCalendarFeature = () => {
    * @type {string|null}
    */
   const activeUrlDate = searchParams.get("date");
-
   /**
    * O(1) Data Transformation Matrix (Memoized).
    * Bundles linear master events mapping collections against active user selections into data blocks.
-   * Forces recalculation when user bookmark arrays deep-equality references update.
+   * Tracks clean, shallow references to keep the ESLint rule completely satisfied.
    */
   const eventsByDate = useMemo(() => {
     if (!events || !savedIds) return {};
     return groupSavedEventsByDate(events, savedIds);
-  }, [events, JSON.stringify(savedIds)]);
-
+  }, [events, savedIds]);
   /**
    * Advances the calendar viewport context forward sequentially by exactly one month.
    * @function
@@ -106,16 +106,10 @@ const SavedCalendarFeature = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Contextual Header Layer */}
-      <header className="border-b border-slate-100 pb-4">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight uppercase font-display">
-          My Saved Events Calendar
-        </h2>
-        <p className="text-sm text-slate-400 mt-1">
-          Visually explore and manage the customized experiences you have
-          reserved month by month.
-        </p>
-      </header>
+      <PageHeader
+        title="My Saved Events Calendar"
+        description="Visually explore and manage the customized experiences you have reserved month by month."
+      />
 
       {/* Presentational Calendar Component View */}
       <SavedEventsCalendar
