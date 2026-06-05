@@ -21,8 +21,7 @@ const eventSchema = new Schema({
   /** @property {Date} date - The scheduled date and time for the event. */
   date: { type: Date, required: true },
 
-  /** * @property {Object} venue - Physical location details.
-   */
+  /** @property {Object} venue - Physical location details. */
   venue: {
     name: { type: String, required: true },
     city: { type: String, required: true },
@@ -33,6 +32,8 @@ const eventSchema = new Schema({
   /** @property {string} category - Type of event (e.g., Music, Tech, Sports). */
   category: { type: String, required: true },
 
+  /** @property {number} price - Unit ticket cost for commercial transaction workflows. */
+  price: { type: Number, required: true, min: 0 },
   /** @property {boolean} isFeatured - Highlights the event in the main hero/carousel. */
   isFeatured: { type: Boolean, required: true, default: false },
 

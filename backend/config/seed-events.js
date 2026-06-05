@@ -16,12 +16,10 @@ dotenv.config();
 /**
  * Initial dataset for the Events Application.
  * Every object adheres strictly to the target MongoDB Mongoose Schema rules.
- * 
- * Architectural Strategy:
+ * * Architectural Strategy:
  * - Resource Efficiency: Images pull optimized assets directly from Unsplash using responsive size queries (?w=800).
  * - Entity Consistency: The property 'image' aligns with database field schemas to avoid clientside transformations.
- * 
- * @type {Array<Object>}
+ * * @type {Array<Object>}
  */
 const events = [
   {
@@ -34,11 +32,12 @@ const events = [
       lng: -58.4103
     },
     category: 'Tech',
+    price: 4500,
     isFeatured: true,
     isRecommended: false,
     image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800',
     description: 'The premier gathering for React enthusiasts in Latin America.',
-    creator: '65f1a2b3c4d5e6f7a8b9c0d1' // Mock ObjectId for initial local development
+    creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
   {
     title: 'Music Festival',
@@ -50,9 +49,10 @@ const events = [
       lng: -64.1974
     },
     category: 'Music',
+    price: 8000,
     isFeatured: false,
     isRecommended: false,
-    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800', // Updated URL: Live stage with crowd lighting
+    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800',
     description: 'A vibrant music festival in Cordoba, Argentina.',
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
@@ -66,9 +66,10 @@ const events = [
       lng: -68.8458
     },
     category: 'Art',
+    price: 2500,
     isFeatured: true,
     isRecommended: true,
-    image: 'https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb?q=80&w=800', // Updated URL: Modern open gallery layout
+    image: 'https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb?q=80&w=800',
     description: 'A showcase of contemporary art from around the world.',
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
@@ -82,6 +83,7 @@ const events = [
       lng: -60.6923
     },
     category: 'Food',
+    price: 3500,
     isFeatured: false,
     isRecommended: true,
     image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800',
@@ -93,8 +95,7 @@ const events = [
 /**
  * Main transactional task execution script to wipe and seed the targeted cluster.
  * Connects via URI string, drops historical event logs, and batches the seeding routine.
- * 
- * @async
+ * * @async
  * @function seedDB
  * @returns {Promise<void>} Resolves when the document injection finishes or logs errors.
  */
@@ -109,7 +110,7 @@ const seedDB = async () => {
 
     // Insert new sanitized sample datasets
     await Event.insertMany(events);
-    console.log("✅ Database seeded successfully!");
+    console.log("✅ Database seeded successfully with localized dynamic pricing!");
 
     process.exit(0);
   } catch (err) {
