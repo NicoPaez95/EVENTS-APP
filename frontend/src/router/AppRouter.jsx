@@ -8,15 +8,17 @@
 
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Home from "../pages/home/Home";
+import Home from "../pages/events/HomePage";
 import EventDetailPage from "../pages/events/EventDetailPage";
 import UpcomingEventsPage from "../pages/events/UpcomingEventsPage";
 import SavedEventsPage from "../pages/user/SavedEventsPage";
-import Auth from "../pages/user/Auth";
-import Profile from "../pages/user/Profile";
+import CartPage from "../pages/cart/CartPage";
+import Auth from "../pages/user/AuthPage";
+import Profile from "../pages/user/ProfilePage";
 import ProtectedRoute from "../shared/components/guards/ProtectedRoute";
 import MainLayout from "../shared/components/Layout/MainLayout";
 import AuthModalContainer from "../shared/components/UI/AuthModalContainer";
+import FloatingCartWidget from "../shared/components/UI/FloatingCartWidget";
 
 /**
  * AppRouter Component (Root Navigation Orchestrator).
@@ -38,7 +40,8 @@ const AppRouter = () => {
     <BrowserRouter>
       {/* Centralized UI portal container for unauthenticated guest interception alerts */}
       <AuthModalContainer />
-
+      {/* Ambient notification layer tracking global transaction entities in real-time */}
+      <FloatingCartWidget />
       <Routes>
         {/* --- Primary UI Shell Layer (Standard View with Sidebar) --- */}
         <Route element={<MainLayout />}>
@@ -50,6 +53,12 @@ const AppRouter = () => {
 
           {/** Upcoming Events: Filtered discovery stream */}
           <Route path="/events/upcoming" element={<UpcomingEventsPage />} />
+
+          {/**
+           * Cart Workspace: Ambient transaction pool.
+           * Publicly accessible to allow flexible pre-checkout booking reviews.
+           */}
+          <Route path="/cart" element={<CartPage />} />
 
           {/**
            * Protected User Domain:
@@ -88,6 +97,7 @@ const AppRouter = () => {
          * Auth: Login and Registration flows.
          * Rendered independently to maximize focus and minimize navigation noise.
          */}
+
         <Route path="/login" element={<Auth />} />
         <Route path="/register" element={<Auth />} />
 

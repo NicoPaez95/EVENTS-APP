@@ -106,7 +106,6 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     try {
       localStorage.removeItem("auth_user");
-      localStorage.removeItem("user_saved_events");
       setUser(null);
     } catch (error) {
       console.error("[AuthContext] Logout Error:", error);
@@ -133,10 +132,10 @@ export const AuthProvider = ({ children }) => {
  * @throws {Error} If used outside of AuthProvider.
  * @returns {AuthContextInterface}
  */
-export const useAuthContext = () => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

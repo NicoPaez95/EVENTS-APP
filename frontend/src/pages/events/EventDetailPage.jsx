@@ -1,18 +1,30 @@
-import EventDetailsFeature from '../../events/features/EventDetailsFeature';
+/**
+ * @file EventDetailPage.jsx
+ * @description Routing entry point for the "/events/:id" path.
+ * Adheres to the Thin Page Pattern by delegating all composition and logic to domain hubs.
+ * @module pages/events/EventDetailPage
+ * @author Nico Paez
+ */
+
+import React from "react";
+import EventDetailHub from "../../events/features/EventDetailHub";
 
 /**
  * Event Detail Page.
- * * This is the main entry point for the "/events/:id" route.
- * * Following the domain-driven architecture, it simply renders the 
- * EventDetailsFeature, which handles the business logic and orchestration.
- * *@component
- * @returns {JSX.Element} The rendered page with the event detail feature.
+ *
+ * This component acts strictly as a declarative layout entry wrapper for the routing tree.
+ * Its sole responsibility is placing the unified EventDetailHub into the global page layout.
+ *
+ * @component
+ * @category Pages
+ * @returns {React.JSX.Element} The clean structural shell hosting the event details workspace.
  */
 const EventDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="container mx-auto py-6 px-4">
-        <EventDetailsFeature />
+      <main className="container mx-auto py-12 px-4">
+        {/* Isolated autonomous ecosystem handles all business and layout orchestration */}
+        <EventDetailHub />
       </main>
     </div>
   );

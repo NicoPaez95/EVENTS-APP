@@ -14,7 +14,7 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { useAuthContext } from "./AuthContext";
+import { useAuth } from "./AuthContext";
 import { fetchSavedEventsIds, updateSavedEvent } from "../services/userService";
 
 /**
@@ -27,7 +27,7 @@ import { fetchSavedEventsIds, updateSavedEvent } from "../services/userService";
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuthContext();
+  const { user, isAuthenticated } = useAuth();
   const userId = user?.id;
   const token = user?.token;
 
@@ -69,7 +69,7 @@ export const UserProvider = ({ children }) => {
       if (!isAuthenticated) return;
       try {
         const updatedIds = await updateSavedEvent(userId, eventId, token);
-        const normalizedIds = updatedIds.map((id) => id.toString());
+        const normalizedIds = updatedIds.map((id) => id.toString()); // Generates a clean new reference
         setSavedIds(normalizedIds);
         localStorage.setItem(
           "user_saved_events",
@@ -91,7 +91,7 @@ export const UserProvider = ({ children }) => {
   const value = useMemo(
     () => ({
       savedIds,
-      toggleSavedEvent: handleToggleEvent,
+      toggleSavedEvent: handleToggleEvent, // Exposed properly with stable tracking
       isSaved,
     }),
     [savedIds, handleToggleEvent, isSaved]

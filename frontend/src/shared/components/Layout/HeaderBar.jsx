@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import EventDiscovery from "../../../events/features/EventDiscovery";
 import UserAuthFeature from "../../../user/features/UserAuthFeature";
+import EventDiscoveryFeature from "../../../events/features/EventDiscoveryFeature";
 
 /**
  * HeaderBar Component.
@@ -51,7 +51,7 @@ const HeaderBar = () => {
         */}
         {showDiscovery && (
           <div className="w-full animate-in fade-in slide-in-from-left-4 duration-500">
-            <EventDiscovery />
+            <EventDiscoveryFeature />
           </div>
         )}
       </div>

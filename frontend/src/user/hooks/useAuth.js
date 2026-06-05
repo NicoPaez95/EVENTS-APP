@@ -7,7 +7,7 @@
  * @author Nico Paez
  */
 
-import { useAuthContext } from '../context/AuthContext';
+import { useAuth as useBaseAuth } from '../context/AuthContext'; // Combined via alias to prevent identifier collision
 
 /**
  * @typedef {Object} AuthInterface
@@ -24,21 +24,19 @@ import { useAuthContext } from '../context/AuthContext';
 
 /**
  * useAuth Hook (Facade Pattern).
- * 
- * This hook acts as the primary interface for all authentication-related data.
+ * * This hook acts as the primary interface for all authentication-related data.
  * It performs data normalization to ensure consistency across different contexts
  * (e.g., mapping `user.id` to `userId`) and derives computed properties like `isAdmin`.
- * 
- * @hook
+ * * @hook
  * @category Hooks/Security
  * @returns {AuthInterface} The augmented and normalized authentication state.
  */
 export const useAuth = () => {
   /**
    * Core Context Consumption:
-   * Retrieves the base state from the global AuthProvider.
+   * Retrieves the base state from the global AuthProvider using the aliased hook pointer.
    */
-  const auth = useAuthContext();
+  const auth = useBaseAuth();
 
   /**
    * Derived Permissions:

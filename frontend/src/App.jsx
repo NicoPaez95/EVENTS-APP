@@ -11,6 +11,7 @@ import { NotificationProvider } from "./user/context/NotificationContext";
 import { AuthProvider } from "./user/context/AuthContext";
 import { AuthModalProvider } from "./shared/context/AuthModalContext";
 import { EventsProvider } from "./events/context/EventsContext";
+import { CartProvider } from "./cart/context/CartContext";
 import { UserProvider } from "./user/context/UserContext";
 import AppRouter from "./router/AppRouter";
 
@@ -25,7 +26,8 @@ import AppRouter from "./router/AppRouter";
  * 2. AuthProvider: Identity layer, as user credentials dictate access to protected user contexts.
  * 3. AuthModalProvider: Soft authentication state guard layer, tracking visibility flags for guest interaction interceptors.
  * 4. EventsProvider: Domain catalog state available globally to all exploration contexts.
- * 5. UserProvider: Nested deep because persistent preferences (e.g., saving an event) depend on both Auth and Events.
+ * 5. CartProvider: Multi-ticket transaction layer, absorbing data structural definitions directly from the catalog.
+ * 6. UserProvider: Nested deep because persistent preferences (e.g., saving an event) depend on Auth, Events, and Cart.
  *
  * @component
  * @category Core
@@ -54,16 +56,22 @@ function App() {
            */}
           <EventsProvider>
             {/**
-             * User preferences Data Layer:
-             * Handles personalized bookmarks and domain catalog cross-references.
+             * E-commerce Transaction Layer:
+             * Encapsulates ambient shopping bag mutations and item selection calculations.
              */}
-            <UserProvider>
+            <CartProvider>
               {/**
-               * Routing & Navigation Layer:
-               * Resolves browser location states to concrete presentation components.
+               * User preferences Data Layer:
+               * Handles personalized bookmarks and domain catalog cross-references.
                */}
-              <AppRouter />
-            </UserProvider>
+              <UserProvider>
+                {/**
+                 * Routing & Navigation Layer:
+                 * Resolves browser location states to concrete presentation components.
+                 */}
+                <AppRouter />
+              </UserProvider>
+            </CartProvider>
           </EventsProvider>
         </AuthModalProvider>
       </AuthProvider>

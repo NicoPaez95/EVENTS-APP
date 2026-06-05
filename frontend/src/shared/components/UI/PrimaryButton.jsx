@@ -35,7 +35,7 @@ const PrimaryButton = ({
       className={`
         ${fullWidth ? "w-full" : "w-auto"}
         ${sizeStyles[size]}
-        bg-blue-600 text-white font-black shadow-lg shadow-blue-100
+        bg-slate-900 text-white font-black shadow-lg shadow-blue-100
         hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95 
         transition-all duration-200 disabled:bg-slate-300 disabled:shadow-none
         flex justify-center items-center gap-2 uppercase tracking-wider

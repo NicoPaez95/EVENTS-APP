@@ -7,7 +7,7 @@
  */
 
 import { useUser } from "../context/UserContext";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { useAuthModal } from "../../shared/context/AuthModalContext";
 import useNotification from "./useNotification";
 
@@ -27,7 +27,7 @@ import useNotification from "./useNotification";
  */
 const useToggleEventSave = () => {
     const { toggleSavedEvent, isSaved } = useUser();
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated } = useAuth();
     const { openAuthPrompt } = useAuthModal();
     const { showToast } = useNotification();
 
