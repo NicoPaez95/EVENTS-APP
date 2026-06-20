@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import UserAuthFeature from "../../../user/features/UserAuthFeature";
 import EventDiscoveryFeature from "../../../events/features/EventDiscoveryFeature";
 
@@ -11,6 +12,8 @@ import EventDiscoveryFeature from "../../../events/features/EventDiscoveryFeatur
  * Architectural Strategy:
  * - Routing Awareness: Uses `useLocation` to implement conditional rendering logic,
  *   ensuring that search tools are only visible in appropriate discovery contexts.
+ * - Internationalization (i18n): Integrates `useTranslation` to handle runtime language
+ *   switching, providing a global entry point for localization.
  * - Feature Integration: Acts as a "Slot" or "Host" for cross-domain orchestrators
  *   like `EventDiscovery` (Events Domain) and `UserAuthFeature` (User Domain).
  * - Responsive Layout: Employs a flexible flexbox structure that adapts from
@@ -22,6 +25,7 @@ import EventDiscoveryFeature from "../../../events/features/EventDiscoveryFeatur
  */
 const HeaderBar = () => {
   const { pathname } = useLocation();
+  const { i18n } = useTranslation();
 
   /**
    * Visibility Logic:
@@ -30,6 +34,15 @@ const HeaderBar = () => {
    */
   const showDiscovery = pathname === "/" || pathname === "/events/upcoming";
 
+  const currentLang = i18n.language?.slice(0, 2) || "en";
+  /**
+   * Translation Logic:
+   * Switches the application's active locale between English and Spanish
+   * when the language toggle button is triggered
+   */
+  const toggleLanguage = () => {
+    i18n.changeLanguage(currentLang === "en" ? "es" : "en");
+  };
   return (
     <header
       className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10"
@@ -55,14 +68,26 @@ const HeaderBar = () => {
           </div>
         )}
       </div>
-
-      {/* 
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {/* Language Toggle Button */}
+        <button
+          onClick={toggleLanguage}
+          aria-label="Toggle language"
+          className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 
+                     text-slate-600 hover:bg-slate-100 transition-colors tracking-widest"
+        >
+          {currentLang === "en" ? "ES" : "EN"}
+        </button>
+        {/* 
         Identity Management Slot: 
         Hosts the UserAuthFeature which manages the Login/Register/Logout state.
       */}
-      <div className="flex-shrink-0">
         <UserAuthFeature />
       </div>
+
+      {/*<div className="flex-shrink-0">
+        <UserAuthFeature />
+      </div>*/}
     </header>
   );
 };
