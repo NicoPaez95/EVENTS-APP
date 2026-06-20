@@ -15,41 +15,58 @@ const Schema = mongoose.Schema;
  * Represents a physical or virtual event with its associated metadata.
  */
 const eventSchema = new Schema({
-  /** @property {string} title - The official name of the event. */
-  title: { type: String, required: true },
+  /** @type {Record<string, string>} The official name of the event in multiple languages. */
+  title: {
+    en: { type: String, required: true },
+    es: { type: String, required: true }
+  },
 
-  /** @property {Date} date - The scheduled date and time for the event. */
+  /** @type {Date} The scheduled date and time for the event. */
   date: { type: Date, required: true },
 
-  /** @property {Object} venue - Physical location details. */
+  /** 
+   * @type {Object} Physical location details.
+   * @property {Record<string, string>} venue.name - Localized venue name.
+   * @property {string} venue.city - Urban municipality geographical boundary.
+   * @property {number} venue.lat - Geographic latitude.
+   * @property {number} venue.lng - Geographic longitude.
+   */
   venue: {
-    name: { type: String, required: true },
+    name: { en: { type: String, required: true }, es: { type: String, required: true } },
     city: { type: String, required: true },
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
   },
 
-  /** @property {string} category - Type of event (e.g., Music, Tech, Sports). */
-  category: { type: String, required: true },
+  /** @type {Record<string, string>} Type of event classification in multiple languages. */
+  category: {
+    en: { type: String, required: true },
+    es: { type: String, required: true }
+  },
 
-  /** @property {number} price - Unit ticket cost for commercial transaction workflows. */
+  /** @type {number} Unit ticket cost for commercial transaction workflows. */
   price: { type: Number, required: true, min: 0 },
-  /** @property {boolean} isFeatured - Highlights the event in the main hero/carousel. */
+
+  /** @type {boolean} Highlights the event in the main hero/carousel layouts. */
   isFeatured: { type: Boolean, required: true, default: false },
 
-  /** @property {boolean} isRecommended - Flag for the recommendation engine logic. */
+  /** @type {boolean} Flag for the administrative recommendation engine logic. */
   isRecommended: { type: Boolean, required: true, default: false },
 
-  /** @property {string} image - URL or path to the event's cover image. */
+  /** @type {string} URL or path to the event's cover image. */
   image: { type: String, required: true },
 
-  /** @property {string} description - Detailed text about the event. */
-  description: { type: String, required: true },
+  /** @type {Record<string, string>} Detailed text about the event in multiple languages. */
+  description: {
+    en: { type: String, required: true },
+    es: { type: String, required: true },
+  },
 
-  /** * @property {mongoose.Types.ObjectId} creator - Reference to the User who created the event.
-   * Relates this event to the 'User' collection.
+  /** 
+   * @type {mongoose.Schema.Types.ObjectId} Reference to the User who created the event.
+   * @see {@link models/user} Relates this entity to the User collection.
    */
-  creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }
+  creator: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' }
 });
 
 /**

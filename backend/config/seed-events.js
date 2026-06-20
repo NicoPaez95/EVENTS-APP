@@ -1,5 +1,5 @@
 /**
- * @file seed.js
+ * @file seed-events.js
  * @description Database seeding script. 
  * Populates the MongoDB collection with initial event data for development environments.
  * @module seed
@@ -16,78 +16,86 @@ dotenv.config();
 /**
  * Initial dataset for the Events Application.
  * Every object adheres strictly to the target MongoDB Mongoose Schema rules.
- * * Architectural Strategy:
+ *
+ * Architectural Strategy:
  * - Resource Efficiency: Images pull optimized assets directly from Unsplash using responsive size queries (?w=800).
  * - Entity Consistency: The property 'image' aligns with database field schemas to avoid clientside transformations.
- * * @type {Array<Object>}
+ *
+ * @type {Object[]}
  */
 const events = [
   {
-    title: 'React Conference',
+    title: {
+      en: 'React Conference',
+      es: "Conferencia de React"
+    },
     date: new Date('2026-03-15'),
     venue: {
-      name: 'Centro Cultural Konex',
+      name: { en: 'Konex Cultural Center', es: 'Centro Cultural Konex' },
       city: 'Buenos Aires',
       lat: -34.6063,
       lng: -58.4103
     },
-    category: 'Tech',
+    category: {
+      en: 'Tech',
+      es: "Tecnología"
+    },
     price: 4500,
     isFeatured: true,
     isRecommended: false,
     image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800',
-    description: 'The premier gathering for React enthusiasts in Latin America.',
+    description: { en: "The premier gathering for React enthusiasts in Latin America.", es: "El principal encuentro para los entusiastas de React en Latinoamérica." },
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
   {
-    title: 'Music Festival',
+    title: { en: 'Music Festival', es: 'Festival de música' },
     date: new Date('2026-04-02'),
     venue: {
-      name: 'Plaza de la Música',
+      name: { en: 'Music Square', es: 'Plaza de la Música' },
       city: 'Córdoba',
       lat: -31.4055,
       lng: -64.1974
     },
-    category: 'Music',
+    category: { en: "Music", es: "Musica" },
     price: 8000,
     isFeatured: false,
     isRecommended: false,
     image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800',
-    description: 'A vibrant music festival in Cordoba, Argentina.',
+    description: { en: 'A vibrant music festival in Cordoba, Argentina.', es: "Un vibrante festival de música en Córdoba, Argentina." },
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
   {
-    title: 'Art Exhibition',
+    title: { en: 'Art Exhibition', es: 'Exposición de arte' },
     date: new Date('2026-05-10'),
     venue: {
-      name: 'Museo de Arte Moderno',
+      name: { en: 'Museum of Modern Art', es: 'Museo de Arte Moderno' },
       city: 'Mendoza',
       lat: -32.8894,
       lng: -68.8458
     },
-    category: 'Art',
+    category: { en: 'Art', es: 'Arte' },
     price: 2500,
     isFeatured: true,
     isRecommended: true,
     image: 'https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb?q=80&w=800',
-    description: 'A showcase of contemporary art from around the world.',
+    description: { en: 'A showcase of contemporary art from around the world.', es: 'Una muestra de arte contemporáneo de todo el mundo.' },
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   },
   {
-    title: 'Food Festival',
+    title: { en: 'Food Festival', es: 'Festival Gastronómico' },
     date: new Date('2026-06-20'),
     venue: {
-      name: 'Estación Belgrano',
+      name: { en: 'Belgrano Station', es: 'Estación Belgrano' },
       city: 'Santa Fe',
       lat: -31.6375,
       lng: -60.6923
     },
-    category: 'Food',
+    category: { en: 'Food', es: 'Comidas' },
     price: 3500,
     isFeatured: false,
     isRecommended: true,
     image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800',
-    description: 'A celebration of local cuisine from around the world.',
+    description: { en: 'A celebration of local cuisine from around the world.', es: 'Una celebración de la gastronomía local de todo el mundo.' },
     creator: '65f1a2b3c4d5e6f7a8b9c0d1'
   }
 ];
@@ -95,7 +103,8 @@ const events = [
 /**
  * Main transactional task execution script to wipe and seed the targeted cluster.
  * Connects via URI string, drops historical event logs, and batches the seeding routine.
- * * @async
+ *
+ * @async
  * @function seedDB
  * @returns {Promise<void>} Resolves when the document injection finishes or logs errors.
  */
