@@ -21,6 +21,8 @@ import {
   getCategorySuggestions,
   getLocationSuggestions,
 } from "../utils/eventSuggestions";
+import { useTranslation } from "react-i18next";
+import { localizeEvents } from "../utils/eventTransformers";
 
 /**
  * @typedef {Object} EventVenueEntity
@@ -42,9 +44,9 @@ import {
 
 /**
  * @typedef {Object} SuggestionEngineProviders
- * @property {function(string): Array} getTitle - Resolves unique collection arrays matching active title sequences.
- * @property {function(string): Array} getCategory - Resolves target classification arrays matching filter query structures.
- * @property {function(string): Array} getLocation - Resolves geographic text segments matching physical location strings.
+ * @property {function(string): string[]} getTitle - Resolves unique collection arrays matching active title sequences.
+ * @property {function(string): string[]} getCategory - Resolves target classification arrays matching filter query structures.
+ * @property {function(string): string[]} getLocation - Resolves geographic text segments matching physical location strings.
  */
 
 /**
@@ -82,6 +84,7 @@ export const EventsProvider = ({ children }) => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { i18n } = useTranslation();
 
   /**
    * Effect: Initial Data Bootstrap.
@@ -148,16 +151,34 @@ export const EventsProvider = ({ children }) => {
   );
 
   /**
+   * Memoizes the complete master event collection localized into the currently active language.
+   * Derives structural values dynamically whenever the baseline catalog or locale changes.
+   */
+  const localizedAllEvents = useMemo(
+    () => localizeEvents(allEvents, i18n.language),
+    [allEvents, i18n.language]
+  );
+
+  /**
+   * Memoizes the active presentational query matrices mapped into the target language.
+   * Ensures UI-bound filtered sub-collections mirror global internationalization states.
+   */
+  const localizedFilteredEvents = useMemo(
+    () => localizeEvents(filteredEvents, i18n.language),
+    [filteredEvents, i18n.language]
+  );
+
+  /**
    * Memoized execution engines feeding autocomplete suggestion systems.
    * Preserves structural scope by reading records directly from active master state caches.
    */
   const suggestionProviders = useMemo(
     () => ({
-      getTitle: (query) => getTitleSuggestions(allEvents, query),
-      getCategory: (query) => getCategorySuggestions(allEvents, query),
-      getLocation: (query) => getLocationSuggestions(allEvents, query),
+      getTitle: (query) => getTitleSuggestions(localizedAllEvents, query),
+      getCategory: (query) => getCategorySuggestions(localizedAllEvents, query),
+      getLocation: (query) => getLocationSuggestions(localizedAllEvents, query),
     }),
-    [allEvents]
+    [localizedAllEvents]
   );
 
   /**
@@ -166,8 +187,8 @@ export const EventsProvider = ({ children }) => {
    */
   const value = useMemo(
     () => ({
-      events: filteredEvents,
-      allEvents,
+      events: localizedFilteredEvents,
+      allEvents: localizedAllEvents,
       loading,
       error,
       handleSearch,
@@ -176,8 +197,8 @@ export const EventsProvider = ({ children }) => {
       suggestions: suggestionProviders,
     }),
     [
-      filteredEvents,
-      allEvents,
+      localizedFilteredEvents,
+      localizedAllEvents,
       loading,
       error,
       handleSearch,

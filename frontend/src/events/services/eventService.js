@@ -10,10 +10,10 @@ const API_BASE_URL = import.meta.env?.VITE_API_URL || process.env.REACT_APP_API_
 
 /**
  * Retrieves the complete collection of events from the remote server.
- * * @async
+ * @async
  * @function fetchEventsService
  * @throws {Error} If the server responds with a non-2xx status code or if a network error occurs.
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of event objects.
+ * @returns {Promise<Object[]>} A promise that resolves to an array of raw/sanitized event objects.
  */
 const fetchEventsService = async () => {
   try {
@@ -37,7 +37,7 @@ const fetchEventsService = async () => {
      */
     return responseData.events.map((event) => ({
       ...event,
-      price: event.price ? Number(event.price) : 0, // <-- Preparación defensiva para DB
+      price: event.price ? Number(event.price) : 0,
     }));
   } catch (error) {
     console.error('[EventService] fetchEventsService Error:', error.message);
