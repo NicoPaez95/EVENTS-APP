@@ -7,6 +7,12 @@
  */
 
 /**
+ * @typedef {Object} BilingualField
+ * @property {string} [en] - English localized text variant.
+ * @property {string} [es] - Spanish localized text variant.
+ */
+
+/**
  * @typedef {Object} EventVenueEntity
  * @property {string} name - Architectural moniker of the venue.
  * @property {string} city - Metropolitan region location boundary.
@@ -15,8 +21,8 @@
 /**
  * @typedef {Object} FilteringEventSchema
  * @property {string|number} id - Unique domain identification token.
- * @property {string} title - Explicit display name of the event asset.
- * @property {string} category - Classification taxonomy label.
+ * @property {string|BilingualField} title - Explicit display name of the event asset.
+ * @property {string|BilingualField} category - Classification taxonomy label.
  * @property {string} date - Temporal ISO operational schedule string (e.g., YYYY-MM-DDTHH:mm:ssZ).
  * @property {string} [location] - General geographical text fallback pattern.
  * @property {EventVenueEntity} venue - Geographic venue spatial compound entity.
@@ -39,7 +45,6 @@
 /**
  * Advanced event filtering utility with an adaptive fallback mechanism.
  * Processes search queries through a dual-stage pipeline maximizing system recall value.
- *
  * @function filterEvents
  * @param {FilteringEventSchema[]} events - Master catalog array containing domain event objects.
  * @param {CatalogQueryFilters} filters - Active search filter parameter configurations.
@@ -47,6 +52,19 @@
  * @returns {FilteringEventSchema[]} A prioritized, strict, or relaxed localized subset of domain event objects.
  */
 export const filterEvents = (events, filters, isStrict = false) => {
+  /**
+ * Safely extracts a comparable string from a potentially bilingual field.
+ * Handles both plain strings and { en, es } objects defensively.
+ * @private
+ * @param {string|BilingualField} field
+ * @returns {string}
+ */
+  const resolveString = (field) => {
+    if (!field) return "";
+    if (typeof field === "string") return field;
+    return field.en || field.es || "";
+  };
+
   if (!events) return [];
 
   let { searchTerm, category, date, location } = filters || {};
@@ -59,8 +77,8 @@ export const filterEvents = (events, filters, isStrict = false) => {
 
   // --- STAGE 1: Strict Filtering (AND Logic) ---
   let results = events.filter((event) => {
-    const eventTitle = (event?.title || "").toLowerCase();
-    const eventCategory = (event?.category || "").toLowerCase();
+    const eventTitle = resolveString(event?.title).toLowerCase();
+    const eventCategory = resolveString(event?.category).toLowerCase();
     const eventCity = (event?.venue?.city || "").toLowerCase();
     const eventGeneralLocation = (event?.location || "").toLowerCase();
 
@@ -103,8 +121,8 @@ export const filterEvents = (events, filters, isStrict = false) => {
      */
     if (results.length === 0 && (cat || loc || term)) {
       results = events.filter((event) => {
-        const eventTitle = (event?.title || "").toLowerCase();
-        const eventCategory = (event?.category || "").toLowerCase();
+        const eventTitle = resolveString(event?.title).toLowerCase();
+        const eventCategory = resolveString(event?.category).toLowerCase();
         const eventCity = (event?.venue?.city || "").toLowerCase();
 
         return (
@@ -154,7 +172,6 @@ export const filterByIds = (events, ids) => {
 /**
  * Filters an event sequence using an absolute temporal calendar string pattern match.
  * Decouples timezone mutations from pure string dates extracted natively from ISO patterns.
- *
  * @function filterByDate
  * @param {FilteringEventSchema[]} events - Target domain reference collection array.
  * @param {string} dateString - Strict temporal calendar extraction match argument pattern (YYYY-MM-DD).
@@ -168,7 +185,6 @@ export const filterByDate = (events, dateString) => {
 /**
  * Evaluates whether a custom query filter dictionary contains at least one active, non-empty criteria.
  * Essential for suppressing global window custom event side-effects when form mutations are sterile.
- *
  * @function hasActiveFilterCriteria
  * @param {CatalogQueryFilters} filters - Active search filter parameter configurations to validate.
  * @returns {boolean} True if a clean text input or category constraint value actively exists.
