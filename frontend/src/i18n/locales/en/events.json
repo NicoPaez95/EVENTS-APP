@@ -2,5 +2,87 @@
     "featured": {
         "sectionTitle": "Featured Experiences",
         "clickToSeeDetails": "Click to see details →"
+    },
+    "category": {
+        "sectionTitle": "Browse by Category",
+        "name": [
+            {
+                "id": "c0",
+                "key": "all",
+                "title": "All"
+            },
+            {
+                "id": "c1",
+                "key": "tech",
+                "title": "Tech"
+            },
+            {
+                "id": "c2",
+                "key": "music",
+                "title": "Music"
+            },
+            {
+                "id": "c3",
+                "key": "art",
+                "title": "Art"
+            },
+            {
+                "id": "c4",
+                "key": "food",
+                "title": "Food"
+            }
+        ]
+    },
+    "events": {
+        "eventsHeader": {
+            "exploreEvents": "Explore Events",
+            "searchExperiencies": "Searching for best experiences..."
+        },
+        "emptyState": {
+            "error": {
+                "title": "Connection Failure Detected",
+                "description": "A critical infrastructure error occurred while trying to resolve the available catalog from the server.",
+                "actionText": "Reset Search Parameters"
+            },
+            "notFound": {
+                "title": "No Results Found",
+                "description": "None of our current live experiences match the specific parameters defined in your search filters.",
+                "actionText": "Clear All Filters"
+            }
+        }
+    },
+    "CheckoutModal": {
+        "cartLot": "Cart Lot",
+        "paymentFramework": "Secured by Stripe Simulation",
+        "quantityStep": {
+            "load": "Loading event details...",
+            "admission": "General Admission",
+            "formatCurrency": "per ticket",
+            "totalCalculation": "Total Calculation Display",
+            "total": "Total",
+            "confirm": "Confirm and Continue"
+        },
+        "paymentStep": {
+            "cardHolder": "Card Holder",
+            "demoUser": "DEMO USER",
+            "expires": "Expires",
+            "securityCode": "Security Code",
+            "demoHint": "Demo",
+            "demoHintUSe": "Use",
+            "codeToSuceed": "to succeed.",
+            "paymentError": "Payment Error",
+            "backButton": "Back",
+            "payButton": "Pay"
+        },
+        "successStep": {
+            "purchaseSuccessful": "Purchase Successful!",
+            "entryFor": "Your entry for",
+            "isready": "is ready. Present this QR code at the entrance.",
+            "finish": "Finish"
+        },
+        "processingStep": {
+            "processingPayment": "Processing Payment",
+            "validate": "We are securely validating your transaction with your bank. Please do not close this window."
+        }
     }
 }

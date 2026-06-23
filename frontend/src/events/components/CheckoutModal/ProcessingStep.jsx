@@ -1,16 +1,34 @@
+/**
+ * @file ProcessingStep.jsx
+ * @description Presentational step component for the transaction processing state.
+ * Displays structural secure loading indicators while a banking simulation resolves background requests.
+ * @module components/events/Checkout/ProcessingStep
+ * @author Nico Paez
+ */
+
 import React from "react";
+import PropTypes from "prop-types";
 
 /**
- * ProcessingStep - Presentational Component
- * Now purely responsible for the UI during the processing phase.
- * It no longer manages its own timing or lifecycle.
+ * ProcessingStep Presentational Component.
+ *
+ * Renders a secure, high-fidelity spinner accompanied by progress bars to indicate transaction progression.
+ * Strictly decoupled from state, lifecycles, or asynchronous time mutations.
+ *
+ * @component
+ * @category Components/Events/Checkout
+ * @param {Object} props - Component properties.
+ * @param {Object} props.i18n - Explicit translation dictionary slice for visual UI labels.
+ * @param {string} props.i18n.processingPayment - Heading status string identifying banking transaction progression.
+ * @param {string} props.i18n.validate - Informational text guiding the user defensively not to interrupt the gateway.
+ * @returns {React.JSX.Element} A stationary presentational loading layout view.
  */
-const ProcessingStep = () => {
+const ProcessingStep = ({ i18n }) => {
   return (
     <div className="flex flex-col items-center justify-center py-12 animate-in fade-in duration-500">
       {/* Animated Spinner */}
       <div className="relative mb-8">
-        <div className="w-20 h-20 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+        <div className="w-20 h-20 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-xl" role="img" aria-label="secure-lock">
             🔒
@@ -19,20 +37,26 @@ const ProcessingStep = () => {
       </div>
 
       <h4 className="text-xl font-bold text-gray-900 mb-2">
-        Processing Payment
+        {i18n.processingPayment}
       </h4>
 
       <p className="text-gray-500 text-center max-w-xs text-sm">
-        We are securely validating your transaction with your bank. Please do
-        not close this window.
+        {i18n.validate}
       </p>
 
       {/* Progress Bar Animation */}
       <div className="mt-8 w-48 h-1 bg-gray-100 rounded-full overflow-hidden">
-        <div className="h-full bg-blue-600 animate-pulse w-full"></div>
+        <div className="h-full bg-blue-600 animate-pulse w-full" />
       </div>
     </div>
   );
+};
+
+ProcessingStep.propTypes = {
+  i18n: PropTypes.shape({
+    processingPayment: PropTypes.string.isRequired,
+    validate: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default ProcessingStep;

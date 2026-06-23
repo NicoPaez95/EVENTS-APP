@@ -1,13 +1,14 @@
 /**
  * @file PaymentStep.jsx
- * @description Presentational component for the billing stage. Dispatches key/value pairs
- * to the parent orchestrator mutation boundaries to guarantee input fluid reactive typing.
+ * @description Presentational step component for the billing stage. Dispatches key/value pairs
+ * to the parent orchestrator mutation boundaries to guarantee fluid reactive typing.
  * Integrates masking and token limitation utilities to boost financial UX workflows.
  * @module components/events/Checkout/PaymentStep
  * @author Nico Paez
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
 import PrimaryInput from "shared/components/UI/PrimaryInput";
 import {
@@ -15,7 +16,7 @@ import {
   formatCardNumber,
   formatExpiryDate,
   formatCVC,
-} from "../../../shared/utils/paymentFormatter"; // Update this path if you move it to shared/
+} from "../../../shared/utils/paymentFormatter";
 
 /**
  * PaymentStep Presentational Component.
@@ -24,20 +25,31 @@ import {
  * Listens to active element focus shifts to flip the card mesh toward its security perspective code view.
  *
  * @component
- * @category Components/Checkout
+ * @category Components/Events/Checkout
  * @param {Object} props - Component properties.
  * @param {Object} props.paymentData - Structured domain values capturing active user billing records.
  * @param {string} props.paymentData.cardNumber - Numerical sequence token representation string for the credit card.
  * @param {string} props.paymentData.expiry - Structured date shorthand notation string representing target expiration bounds ("MM/YY").
  * @param {string} props.paymentData.cvv - Card verification value security cipher token.
  * @param {number} props.totalAmount - Aggregated numeric value of invoice parameters translated to final checkout cost.
- * @param {function(string, string): void} props.onUpdate - Callback dispatch function triggered when editing field entities. Expects field name and raw string payload.
- * @param {function(): void} props.onNext - Pipeline control navigation callback targeting sequential step execution flow.
- * @param {function(): void} props.onPrev - Pipeline control navigation callback targeting historical step backflow.
+ * @param {Function} props.onUpdate - Callback dispatch function triggered when editing field entities. Expects field name and raw string payload.
+ * @param {Function} props.onNext - Pipeline control navigation callback targeting sequential step execution flow.
+ * @param {Function} props.onPrev - Pipeline control navigation callback targeting historical step backflow.
  * @param {string|null} props.error - Localized descriptive message reporting upstream transaction execution errors.
  * @param {boolean} props.isFlipped - Interactive layout state toggle identifying if the 3D card wrapper mesh exposes its backface.
- * @param {function(boolean): void} props.setIsFlipped - Mutation dispatch callback handler dedicated to altering the spatial flip animation boundary states.
- * @returns {JSX.Element} An interactive payment form accompanied by a dynamic card mesh visualization layer.
+ * @param {Function} props.setIsFlipped - Mutation dispatch callback handler dedicated to altering the spatial flip animation boundary states.
+ * @param {Object} props.i18n - Explicit translation dictionary slice for visual UI labels.
+ * @param {string} props.i18n.cardHolder - Cardholder title placeholder descriptor.
+ * @param {string} props.i18n.demoUser - Static simulation fallback username label.
+ * @param {string} props.i18n.expires - Expiration date title string marker.
+ * @param {string} props.i18n.securityCode - Security cipher CVV text marker.
+ * @param {string} props.i18n.demoHint - Explanatory warning badge string token header.
+ * @param {string} props.i18n.demoHintUSe - Directive operation instruction text node.
+ * @param {string} props.i18n.codeToSuceed - Instructional trailing text layout constraint.
+ * @param {string} props.i18n.paymentError - Error panel title text designation indicator.
+ * @param {string} props.i18n.backButton - Navigation funnel reversal trigger text.
+ * @param {string} props.i18n.payButton - Transaction confirmation execution submit payload text.
+ * @returns {React.JSX.Element} An interactive payment form accompanied by a dynamic card mesh visualization layer.
  */
 const PaymentStep = ({
   paymentData,
@@ -48,13 +60,16 @@ const PaymentStep = ({
   error,
   isFlipped,
   setIsFlipped,
+  i18n,
 }) => {
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       {/* 1. VISUAL CARD ANIMATION (3D FLIP) */}
       <div className="perspective-1000 w-full h-44 mb-8">
         <div
-          className={`relative w-full h-full transition-all duration-700 preserve-3d ${isFlipped ? "rotate-y-180" : ""}`}
+          className={`relative w-full h-full transition-all duration-700 preserve-3d ${
+            isFlipped ? "rotate-y-180" : ""
+          }`}
         >
           {/* FRONT SIDE */}
           <div className="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-gray-800 to-gray-950 rounded-2xl p-6 text-white shadow-2xl flex flex-col justify-between border border-white/10">
@@ -68,15 +83,15 @@ const PaymentStep = ({
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-[9px] uppercase text-gray-400 mb-0.5">
-                  Card Holder
+                  {i18n.cardHolder}
                 </p>
                 <p className="text-xs font-medium tracking-widest uppercase">
-                  DEMO USER
+                  {i18n.demoUser}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-[9px] uppercase text-gray-400 mb-0.5">
-                  Expires
+                  {i18n.expires}
                 </p>
                 <p className="text-sm font-mono">
                   {paymentData.expiry || "MM/YY"}
@@ -90,7 +105,7 @@ const PaymentStep = ({
             <div className="w-full h-10 bg-black/80 mb-4" />
             <div className="px-6">
               <p className="text-[8px] text-right text-gray-400 uppercase mb-1">
-                Security Code
+                {i18n.securityCode}
               </p>
               <div className="bg-gray-300 h-9 rounded flex items-center justify-end px-4">
                 <span className="text-gray-900 font-mono font-bold italic tracking-widest">
@@ -107,14 +122,15 @@ const PaymentStep = ({
         <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
           <span className="text-lg">ℹ️</span>
           <p className="text-[11px] text-blue-800 leading-tight">
-            <strong>Demo:</strong> Use{" "}
-            <code className="font-bold bg-blue-100 px-1">4242</code> to succeed.
+            <strong>{i18n.demoHint}:</strong> {i18n.demoHintUSe}{" "}
+            <code className="font-bold bg-blue-100 px-1">4242</code>
+            {i18n.codeToSuceed}
           </p>
         </div>
 
         {error && (
           <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-lg animate-in shake-x duration-300">
-            <p className="font-bold">Payment Error</p>
+            <p className="font-bold">{i18n.paymentError}</p>
             <p>{error}</p>
           </div>
         )}
@@ -157,14 +173,41 @@ const PaymentStep = ({
           onClick={onPrev}
           className="flex-1 py-4 text-gray-400 font-bold hover:bg-gray-50 rounded-xl transition-colors active:scale-95"
         >
-          Back
+          {i18n.backButton}
         </button>
         <PrimaryButton onClick={onNext} fullWidth={false} className="flex-[2]">
-          Pay {formatCurrency(totalAmount)}
+          {i18n.payButton} {formatCurrency(totalAmount)}
         </PrimaryButton>
       </div>
     </div>
   );
+};
+
+PaymentStep.propTypes = {
+  paymentData: PropTypes.shape({
+    cardNumber: PropTypes.string.isRequired,
+    expiry: PropTypes.string.isRequired,
+    cvv: PropTypes.string.isRequired,
+  }).isRequired,
+  totalAmount: PropTypes.number.isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  onNext: PropTypes.func.isRequired,
+  onPrev: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  isFlipped: PropTypes.bool.isRequired,
+  setIsFlipped: PropTypes.func.isRequired,
+  i18n: PropTypes.shape({
+    cardHolder: PropTypes.string.isRequired,
+    demoUser: PropTypes.string.isRequired,
+    expires: PropTypes.string.isRequired,
+    securityCode: PropTypes.string.isRequired,
+    demoHint: PropTypes.string.isRequired,
+    demoHintUSe: PropTypes.string.isRequired,
+    codeToSuceed: PropTypes.string.isRequired,
+    paymentError: PropTypes.string.isRequired,
+    backButton: PropTypes.string.isRequired,
+    payButton: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default PaymentStep;

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useEvents } from "../hooks/useEvents";
 import FeaturedEventsCarousel from "../components/FeaturedEventsCarousel";
 import PageHeader from "shared/components/UI/PageHeader";
+import { useTranslation } from "react-i18next";
 
 /**
  * FeaturedEvents Feature Component (Smart Component).
@@ -12,15 +13,28 @@ import PageHeader from "shared/components/UI/PageHeader";
  * @category Features
  * * @description
  * **Architectural Strategy**:
- * 1. **Data Decoupling**: Consumes `allEvents` (master catalog) instead of `events` (filtered state).
+ *
+ * 1. **Internationalization**: Uses the `t` translation function from i18next
+ *    to render localized UI text.
+ *
+ * 2. **Data Decoupling**: Consumes `allEvents` (master catalog) instead of `events` (filtered state).
  * This prevents the carousel from disappearing when a user filters by location or category.
- * 2. **Performance Optimization**: Uses `useMemo` to filter the featured list only when
+ *
+ * 3. **Performance Optimization**: Uses `useMemo` to filter the featured list only when
  * the master catalog changes, preventing redundant calculations during search inputs.
- * 3. **Conditional Rendering**: Implements a "Zero-State" guard that unmounts the section
+ *
+ * 4. **Conditional Rendering**: Implements a "Zero-State" guard that unmounts the section
  * if no featured events are found in the source data.
+ *
  * * @returns {JSX.Element|null} The orchestrated featured section or a skeleton loader.
  */
 const FeaturedEvents = () => {
+  /**
+   * Gets the translation function scoped to the "events" namespace.
+   * Use `t()` to access translations defined in events.json.
+   */
+  const { t } = useTranslation("events");
+
   /**
    * Global State Consumption:
    * Retrieves the static master catalog and global loading indicator.
@@ -69,14 +83,17 @@ const FeaturedEvents = () => {
         {/* Reusable Section Header linked correctly with semantic aria-labelledby */}
         <PageHeader
           id="featured-experiences-title"
-          title="Featured Experiences"
+          title={t("featured.sectionTitle")}
           level={2}
           className="px-4 mb-6"
         />
         {/* Presentational Layer:
             Passes the memoized data to the atomic carousel component.
         */}
-        <FeaturedEventsCarousel featuredEvents={featured} />
+        <FeaturedEventsCarousel
+          featuredEvents={featured}
+          clickToSeeDetails={t("featured.clickToSeeDetails")}
+        />
       </div>
     </section>
   );

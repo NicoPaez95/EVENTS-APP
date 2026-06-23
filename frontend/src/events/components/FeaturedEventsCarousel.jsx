@@ -1,16 +1,15 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Link } from "react-router-dom";
-
 import "swiper/css";
 import "swiper/css/pagination";
 
 /**
  * @typedef {Object} FeaturedEvent
  * @property {string|number} id - Unique identifier for the event.
- * @property {string} title - The display name of the event.
+ * @property {string|Object} title - The display name of the event.
  * @property {string} image - The URL of the promotional cover image.
- * @property {string} category - The event classification (e.g., Music, Tech).
+ * @property {string|Object} category - The event classification (e.g., Music, Tech).
  */
 
 /**
@@ -26,9 +25,10 @@ import "swiper/css/pagination";
  * @category Components
  * @param {Object} props - Component properties.
  * @param {FeaturedEvent[]} props.featuredEvents - An array of event objects to be rendered in the carousel.
+ * @param {string} props.clickToSeeDetails - Localized action text overlay helper for user interaction cues.
  * @returns {JSX.Element} A full-width interactive slider with auto-playing capabilities.
  */
-const FeaturedEventsCarousel = ({ featuredEvents = [] }) => {
+const FeaturedEventsCarousel = ({ featuredEvents = [], clickToSeeDetails }) => {
   return (
     <div className="w-full">
       <Swiper
@@ -45,8 +45,8 @@ const FeaturedEventsCarousel = ({ featuredEvents = [] }) => {
             {/* The Link wrapper ensures the entire slide area is navigable,
               improving UX on mobile and touch devices.
             */}
-            <Link 
-              to={`/events/${event.id}`} 
+            <Link
+              to={`/events/${event.id}`}
               className="relative block group h-64 md:h-80 w-full"
               aria-label={`View details for ${event.title}`}
             >
@@ -56,7 +56,7 @@ const FeaturedEventsCarousel = ({ featuredEvents = [] }) => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
               />
-              
+
               {/* UI Overlay: Visual hierarchy for event metadata */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-6">
                 <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">
@@ -66,7 +66,7 @@ const FeaturedEventsCarousel = ({ featuredEvents = [] }) => {
                   {event.title}
                 </h3>
                 <p className="text-white/80 text-sm mt-1">
-                  Click to see details →
+                  {clickToSeeDetails}
                 </p>
               </div>
             </Link>

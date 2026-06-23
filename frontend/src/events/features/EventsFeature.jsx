@@ -8,6 +8,7 @@ import { useScrollToSectionOnSearch } from "../hooks/useScrollToSectionOnSearch"
 import EventsHeader from "../components/EventsHeader";
 import EventGrid from "../components/EventGrid";
 import EmptyState from "shared/components/UI/EmptyState";
+import { useTranslation } from "react-i18next";
 
 /**
  * EventsFeature component acts as the smart orchestrator for the events domain.
@@ -20,6 +21,12 @@ import EmptyState from "shared/components/UI/EmptyState";
  * @returns {React.ReactElement} The fully operational events feature container.
  */
 const EventsFeature = ({ onDirectPurchase }) => {
+  /**
+   * Gets the translation function scoped to the "events" namespace.
+   * Use `t()` to access translations defined in events.json.
+   */
+  const { t } = useTranslation("events");
+
   const navigate = useNavigate();
   const { events, loading, error, clearFilters } = useEvents();
   const { onToggleSave, isEventSaved } = useToggleEventSave();
@@ -80,9 +87,9 @@ const EventsFeature = ({ onDirectPurchase }) => {
     return (
       <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <EmptyState
-          title="Connection Failure Detected"
-          description="A critical infrastructure error occurred while trying to resolve the available catalog from the server."
-          actionText="Reset Search Parameters"
+          title={t("events.emptyState.error.title")}
+          description={t("events.emptyState.error.description")}
+          actionText={t("events.emptyState.error.actionText")}
           onAction={clearFilters}
         />
       </div>
@@ -93,9 +100,9 @@ const EventsFeature = ({ onDirectPurchase }) => {
     return (
       <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <EmptyState
-          title="No Results Found"
-          description="None of our current live experiences match the specific parameters defined in your search filters."
-          actionText="Clear All Filters"
+          title={t("events.emptyState.notFound.title")}
+          description={t("events.emptyState.notFound.description")}
+          actionText={t("events.emptyState.notFound.actionText")}
           onAction={clearFilters}
         />
       </div>
@@ -113,6 +120,8 @@ const EventsFeature = ({ onDirectPurchase }) => {
         onSearchFocusRequested={() =>
           window.dispatchEvent(new CustomEvent("app:search-focus-requested"))
         }
+        exploreEvents={t("events.eventsHeader.exploreEvents")}
+        searchExperiencies={t("events.eventsHeader.searchExperiences")}
       />
 
       <EventGrid

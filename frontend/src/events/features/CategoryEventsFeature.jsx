@@ -1,7 +1,7 @@
-import { categories } from "../data/categories.mock";
 import CategoryGrid from "events/components/CategoryGrid";
 import { useEvents } from "../hooks/useEvents";
 import PageHeader from "shared/components/UI/PageHeader";
+import { useTranslation } from "react-i18next";
 /**
  * CategoryEvents Feature Component.
  *
@@ -22,6 +22,12 @@ const CategoryEventsFeature = () => {
    */
   const { handleCategorySelect } = useEvents();
 
+  /**
+   * Gets the translation function scoped to the "events" namespace.
+   * Use `t()` to access translations defined in events.json.
+   */
+  const { t } = useTranslation("events");
+
   return (
     <section aria-labelledby="categories-title" className="py-8">
       {/* Feature Header: 
@@ -30,7 +36,7 @@ const CategoryEventsFeature = () => {
       {/* Uniform centered category section anchor */}
       <PageHeader
         id="categories-title"
-        title="Browse by Category"
+        title={t("category.sectionTitle")}
         level={2}
         align="center"
         className="py-4 my-2"
@@ -40,7 +46,7 @@ const CategoryEventsFeature = () => {
           Injects static mock data and the state handler.
       */}
       <CategoryGrid
-        categories={categories}
+        categories={t("category.name", { returnObjects: true })}
         onCategoryClick={handleCategorySelect}
       />
     </section>

@@ -2,5 +2,35 @@
     "featured": {
         "sectionTitle": "Experiencias destacadas",
         "clickToSeeDetails": "Haz clic para ver los detalles."
+    },
+    "category": {
+        "sectionTitle": "Explorar por Categoría",
+        "name": [
+            {
+                "id": "c0",
+                "key": "all",
+                "title": "Todos"
+            },
+            {
+                "id": "c1",
+                "key": "tech",
+                "title": "Tecnología"
+            },
+            {
+                "id": "c2",
+                "key": "music",
+                "title": "Música"
+            },
+            {
+                "id": "c3",
+                "key": "art",
+                "title": "Arte"
+            },
+            {
+                "id": "c4",
+                "key": "food",
+                "title": "Comidas"
+            }
+        ]
     }
 }

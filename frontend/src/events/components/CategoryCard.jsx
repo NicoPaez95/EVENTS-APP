@@ -18,12 +18,13 @@ import { resolveCategoryFallback } from "../utils/categoryAssetMapper";
  * @category Components
  * @param {Object} props - The component properties.
  * @param {string} props.title - The name or title of the category to display (e.g., 'Music', 'Tech', 'All').
+ * @param {string} props.imagekey - The matching asset resolution token used to map local static images.
  * @param {function} props.onClick - Callback function executed when the card is clicked.
  * @returns {React.JSX.Element} A styled article element acting as an interactive category card.
  */
-const CategoryCard = ({ title, onClick }) => {
+const CategoryCard = ({ title, imagekey, onClick }) => {
   // Resolve the visual asset path synchronously inside the presentational layer
-  const imageSrc = resolveCategoryFallback(title);
+  const imageSrc = resolveCategoryFallback(imagekey);
 
   return (
     <article
@@ -61,6 +62,7 @@ const CategoryCard = ({ title, onClick }) => {
 
 CategoryCard.propTypes = {
   title: PropTypes.string.isRequired,
+  imagekey: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
 };
 

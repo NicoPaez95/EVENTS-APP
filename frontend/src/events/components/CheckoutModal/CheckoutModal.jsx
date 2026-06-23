@@ -7,13 +7,37 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import QuantityStep from "./QuantityStep";
 import PaymentStep from "./PaymentStep";
 import ProcessingStep from "./ProcessingStep";
 import SuccessStep from "./SuccessStep";
 import CloseButton from "shared/components/UI/CloseButton";
 
-const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
+/**
+ * CheckoutModal Presentational Component.
+ *
+ * Provides the visual structural shell, background glass backdrop blur effect,
+ * conditional top banner stack for bulk/single events, and switches layout states
+ * between ticket selection, credit card forms, and final completion ticketing tokens.
+ *
+ * @component
+ * @category Components/Events
+ * @param {Object} props - Component properties.
+ * @param {Function} props.onClose - Trigger callback dispatched to dismiss the layout.
+ * @param {Object} props.event - Selected event data containing titles, prices, and media arrays.
+ * @param {number} props.currentStep - Sequential state machine active step indicator (1 to 4).
+ * @param {Object} props.checkoutProps - Destructured functional operations and states bundled by the hook.
+ * @param {Object} props.i18n - Layered translation map namespaces extracted from localization files.
+ * @returns {React.JSX.Element} The rendered modal structural shell layout.
+ */
+const CheckoutModal = ({
+  onClose,
+  event,
+  currentStep,
+  checkoutProps,
+  i18n,
+}) => {
   const stackRotations = [
     "-rotate-6 -translate-x-4",
     "rotate-0 z-10 scale-105",
@@ -70,7 +94,7 @@ const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
 
             {event.isBulk && (
               <span className="absolute bottom-3 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md z-20">
-                Lote Carrito
+                {checkoutProps.cartLot}
               </span>
             )}
           </div>
@@ -90,6 +114,7 @@ const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
               totalAmount={checkoutProps.totalAmount}
               onQuantityChange={checkoutProps.handleQuantity}
               onNext={checkoutProps.nextStep}
+              i18n={i18n.quantityStep}
             />
           )}
 
@@ -103,10 +128,11 @@ const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
               error={checkoutProps.error}
               isFlipped={checkoutProps.isFlipped}
               setIsFlipped={checkoutProps.setIsFlipped}
+              i18n={i18n.paymentStep}
             />
           )}
 
-          {currentStep === 3 && <ProcessingStep />}
+          {currentStep === 3 && <ProcessingStep i18n={i18n.processingStep} />}
 
           {currentStep === 4 && (
             <SuccessStep
@@ -114,6 +140,7 @@ const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
               quantity={checkoutProps.quantity}
               ticketData={checkoutProps.ticketData}
               onClose={onClose}
+              i18n={i18n.successStep}
             />
           )}
         </div>
@@ -122,13 +149,48 @@ const CheckoutModal = ({ onClose, event, currentStep, checkoutProps }) => {
         {currentStep < 4 && (
           <div className="bg-gray-50 py-3 border-t border-gray-100 flex justify-center items-center gap-2 mt-auto">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              Secured by Stripe Simulation
+              {i18n.paymentFramework}
             </span>
           </div>
         )}
       </div>
     </div>
   );
+};
+
+CheckoutModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  event: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    price: PropTypes.number,
+    image: PropTypes.string,
+    images: PropTypes.array,
+    isBulk: PropTypes.bool,
+  }).isRequired,
+  currentStep: PropTypes.number.isRequired,
+  checkoutProps: PropTypes.shape({
+    quantity: PropTypes.number.isRequired,
+    totalAmount: PropTypes.number.isRequired,
+    paymentData: PropTypes.object.isRequired,
+    error: PropTypes.string,
+    isFlipped: PropTypes.bool,
+    ticketData: PropTypes.object,
+    cartLot: PropTypes.string,
+    handleQuantity: PropTypes.func.isRequired,
+    nextStep: PropTypes.func.isRequired,
+    prevStep: PropTypes.func.isRequired,
+    updatePaymentData: PropTypes.func.isRequired,
+    handlePaymentSubmit: PropTypes.func.isRequired,
+    setIsFlipped: PropTypes.func,
+  }).isRequired,
+  i18n: PropTypes.shape({
+    paymentFramework: PropTypes.string,
+    quantityStep: PropTypes.object,
+    paymentStep: PropTypes.object,
+    processingStep: PropTypes.object,
+    successStep: PropTypes.object,
+  }).isRequired,
 };
 
 export default CheckoutModal;
