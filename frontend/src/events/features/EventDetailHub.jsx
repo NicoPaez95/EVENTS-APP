@@ -1,13 +1,14 @@
 /**
  * @file EventDetailHub.jsx
  * @description Domain-level composite feature that orchestrates the event details experience.
- * Manages UI coordination (scrolling, highlighting) and layout state machines,
- * keeping the parent routing page strictly thin and clean.
+ * Coordinates localized core descriptors, geospatial interactive mappings, live meteorological predictions,
+ * and handles the localized context injections for the transactional checkout overlay.
  * @module features/events/EventDetailHub
  * @author Nico Paez
  */
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import EventDetailsFeature from "./EventDetailsFeature";
 import EventMapFeature from "./EventMapFeature";
 import WeatherFeature from "./WeatherFeature";
@@ -18,21 +19,46 @@ import PageHeader from "shared/components/UI/PageHeader";
  * EventDetailHub Component.
  *
  * High-order smart orchestrator acting as the interaction bridge between
- * localized event details, geospatial maps, and transactional checkout portals.
+ * localized event details, geospatial maps, external weather forecasts, and transactional checkout portals.
  *
  * @component
  * @category Features/Events
  * @returns {React.JSX.Element} The completely unified and interactive feature subtree.
  */
 const EventDetailHub = () => {
+  /**
+   * Local context target to handle immediate direct purchase flows.
+   * Holds the event payload when active, or null when closed.
+   */
   const [checkoutTarget, setCheckoutTarget] = useState(null);
+
+  /**
+   * Asynchronously loaded event entity broadcasted upward from the details layer.
+   * Feeds venue metadata down defensively to collateral sidebar widgets.
+   */
   const [loadedEvent, setLoadedEvent] = useState(null);
+
+  /**
+   * Micro-state managing the temporary visual ring highlights
+   * when scrolling to coordinates via focus handlers.
+   */
   const [isMapHighlighted, setIsMapHighlighted] = useState(false);
+
+  /**
+   * Reference pointer targeting the map container DOM layer to anchor smooth programmatic scrolls.
+   * @type {React.RefObject<HTMLDivElement|null>}
+   */
   const mapSectionRef = useRef(null);
 
   /**
+   * Multi-language translation orchestrator bounded to the events dictionary workspace.
+   */
+  const { t } = useTranslation("events");
+
+  /**
    * Coordinates smooth hardware-accelerated viewport shifting
-   * across feature DOM layout boundaries.
+   * down to the map boundary and triggers a transient aesthetic highlighting ring sequence.
+   * @returns {void}
    */
   const handleLocationFocus = () => {
     if (mapSectionRef.current) {
@@ -67,7 +93,7 @@ const EventDetailHub = () => {
 
       {/* Informational Sidebar: Independent side features assembled at hub level */}
       <aside className="lg:col-span-1 space-y-8">
-        <PageHeader title="Venue & Logistics" level={3} />
+        <PageHeader title={t("eventDetailhub.venueYlogistic")} level={3} />
 
         {/* Render features defensively based on available async data broadcast */}
         {loadedEvent ? (
@@ -88,10 +114,10 @@ const EventDetailHub = () => {
 
               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
                 <p className="text-slate-500 text-xs leading-relaxed italic">
-                  {"Note: Weather forecasts for "}
-                  <strong>{loadedEvent.venue?.city}</strong>
-                  {" are updated in real-time. "}
-                  {"Don't forget to check the map for the best route to "}
+                  {t("eventDetailhub.wheaterForecast")}{" "}
+                  <strong>{loadedEvent.venue?.city}</strong>{" "}
+                  {t("eventDetailhub.areUpdated")}{" "}
+                  {t("eventDetailhub.dontForget")}{" "}
                   <strong>{loadedEvent.venue?.name}</strong>.
                 </p>
               </div>
@@ -103,8 +129,8 @@ const EventDetailHub = () => {
       </aside>
 
       {/* Standalone independent Portal Layer for fast checkout orchestration.
-        Short-circuit evaluation blocks the modal mount pipeline and internal hooks 
-        until checkoutTarget holds a valid, active event asset payload.
+          Short-circuit evaluation blocks the modal mount pipeline and internal hooks 
+          until checkoutTarget holds a valid, active event asset payload.
       */}
       {checkoutTarget && (
         <CheckoutModalFeature

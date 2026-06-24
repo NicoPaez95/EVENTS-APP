@@ -7,8 +7,10 @@
  * @author Nico Paez
  */
 
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // Domain Hooks
 import { useAuth } from "../../user/hooks/useAuth";
@@ -54,9 +56,9 @@ import PageHeader from "shared/components/UI/PageHeader";
  * @component
  * @category Features/Events
  * @param {Object} props - Component properties.
- * @param {function(Event): void} props.onTriggerCheckout - Pipeline interceptor callback targeting transactional layout managers.
- * @param {function(): void} props.onLocationFocusRequested - Bubble-up notification when the user interacts with venue locations.
- * @param {function(Event): void} [props.onEventLoaded] - Communication channel providing the loaded entity payload up to the page.
+ * @param {Function} props.onTriggerCheckout - Pipeline interceptor callback targeting transactional layout managers.
+ * @param {Function} props.onLocationFocusRequested - Bubble-up notification when the user interacts with venue locations.
+ * @param {Function} [props.onEventLoaded] - Communication channel providing the loaded entity payload up to the page.
  * @returns {React.JSX.Element} The completed feature presentation layout tree or structural fallback components.
  */
 const EventDetailsFeature = ({
@@ -70,17 +72,29 @@ const EventDetailsFeature = ({
   const { isAuthenticated } = useAuth();
   const { onToggleSave, isEventSaved } = useToggleEventSave();
   const { allEvents, loading } = useEvents();
+  const { t } = useTranslation("events");
 
+  /**
+   * Memoized resolution of the focused single event entity from core state.
+   */
   const event = useMemo(() => {
     return findEventById(allEvents, id);
   }, [allEvents, id]);
 
+  /**
+   * Dispatches the valid event entity upward to parent layouts for synchronization.
+   */
   useEffect(() => {
     if (event && onEventLoaded) {
       onEventLoaded(event);
     }
   }, [event, onEventLoaded]);
 
+  /**
+   * Guards the ticket booking flow enforcing authentication checks.
+   * Redirects anonymous traffic to authentication flows while saving active locations.
+   * @param {Event} targetEvent - The active targeted experience element payload.
+   */
   const handleSecureTickets = (targetEvent) => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: location.pathname } });
@@ -89,21 +103,24 @@ const EventDetailsFeature = ({
     }
   };
 
+  /**
+   * Memoized execution layer sorting contextual recommendations using semantic attributes.
+   */
   const relatedEvents = useMemo(() => {
     return getRelatedEvents(event, allEvents);
   }, [event, allEvents]);
 
   if (loading) {
-    return <LoadingState message="Loading experience details..." />;
+    return <LoadingState message={t("eventDetailsFeature.loadingState")} />;
   }
 
   if (!event) {
     return (
       <NotFound
-        title="Event not found"
-        message="The experience you're looking for might have been removed or moved."
+        title={t("eventDetailsFeature.notFound.title")}
+        message={t("eventDetailsFeature.notFound.message")}
         link="/events"
-        linkText="Back to all events"
+        linkText={t("eventDetailsFeature.notFound.linkText")}
       />
     );
   }
@@ -120,12 +137,43 @@ const EventDetailsFeature = ({
           onLocationClick={onLocationFocusRequested}
           onToggleSave={onToggleSave}
           isSaved={isEventSaved ? isEventSaved(event.id) : false}
+          i18n={{
+            fallback: {
+              title: t("eventDetailsFeature.eventDetail.fallback.title"),
+              category: t("eventDetailsFeature.eventDetail.fallback.category"),
+              description: t(
+                "eventDetailsFeature.eventDetail.fallback.description"
+              ),
+            },
+            backButton: t("eventDetailsFeature.eventDetail.backButton"),
+            bookmarkButton: {
+              removeButton: t(
+                "eventDetailsFeature.eventDetail.bookmarkButton.removeButton"
+              ),
+              saveButton: t(
+                "eventDetailsFeature.eventDetail.bookmarkButton.saveButton"
+              ),
+            },
+            venueName: t("eventDetailsFeature.eventDetail.venueName"),
+            venueCity: t("eventDetailsFeature.eventDetail.venueCity"),
+            venue: t("eventDetailsFeature.eventDetail.venue"),
+            viewMap: t("eventDetailsFeature.eventDetail.viewMap"),
+            schedule: t("eventDetailsFeature.eventDetail.schedule"),
+            localTime: t("eventDetailsFeature.eventDetail.localTime"),
+            experienceDetails: t(
+              "eventDetailsFeature.eventDetail.experienceDetails"
+            ),
+            primaryButton: {
+              secure: t("eventDetailsFeature.eventDetail.primaryButton.secure"),
+              signIn: t("eventDetailsFeature.eventDetail.primaryButton.signIn"),
+            },
+          }}
         />
       </section>
 
       {/* Core Domain Recommendations Subtree */}
       <div className="space-y-8">
-        <PageHeader title="Similar Experiences" level={3} />
+        <PageHeader title={t("eventDetailsFeature.pageHeader")} level={3} />
 
         <EventGrid
           events={relatedEvents}
@@ -136,6 +184,16 @@ const EventDetailsFeature = ({
       </div>
     </div>
   );
+};
+
+EventDetailsFeature.propTypes = {
+  onTriggerCheckout: PropTypes.func.isRequired,
+  onLocationFocusRequested: PropTypes.func.isRequired,
+  onEventLoaded: PropTypes.func,
+};
+
+EventDetailsFeature.defaultProps = {
+  onEventLoaded: null,
 };
 
 export default EventDetailsFeature;

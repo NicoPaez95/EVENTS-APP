@@ -2,7 +2,7 @@
  * @file EventDetail.jsx
  * @description Presentational "Dumb" component responsible for rendering the detailed layout
  * of a single event experience. Operates free of mutation side effects, receiving all interactive
- * handlers via explicit props pipelines.
+ * handlers and internationalization text schemas via explicit props pipelines.
  * @module features/events/components/EventDetail
  * @author Nico Paez
  */
@@ -35,14 +35,15 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  * @param {string} [props.event.venue.name] - Named display location for the venue.
  * @param {string} [props.event.venue.city] - City where the venue is physically situated.
  * @param {boolean} props.isAuthenticated - Context flag used to toggle the main CTA workflow layout and label.
- * @param {function(): void} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
- * @param {function(): void} props.onLocationClick - Viewport manipulation callback to focus logistical map interfaces.
- * @param {function(): void} props.onBack - Router navigation utility callback to transition back through session history.
- * @param {function(string|number): void} [props.onToggleSave] - Cross-domain handler callback used to toggle bookmark state persistence.
+ * @param {Function} props.onSecureTickets - Upward callback to prompt transactional orchestration flows.
+ * @param {Function} props.onLocationClick - Viewport manipulation callback to focus logistical map interfaces.
+ * @param {Function} props.onBack - Router navigation utility callback to transition back through session history.
+ * @param {Function} [props.onToggleSave] - Cross-domain handler callback used to toggle bookmark state persistence.
  * @param {boolean} [props.isSaved] - Reactive state flag indicating if this target event is pinned inside user preferences.
- * @param {function(string|number): void} [props.onAction] - Optional secondary cascading action payload dispatcher.
+ * @param {Function} [props.onAction] - Optional secondary cascading action payload dispatcher.
  * @param {boolean} [props.showRemoveButton=false] - Toggles rendering between the heart icon and a clear removal close node badge.
  * @param {string|number} [props.id] - The explicit unique atomic resource identifier passed directly to the component.
+ * @param {Object} props.i18n - Pre-localized string dictionary containing translated labels mapping directly to active localization namespaces.
  * @returns {React.JSX.Element|null} The completed, responsive event detail presentation tree, or null if unassigned.
  */
 const EventDetail = ({
@@ -56,6 +57,7 @@ const EventDetail = ({
   onAction,
   showRemoveButton = false,
   id,
+  i18n,
 }) => {
   if (!event) return null;
 
@@ -66,17 +68,17 @@ const EventDetail = ({
 
   // Destructuring with granular fallbacks for direct template consumption
   const {
-    title = "Untitled Experience",
-    category = "Special Event",
-    description = "Experience something unique. This event showcases the best in its category within a premium environment.",
+    title = i18n.fallback.title,
+    category = i18n.fallback.category,
+    description = i18n.fallback.description,
     venue = {},
   } = event;
 
   // Strategic Asset Resolution: Securely evaluate event images using the domain utility
   const resolvedImage = resolveEventImage(event?.category, event?.image);
 
-  const venueName = venue?.name || "Venue TBD";
-  const venueCity = venue?.city || "Unknown City";
+  const venueName = venue?.name || i18n.venueName;
+  const venueCity = venue?.city || i18n.venueCity;
 
   /**
    * Safe extraction handler for bookmarking events. Resolves structural scoping discrepancies
@@ -109,7 +111,7 @@ const EventDetail = ({
     <article className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
       {/* 1. Navigation Header */}
       <header className="p-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-        <BackButton onClick={onBack} label="BACK TO EXPLORATION" />
+        <BackButton onClick={onBack} label={i18n.backButton} />
 
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
           {category}
@@ -165,7 +167,8 @@ const EventDetail = ({
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                    Venue • <span className="text-blue-500">View Map</span>
+                    {i18n.venue}{" "}
+                    <span className="text-blue-500">{i18n.viewMap}</span>
                   </p>
                   <p className="text-xl font-bold text-slate-800 leading-tight">
                     {venueName}
@@ -183,11 +186,11 @@ const EventDetail = ({
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
-                    Schedule
+                    {i18n.schedule}
                   </p>
                   <p className="text-xl font-bold text-slate-800">21:00 HS</p>
                   <p className="text-sm font-medium text-slate-500">
-                    Local Time
+                    {i18n.localTime}
                   </p>
                 </div>
               </div>
@@ -196,7 +199,7 @@ const EventDetail = ({
             {/* Event Narrative */}
             <div className="pt-8 border-t border-slate-100">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">
-                Experience Details
+                {i18n.experienceDetails}
               </h3>
               <p className="text-slate-600 leading-relaxed text-base">
                 {description}
@@ -207,7 +210,9 @@ const EventDetail = ({
           {/* Core Action: Standardized via PrimaryButton */}
           <div className="mt-12">
             <PrimaryButton onClick={onSecureTickets} size="lg">
-              {isAuthenticated ? "Secure Your Tickets" : "Sign In to Purchase"}
+              {isAuthenticated
+                ? i18n.primaryButton.secure
+                : i18n.primaryButton.signIn}
             </PrimaryButton>
           </div>
         </div>
@@ -238,6 +243,25 @@ EventDetail.propTypes = {
   onAction: PropTypes.func,
   showRemoveButton: PropTypes.bool,
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  i18n: PropTypes.shape({
+    fallback: PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+    }).isRequired,
+    backButton: PropTypes.string.isRequired,
+    venue: PropTypes.string.isRequired,
+    viewMap: PropTypes.string.isRequired,
+    venueName: PropTypes.string,
+    venueCity: PropTypes.string,
+    schedule: PropTypes.string.isRequired,
+    localTime: PropTypes.string.isRequired,
+    experienceDetails: PropTypes.string.isRequired,
+    primaryButton: PropTypes.shape({
+      secure: PropTypes.string.isRequired,
+      signIn: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
 export default EventDetail;
