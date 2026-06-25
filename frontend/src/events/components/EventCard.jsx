@@ -2,7 +2,7 @@
  * @file EventCard.jsx
  * @description Presentational component for displaying a summarized event card with defensive UI image handling.
  * Integrates atomic UI components for consistent typography, branding, spacing, and bookmark isolation.
- * Completely decoupled from global side-effects, relying entirely on layout injection handlers.
+ * Completely decoupled from global side-effects, relying entirely on layout injection handlers and internationalization payloads.
  * @module components/events/EventCard
  * @author Nico Paez
  */
@@ -24,6 +24,12 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  */
 
 /**
+ * @typedef {Object} EventCardI18n
+ * @property {string} directPurchase - Localized label text assigned to the primary checkout button.
+ * @property {string} viewDetails - Localized anchor text targeting the granular details layout view.
+ */
+
+/**
  * @typedef {Object} EventCardProps
  * @property {string|number} id - Unique target primary domain identifier of the event.
  * @property {string} title - Explicit display name of the event asset.
@@ -39,12 +45,14 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  * @property {Function} [onCartToggle] - Business mutation callback dispatched to handle additions or removals from the shopping cart.
  * @property {Function} [onDirectPurchase] - Interceptor hook dispatched when triggering immediate express checkout workflow.
  * @property {Function} [onDetailNavigate] - Clean layout callback used to route browser location to an exclusive details view.
+ * @property {EventCardI18n} i18n - Structured localization dictionary payload delegated down from the parent orchestration layer.
  */
 
 /**
  * EventCard Presentational Component.
  *
  * A stateless, pure user interface element responsible for rendering a summarized preview tile of an event experience.
+ * Consumes pre-localized properties to ensure separation of concerns between layout rendering and runtime i18n context state.
  *
  * @component
  * @category Components/Events
@@ -66,6 +74,7 @@ const EventCard = ({
   onCartToggle,
   onDirectPurchase,
   onDetailNavigate,
+  i18n,
 }) => {
   const resolvedImage = resolveEventImage(category, image);
 
@@ -138,7 +147,7 @@ const EventCard = ({
             }}
             className="flex-1 text-xs py-3 px-4 rounded-xl tracking-wide shadow-sm"
           >
-            Compra Directa
+            {i18n?.directPurchase}
           </PrimaryButton>
 
           <button
@@ -160,7 +169,7 @@ const EventCard = ({
         </div>
 
         <div className="text-center pt-1">
-          <ActionLink to={`/events/${id}`}>View Details</ActionLink>
+          <ActionLink to={`/events/${id}`}>{i18n?.viewDetails}</ActionLink>
         </div>
       </footer>
     </article>
@@ -185,6 +194,10 @@ EventCard.propTypes = {
   onCartToggle: PropTypes.func,
   onDirectPurchase: PropTypes.func,
   onDetailNavigate: PropTypes.func,
+  i18n: PropTypes.shape({
+    directPurchase: PropTypes.string.isRequired,
+    viewDetails: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default EventCard;

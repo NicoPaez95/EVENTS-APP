@@ -11,19 +11,31 @@ import EmptyState from "shared/components/UI/EmptyState";
 import { useTranslation } from "react-i18next";
 
 /**
+ * @file EventsFeature.jsx
+ * @description Smart orchestrator component for the events domain catalogue layer.
+ * Coordinates global context state tracking, side-effect pipeline workflows,
+ * asynchronous hydration boundaries, and structural localization dictionary injections.
+ * @module features/events/EventsFeature
+ * @author Nico Paez
+ */
+
+/**
  * EventsFeature component acts as the smart orchestrator for the events domain.
  * It manages context bindings, hooks resolution, and handles business workflow
  * routing such as direct checkout execution and cart addition side-effects.
+ * It encapsulates namespace-isolated translations and injects structured dictionary payloads into presentation layers.
  *
  * @component
+ * @category Features/Events
  * @param {Object} props - Component properties.
  * @param {Function} [props.onDirectPurchase] - Optional external fast checkout context handler.
- * @returns {React.ReactElement} The fully operational events feature container.
+ * @returns {React.JSX.Element} The fully operational, cross-domain localized events feature container.
  */
 const EventsFeature = ({ onDirectPurchase }) => {
   /**
-   * Gets the translation function scoped to the "events" namespace.
-   * Use `t()` to access translations defined in events.json.
+   * Global i18next Translation Instance.
+   * Pulls the reactive localization hook scoped exclusively to the "events" namespace.
+   * @type {Function} t - Contextual namespace translator function.
    */
   const { t } = useTranslation("events");
 
@@ -133,6 +145,10 @@ const EventsFeature = ({ onDirectPurchase }) => {
         onCartToggle={handleCartToggle}
         onDirectPurchase={handleDirectPurchaseWorkflow}
         onDetailNavigate={handleDetailNavigate}
+        i18n={{
+          directPurchase: t("events.eventCard.buy"),
+          viewDetails: t("events.eventCard.viewDetails"),
+        }}
       />
     </section>
   );

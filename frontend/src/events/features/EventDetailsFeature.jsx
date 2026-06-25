@@ -3,6 +3,7 @@
  * @description State container and data orchestrator for the event details experience.
  * Coordinates route parsing, authentication state checking, and domain-level recommendation computations.
  * Fires layout action callbacks upward to page orchestrators to handle side features.
+ * Injects structured i18n localization payloads to isolate presentational layer dependencies.
  * @module features/events/containers/EventDetailsFeature
  * @author Nico Paez
  */
@@ -51,7 +52,8 @@ import PageHeader from "shared/components/UI/PageHeader";
  * EventDetailsFeature Component.
  *
  * High-order smart container acting as the single source of truth for the details view.
- * Handles side-effects, coordinates state machines, and enforces route safety metrics.
+ * Handles side-effects, coordinates state machines, enforces route safety metrics,
+ * and maps multi-level namespace localization strings down into presentational subtrees.
  *
  * @component
  * @category Features/Events
@@ -72,10 +74,17 @@ const EventDetailsFeature = ({
   const { isAuthenticated } = useAuth();
   const { onToggleSave, isEventSaved } = useToggleEventSave();
   const { allEvents, loading } = useEvents();
+
+  /**
+   * Global i18next Translation Instance.
+   * Pulls the reactive localization hook scoped exclusively to the "events" namespace.
+   * @type {Function} t - Contextual namespace translator function.
+   */
   const { t } = useTranslation("events");
 
   /**
    * Memoized resolution of the focused single event entity from core state.
+   * @type {Event|null}
    */
   const event = useMemo(() => {
     return findEventById(allEvents, id);
@@ -105,6 +114,7 @@ const EventDetailsFeature = ({
 
   /**
    * Memoized execution layer sorting contextual recommendations using semantic attributes.
+   * @type {Event[]}
    */
   const relatedEvents = useMemo(() => {
     return getRelatedEvents(event, allEvents);
@@ -180,6 +190,10 @@ const EventDetailsFeature = ({
           onToggleSave={onToggleSave}
           isEventSaved={isEventSaved}
           onDirectPurchase={handleSecureTickets}
+          i18n={{
+            directPurchase: t("events.eventCard.buy"),
+            viewDetails: t("events.eventCard.viewDetails"),
+          }}
         />
       </div>
     </div>
