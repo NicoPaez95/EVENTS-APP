@@ -7,6 +7,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 
 /**
  * @typedef {Object} FilterButton
@@ -24,20 +25,27 @@ import React from "react";
  * @category Shared/UI
  * @param {Object} props - Component properties.
  * @param {string} props.activeFilter - The currently selected operational filter identification query flag.
- * @param {function(string): void} props.onFilterChange - Callback handler triggered when an active button selection event occurs.
+ * @param {Function} props.onFilterChange - Callback handler triggered when an active button selection event occurs.
  * @param {FilterButton[]} [props.customFilters] - Optional alternative array matrix to override default button configurations.
+ * @param {Object} props.i18n - Pre-localized string dictionary containing translations for the filter navigation labels.
  * @returns {React.JSX.Element} A horizontal, responsive button group tailored for temporal data filtering pipelines.
  */
-const TimeFilterNav = ({ activeFilter, onFilterChange, customFilters }) => {
+const TimeFilterNav = ({
+  activeFilter,
+  onFilterChange,
+  customFilters,
+  i18n,
+}) => {
   /**
    * Fallback configuration mapping collection for horizontal navigation buttons.
+   * Defensively handles missing nested namespace fields to avoid runtime breakdown.
    * @type {FilterButton[]}
    */
   const defaultFilters = [
-    { id: "24h", label: "Next 24 Hours" },
-    { id: "7d", label: "This Week" },
-    { id: "30d", label: "This Month" },
-    { id: "all", label: "All" },
+    { id: "24h", label: i18n?.timeFilterNav?.dia || "Today" },
+    { id: "7d", label: i18n?.timeFilterNav?.semana || "This Week" },
+    { id: "30d", label: i18n?.timeFilterNav?.mes || "This Month" },
+    { id: "all", label: i18n?.timeFilterNav?.all || "All" },
   ];
 
   const buttons = customFilters || defaultFilters;
@@ -60,6 +68,29 @@ const TimeFilterNav = ({ activeFilter, onFilterChange, customFilters }) => {
       ))}
     </nav>
   );
+};
+
+TimeFilterNav.propTypes = {
+  activeFilter: PropTypes.string.isRequired,
+  onFilterChange: PropTypes.func.isRequired,
+  customFilters: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+    })
+  ),
+  i18n: PropTypes.shape({
+    timeFilterNav: PropTypes.shape({
+      dia: PropTypes.string,
+      semana: PropTypes.string,
+      mes: PropTypes.string,
+      all: PropTypes.string,
+    }),
+  }).isRequired,
+};
+
+TimeFilterNav.defaultProps = {
+  customFilters: null,
 };
 
 export default TimeFilterNav;
