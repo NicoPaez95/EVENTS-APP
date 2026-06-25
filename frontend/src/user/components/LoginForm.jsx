@@ -15,6 +15,7 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  *
  * Implements a standard semantic accessibility tree form. Isolates view presentation layers,
  * offloading internal attribute mutations and network async payloads up to parent controller structures.
+ * It relies entirely on an injected localization dictionary to decouple presentation text from framework bindings.
  *
  * @component
  * @category Components/User
@@ -28,9 +29,16 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  * @param {function} props.onChange - Unified mutation event callback listener targeted to process character entry shifts.
  * @param {function} props.onSubmit - Execution interceptor pipeline method triggered upon form submission.
  * @param {boolean} props.isLoading - UI status block toggle that freezes interactions and signals active asynchronous request batches.
+ * @param {Object} props.i18n - Injected internationalization dictionary for pre-translated labels.
+ * @param {Object} props.i18n.primaryInput - Grouped translation keys matching the inputs and actions of this view.
+ * @param {string} props.i18n.primaryInput.email - Localized text label for the email field.
+ * @param {string} props.i18n.primaryInput.placeholder - Localized placeholder text for the email field.
+ * @param {string} props.i18n.primaryInput.password - Localized text label for the password field.
+ * @param {string} props.i18n.primaryInput.loadingText - Localized loading feedback text shown on asynchronous submissions.
+ * @param {string} props.i18n.primaryInput.signin - Localized submission text trigger for the sign-in execution.
  * @returns {JSX.Element} A structured authentication wrapper enclosing input fields and action buttons.
  */
-const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
+const LoginForm = ({ values, errors, onChange, onSubmit, isLoading, i18n }) => (
   <form
     onSubmit={onSubmit}
     className="space-y-6 animate-in fade-in duration-500"
@@ -40,11 +48,11 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
         PrimaryInput handles label, input, and error messages internally.
     */}
     <PrimaryInput
-      label="Email Address"
+      label={i18n.primaryInput.email}
       id="email"
       name="email"
       type="email"
-      placeholder="your@email.com"
+      placeholder={i18n.primaryInput.placeholder}
       value={values.email}
       onChange={onChange}
       error={errors.email}
@@ -53,7 +61,7 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
     />
 
     <PrimaryInput
-      label="Password"
+      label={i18n.primaryInput.password}
       id="password"
       name="password"
       type="password"
@@ -70,9 +78,9 @@ const LoginForm = ({ values, errors, onChange, onSubmit, isLoading }) => (
       <PrimaryButton
         type="submit"
         isLoading={isLoading}
-        loadingText="SIGNING IN..."
+        loadingText={i18n.primaryInput.loadingText}
       >
-        SIGN IN TO ACCOUNT
+        {i18n.primaryInput.signin}
       </PrimaryButton>
     </div>
   </form>

@@ -15,6 +15,7 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  *
  * Implements a streamlined profile registration interface. Offloads schema validation,
  * state mutations, and API network actions up to the supervising controller layer.
+ * It relies entirely on an injected localization dictionary to decouple presentation text from framework bindings.
  *
  * @component
  * @category Components/User
@@ -30,9 +31,25 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  * @param {function} props.onChange - Unified character mutation event listener responsible for updating field entities.
  * @param {function} props.onSubmit - Submission interception handler executing root pipeline dispatch functions.
  * @param {boolean} props.isLoading - UI layout block toggle that disables inputs and mounts active spinner indicators.
+ * @param {Object} props.i18n - Injected internationalization dictionary for pre-translated labels.
+ * @param {Object} props.i18n.primaryInput - Grouped translation keys matching the inputs and actions of this view.
+ * @param {string} props.i18n.primaryInput.name - Localized text label for the name input.
+ * @param {string} props.i18n.primaryInput.placeholdername - Localized placeholder text for the name input.
+ * @param {string} props.i18n.primaryInput.email - Localized text label for the email input.
+ * @param {string} props.i18n.primaryInput.placeholder - Localized placeholder text for the email input.
+ * @param {string} props.i18n.primaryInput.password - Localized text label for the password input.
+ * @param {string} props.i18n.primaryInput.loadingText - Localized loading feedback text shown on asynchronous submissions.
+ * @param {string} props.i18n.primaryInput.createAccount - Localized submission text trigger for creating the account.
  * @returns {JSX.Element} An accessible input form layout block optimized for user account provisioning.
  */
-const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
+const RegisterForm = ({
+  values,
+  errors,
+  onChange,
+  onSubmit,
+  isLoading,
+  i18n,
+}) => {
   return (
     <form
       className="space-y-5 animate-in fade-in duration-500"
@@ -41,11 +58,11 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
     >
       {/* Name Identification */}
       <PrimaryInput
-        label="Full Name"
+        label={i18n.primaryInput.name}
         id="name"
         name="name"
         type="text"
-        placeholder="Nico Paez"
+        placeholder={i18n.primaryInput.placeholdername}
         value={values.name}
         onChange={onChange}
         error={errors.name}
@@ -54,11 +71,11 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
 
       {/* Identity Group: Email */}
       <PrimaryInput
-        label="Email Address"
+        label={i18n.primaryInput.email}
         id="email"
         name="email"
         type="email"
-        placeholder="your@email.com"
+        placeholder={i18n.primaryInput.placeholder}
         value={values.email}
         onChange={onChange}
         error={errors.email}
@@ -68,7 +85,7 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
 
       {/* Security Group: Password */}
       <PrimaryInput
-        label="Password"
+        label={i18n.primaryInput.password}
         id="password"
         name="password"
         type="password"
@@ -85,9 +102,9 @@ const RegisterForm = ({ values, errors, onChange, onSubmit, isLoading }) => {
         <PrimaryButton
           type="submit"
           isLoading={isLoading}
-          loadingText="CREATING ACCOUNT..."
+          loadingText={i18n.primaryInput.loadingText}
         >
-          CREATE FREE ACCOUNT
+          {i18n.primaryInput.createAccount}
         </PrimaryButton>
       </div>
     </form>

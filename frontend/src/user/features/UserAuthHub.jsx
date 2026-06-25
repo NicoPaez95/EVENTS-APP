@@ -14,12 +14,20 @@ import AuthLogo from "../components/AuthLogo";
 import AuthFooterNav from "../components/AuthFooterNav";
 import LoginFeature from "./LoginFeature";
 import RegisterFeature from "./RegisterFeature";
+import { useTranslation } from "react-i18next";
 
 /**
  * UserAuthHub Component.
  *
  * High-order smart orchestrator acting as the behavioral stage for security access points.
- * Intercepts routing parameters to dynamically mutate titles, sub-contexts, and form factories.
+ * Intercepts routing parameters to dynamically mutate titles, sub-contexts, and form factories,
+ * injecting the localized dictionaries required by presentation nodes.
+ *
+ * **Architectural Strategy**:
+ * - **Path-Driven Orchestration**: Leverages the router's current location signature to pivot
+ *   the entire layout view, avoiding local structural toggle flags.
+ * - **Decoupled Child Props**: Directly handles localization hook calls and structures them into
+ *   isolated schema blocks before sending them down to decoupled presentation views like AuthFooterNav.
  *
  * @component
  * @category Features/User
@@ -27,6 +35,7 @@ import RegisterFeature from "./RegisterFeature";
  */
 const UserAuthHub = () => {
   const { pathname } = useLocation();
+  const { t } = useTranslation("events");
 
   /**
    * Local Routing Logic:
@@ -42,11 +51,15 @@ const UserAuthHub = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
         {/* Domain UI Component: Provides the consistent card-like container for auth forms */}
         <AuthCard
-          title={isLogin ? "Welcome Back" : "Create Account"}
+          title={
+            isLogin
+              ? t("userAuthHub.islogin.welcome")
+              : t("userAuthHub.islogin.createAccount")
+          }
           subtitle={
             isLogin
-              ? "Enter details to access your account"
-              : "Join our community of seekers"
+              ? t("userAuthHub.islogin.enterDetails")
+              : t("userAuthHub.islogin.join")
           }
         >
           {/* Feature Layer: Injects the smart component responsible for form logic and API calls */}
@@ -54,7 +67,17 @@ const UserAuthHub = () => {
         </AuthCard>
 
         {/* Domain UI Component: Navigation links to switch between Auth modes */}
-        <AuthFooterNav isLogin={isLogin} />
+        <AuthFooterNav
+          isLogin={isLogin}
+          i18n={{
+            authFooterNav: {
+              notAccount: t("authFooterNav.notAccount"),
+              yesAccount: t("authFooterNav.yesAccount"),
+              register: t("authFooterNav.register"),
+              signin: t("authFooterNav.signin"),
+            },
+          }}
+        />
       </div>
     </>
   );
