@@ -8,6 +8,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import { useAutocomplete } from "../hooks/useAutocomplete";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
 import PrimaryInput from "shared/components/UI/PrimaryInput";
@@ -21,12 +22,26 @@ import PrimaryInput from "shared/components/UI/PrimaryInput";
  */
 
 /**
+ * @typedef {Object} SearchBarI18nPlaceholders
+ * @property {string} whatLook - Localized prompt text for the primary query keywords input.
+ * @property {string} category - Localized prompt text for the category category taxonomy input.
+ * @property {string} location - Localized prompt text for spatial/geographical constraints input.
+ */
+
+/**
+ * @typedef {Object} SearchBarI18n
+ * @property {SearchBarI18nPlaceholders} placeholder - Nested localization text mapping for input prompts.
+ * @property {string} buttonSearch - Localized action label applied to the primary submission button.
+ */
+
+/**
  * @typedef {Object} SearchBarProps
  * @property {function(SearchFilters, boolean): void} onSearch - Global submit callback pipeline method. Receives the aggregated state object alongside a strictness evaluation execution flag.
  * @property {function(string): (Promise<Array<Object>>|Array<Object>)} getTitleSuggestions - Data fetching provider function resolved when modifying the core title string.
  * @property {function(string): (Promise<Array<string>>|Array<string>)} getCategorySuggestions - Data fetching provider function resolved when modifying the category classification string.
  * @property {function(string): (Promise<Array<string>>|Array<string>)} getLocationSuggestions - Data fetching provider function resolved when modifying the spatial query string.
  * @property {React.RefObject<HTMLInputElement>} [inputRef] - Externalized DOM reference instance to allow programmatic focusing loops on the primary text track.
+ * @property {SearchBarI18n} i18n - Explicit translation contract providing interface labeling.
  */
 
 /**
@@ -46,6 +61,7 @@ const SearchBar = ({
   getCategorySuggestions,
   getLocationSuggestions,
   inputRef,
+  i18n,
 }) => {
   /**
    * Destructured custom autocomplete utilities handling local debounce states and form arrays.
@@ -92,7 +108,7 @@ const SearchBar = ({
         <PrimaryInput
           inputRef={inputRef}
           type="text"
-          placeholder="What are you looking for?"
+          placeholder={i18n.placeholder.whatLook}
           value={values.searchTerm}
           onChange={(e) =>
             handleChange("searchTerm", e.target.value, getTitleSuggestions)
@@ -117,7 +133,7 @@ const SearchBar = ({
       <div className="relative min-w-[180px]">
         <PrimaryInput
           type="text"
-          placeholder="Category"
+          placeholder={i18n.placeholder.category}
           value={values.category}
           onChange={(e) =>
             handleChange("category", e.target.value, getCategorySuggestions)
@@ -142,7 +158,7 @@ const SearchBar = ({
       <div className="relative min-w-[180px]">
         <PrimaryInput
           type="text"
-          placeholder="Location"
+          placeholder={i18n.placeholder.location}
           value={values.location}
           onChange={(e) =>
             handleChange("location", e.target.value, getLocationSuggestions)
@@ -174,10 +190,29 @@ const SearchBar = ({
       </div>
 
       <PrimaryButton type="submit" fullWidth={false} className="px-10">
-        Search
+        {i18n.buttonSearch}
       </PrimaryButton>
     </form>
   );
+};
+
+SearchBar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+  getTitleSuggestions: PropTypes.func.isRequired,
+  getCategorySuggestions: PropTypes.func.isRequired,
+  getLocationSuggestions: PropTypes.func.isRequired,
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+  i18n: PropTypes.shape({
+    placeholder: PropTypes.shape({
+      whatLook: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+      location: PropTypes.string.isRequired,
+    }).isRequired,
+    buttonSearch: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default SearchBar;
