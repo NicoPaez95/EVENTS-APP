@@ -11,10 +11,23 @@ import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import CartFeature from "./CartFeature";
 import CheckoutModalFeature from "../../events/features/CheckoutModal/CheckoutModalFeature";
+import { useTranslation } from "react-i18next";
 
+/**
+ * CartHub Composite Component (Feature Orchestrator).
+ *
+ * Consolidated architectural anchor that binds the transactional global cart context
+ * with the external step-driven ticketing modal checkout system. Handles real-time payload
+ * normalization, pluralized translation mappings, and media asset caching.
+ *
+ * @component
+ * @category Features/Cart
+ * @returns {React.JSX.Element} The rendered shopping cart page structural wrapper.
+ */
 const CartHub = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const { items, totalAmount, totalItems } = useCart();
+  const { t } = useTranslation("events");
 
   /**
    * Extract all unique visual assets linked to current batch selection.
@@ -30,7 +43,7 @@ const CartHub = () => {
    */
   const aggregatedEventPayload = {
     id: "bulk_cart_transaction",
-    title: `Reserva Masiva (${totalItems} Tickets)`,
+    title: t("cartHub.titleModal", { count: totalItems }),
     price: totalAmount,
     images: cartImages,
     isBulk: true,

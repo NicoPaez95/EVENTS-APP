@@ -6,8 +6,41 @@
  */
 
 import React from "react";
-import PrimaryButton from "shared/components/UI/PrimaryButton"; // 1. IMPORTACIÓN ATÓMICA
+import PropTypes from "prop-types";
+import PrimaryButton from "shared/components/UI/PrimaryButton";
 
+/**
+ * @typedef {Object} CartListI18n
+ * @property {string} empty - Localized fallback messaging displayed when layout streams are clean.
+ * @property {string} PrimaryButton - Localized conversion string triggering alternative view navigations.
+ * @property {string} eventPrice - Sub-item localized pricing identifier suffix tracking individual tickets.
+ * @property {string} purchaseSummary - Header structural title text flanking calculation cards.
+ * @property {string} subTotal - Itemized summary breakdown row marking base ticket gross calculations.
+ * @property {string} serviceCharge - Simulated operational platform contextual fee declaration string.
+ * @property {string} serviceChargeCosts - Explicit numeric value text or free system declaration tokens.
+ * @property {string} Total - Final net financial commitment header block descriptor.
+ * @property {string} proceedtoPayment - Main transactional workflow ignition button title text.
+ */
+
+/**
+ * CartList Presentational Component.
+ *
+ * Provides a stateless dual-pane UI system split between dynamic item row mapping streams
+ * and final fiscal accumulation summaries. Completely decouples visual template rendering
+ * from container logic via structural pass-through action pipelines.
+ *
+ * @component
+ * @category Components/Cart
+ * @param {Object} props - Component properties.
+ * @param {Array<Object>} props.items - Transactional line collections linking distinct domain events to user selection volumes.
+ * @param {number} props.totalAmount - Aggregated gross numeric price valuation derived from active selection states.
+ * @param {Function} props.onUpdateQuantity - Direct index modifier hook deployed to step volume targets up or down.
+ * @param {Function} props.onRemoveItem - Purge hook deployed to splice out specific item models via structural ids.
+ * @param {Function} props.onCheckout - Parent modal synchronization signal launched upon user checkout intentions.
+ * @param {Function} props.onExplore - Fallback fallback router invocation triggered when empty states occur.
+ * @param {CartListI18n} props.i18n - Strict localization mapping contract provisioning interface elements.
+ * @returns {React.JSX.Element} The rendered presentation structure matching cart data states.
+ */
 const CartList = ({
   items,
   totalAmount,
@@ -15,19 +48,17 @@ const CartList = ({
   onRemoveItem,
   onCheckout,
   onExplore,
+  i18n,
 }) => {
   if (items.length === 0) {
     return (
       <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-        <p className="text-slate-400 text-lg italic">
-          Tu carrito de compras está vacío.
-        </p>
-        {/* 2. OPTIMIZACIÓN EN EL EMPTY STATE */}
+        <p className="text-slate-400 text-lg italic">{i18n.empty}</p>
         <PrimaryButton
           onClick={onExplore}
           className="inline-block mt-4 text-sm py-3 px-6 rounded-2xl"
         >
-          Explorar Experiencias →
+          {i18n.PrimaryButton}
         </PrimaryButton>
       </div>
     );
@@ -56,7 +87,8 @@ const CartList = ({
                   {event.venue?.name} • {event.venue?.city}
                 </p>
                 <p className="text-xs font-bold text-blue-600 mt-1">
-                  ${event.price} por ticket
+                  ${event.price}
+                  {i18n.eventPrice}
                 </p>
               </div>
             </div>
@@ -101,37 +133,73 @@ const CartList = ({
       {/* Transaction Value Breakdown Card */}
       <div className="lg:col-span-1 bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-6">
         <h3 className="font-bold text-slate-900 text-lg tracking-tight">
-          Resumen de Compra
+          {i18n.purchaseSummary}
         </h3>
 
         <div className="space-y-3 text-sm font-medium border-b border-slate-200 pb-4">
           <div className="flex justify-between text-slate-500">
-            <span>Subtotal Items</span>
+            <span>{i18n.subTotal} </span>
             <span>${totalAmount.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-slate-500">
-            <span>Service Charge (Simulated)</span>
-            <span className="text-emerald-600 font-semibold">FREE</span>
+            <span>{i18n.serviceCharge}</span>
+            <span className="text-emerald-600 font-semibold">
+              {i18n.serviceChargeCosts}
+            </span>
           </div>
         </div>
 
         <div className="flex justify-between items-baseline">
-          <span className="font-bold text-slate-900">Total Orden</span>
+          <span className="font-bold text-slate-900">{i18n.Total}</span>
           <span className="text-2xl font-black text-slate-900">
             ${totalAmount.toLocaleString()}
           </span>
         </div>
 
-        {/* 3. OPTIMIZACIÓN EN EL EMBUDO DE CHECKOUT */}
         <PrimaryButton
           onClick={onCheckout}
           className="w-full py-4 rounded-2xl tracking-wide shadow-md"
         >
-          Proceder al Pago
+          {i18n.proceedtoPayment}
         </PrimaryButton>
       </div>
     </div>
   );
+};
+
+CartList.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      event: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+          .isRequired,
+        title: PropTypes.string.isRequired,
+        price: PropTypes.number.isRequired,
+        image: PropTypes.string,
+        venue: PropTypes.shape({
+          name: PropTypes.string,
+          city: PropTypes.string,
+        }),
+      }).isRequired,
+      quantity: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  totalAmount: PropTypes.number.isRequired,
+  onUpdateQuantity: PropTypes.func.isRequired,
+  onRemoveItem: PropTypes.func.isRequired,
+  onCheckout: PropTypes.func.isRequired,
+  onExplore: PropTypes.func.isRequired,
+  i18n: PropTypes.shape({
+    empty: PropTypes.string.isRequired,
+    PrimaryButton: PropTypes.string.isRequired,
+    eventPrice: PropTypes.string.isRequired,
+    purchaseSummary: PropTypes.string.isRequired,
+    subTotal: PropTypes.string.isRequired,
+    serviceCharge: PropTypes.string.isRequired,
+    serviceChargeCosts: PropTypes.string.isRequired,
+    Total: PropTypes.string.isRequired,
+    proceedtoPayment: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default CartList;

@@ -94,7 +94,7 @@ const CheckoutModal = ({
 
             {event.isBulk && (
               <span className="absolute bottom-3 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md z-20">
-                {checkoutProps.cartLot}
+                {i18n.cartLot}
               </span>
             )}
           </div>
@@ -176,7 +176,6 @@ CheckoutModal.propTypes = {
     error: PropTypes.string,
     isFlipped: PropTypes.bool,
     ticketData: PropTypes.object,
-    cartLot: PropTypes.string,
     handleQuantity: PropTypes.func.isRequired,
     nextStep: PropTypes.func.isRequired,
     prevStep: PropTypes.func.isRequired,
@@ -185,6 +184,7 @@ CheckoutModal.propTypes = {
     setIsFlipped: PropTypes.func,
   }).isRequired,
   i18n: PropTypes.shape({
+    cartLot: PropTypes.string,
     paymentFramework: PropTypes.string,
     quantityStep: PropTypes.object,
     paymentStep: PropTypes.object,

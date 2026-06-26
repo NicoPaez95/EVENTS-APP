@@ -4,7 +4,7 @@
  * sub-components rendering inside the secure structural surface.
  * @module components/events/features/CheckoutModal/CheckoutModalFeature
  * @author Nico Paez
- */
+ * */
 
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
@@ -12,6 +12,54 @@ import { createPortal } from "react-dom";
 import { useCheckout } from "../../hooks/useCheckout";
 import CheckoutModal from "../../components/CheckoutModal/CheckoutModal.jsx";
 import { useTranslation } from "react-i18next";
+
+/**
+ * @typedef {Object} QuantityStepI18n
+ * @property {string} load - Localized string for load indicator status.
+ * @property {string} admission - Localized name defining general selection tickets.
+ * @property {string} formatCurrency - Translation binding key or layout token for currency symbols.
+ * @property {string} totalCalculation - Localized mathematical row indicator text.
+ * @property {string} total - Label for final cumulative sub-total calculations.
+ * @property {string} confirm - Dynamic text bound to the confirmation step submit button.
+ */
+
+/**
+ * @typedef {Object} PaymentStepI18n
+ * @property {string} cardHolder - Localized cardholder full name input label.
+ * @property {string} demoUser - Mock placeholder text demonstrating expected name inputs.
+ * @property {string} expires - Combined localized date structure indicator for expiration input fields.
+ * @property {string} securityCode - Backside card code verification labeling string.
+ * @property {string} demoHint - Top-level notification context warning users of the test environment.
+ * @property {string} demoHintUSe - Context instructions detailing structural simulator actions.
+ * @property {string} codeToSuceed - Localized tip text exposing successful gateway shortcut codes.
+ * @property {string} paymentError - Generic string fallback tracking credit clearance failures.
+ * @property {string} backButton - Step rollback action trigger label.
+ * @property {string} payButton - Definitive gate submission action trigger label.
+ */
+
+/**
+ * @typedef {Object} SuccessStepI18n
+ * @property {string} purchaseSuccessful - Core layout success celebration title header text.
+ * @property {string} entryFor - Pluralized receipt token framing user assignment.
+ * @property {string} isready - Digital badge access notice line.
+ * @property {string} finish - Final workflow closure button string.
+ */
+
+/**
+ * @typedef {Object} ProcessingStepI18n
+ * @property {string} processingPayment - Progress loading message mapping real-time api hooks.
+ * @property {string} validate - Explicit confirmation notice tracking server authorizations.
+ */
+
+/**
+ * @typedef {Object} CheckoutModalI18nBundle
+ * @property {string} cartLot - Header title tracking bulk operations or singular event titles.
+ * @property {string} paymentFramework - Header navigation sub-title text tracking secure payment operations.
+ * @property {QuantityStepI18n} quantityStep - Localized data contracts bound to ticket tier quantities.
+ * @property {PaymentStepI18n} paymentStep - Form labels, placeholders, and error strings bound to financial screens.
+ * @property {SuccessStepI18n} successStep - Dynamic strings formatting final ticketing pass models.
+ * @property {ProcessingStepI18n} processingStep - Loading state strings blocking multi-click submissions.
+ */
 
 /**
  * CheckoutModalFeature Smart Component (Orchestrator).
@@ -29,10 +77,6 @@ import { useTranslation } from "react-i18next";
  * @returns {React.ReactPortal|null} React portal targeting the absolute #modal-root viewport node, or null.
  */
 const CheckoutModalFeature = ({ isOpen, onClose, event }) => {
-  /**
-   * Gets the translation function scoped to the "events" namespace.
-   * Use `t()` to access translations defined in events.json.
-   */
   const { t } = useTranslation("events");
 
   const safeEvent = event || {
@@ -41,6 +85,7 @@ const CheckoutModalFeature = ({ isOpen, onClose, event }) => {
     price: 0,
     image: "",
     images: [],
+    isBulk: false,
   };
   const checkout = useCheckout(safeEvent);
 
@@ -125,10 +170,11 @@ CheckoutModalFeature.propTypes = {
   onClose: PropTypes.func.isRequired,
   event: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    title: PropTypes.string,
     price: PropTypes.number,
     image: PropTypes.string,
     images: PropTypes.array,
+    isBulk: PropTypes.bool,
   }),
 };
 
