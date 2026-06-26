@@ -1,7 +1,7 @@
 /**
  * @file EventCardSkeleton.jsx
  * @description Presentational skeleton loader representing the structural blueprint of an EventCard.
- * Leverages synchronized Tailwind CSS pulse animations to minimize perceived layout shift (CLS).
+ * Leverages synchronized Tailwind CSS pulse animations to minimize Cumulative Layout Shift (CLS).
  * @module components/events/EventCardSkeleton
  * @author Nico Paez
  */
