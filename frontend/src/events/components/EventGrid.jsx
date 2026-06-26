@@ -10,7 +10,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import EventCard from "./EventCard";
-import EventCardSkeleton from "./EventCardSkeleton";
+import EventCardSkeleton from "../../shared/components/UI/EventCardSkeleton";
 
 /**
  * @typedef {Object} Event

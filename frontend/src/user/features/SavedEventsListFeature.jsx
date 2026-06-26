@@ -5,6 +5,7 @@
  * @module features/user/SavedEventsListFeature
  * @author Nico Paez
  */
+
 import { useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
@@ -13,13 +14,17 @@ import EventCard from "../../events/components/EventCard";
 import TimeFilterNav from "../../shared/components/UI/TimeFilterNav";
 import { filterByIds, filterByDate } from "events/utils/filterEvents";
 import { filterEventsByTime } from "events/utils/eventHelpers";
-import { parseISO, format } from "date-fns";
-import { es } from "date-fns/locale";
 import PageHeader from "shared/components/UI/PageHeader";
 import EmptyState from "shared/components/UI/EmptyState";
+import { useTranslation } from "react-i18next";
+import { formatDynamicTitle } from "user/utils/formatDynamicTitle";
+import EventCardSkeleton from "../../shared/components/UI/EventCardSkeleton";
 
 /**
  * SavedEventsListFeature Component.
+ *
+ * Coordinates user-specific bookmarked events, integrating localized pluralization bindings
+ * and decoupling stateful side-effects from structural view nodes.
  *
  * @component
  * @category Features/User
@@ -29,36 +34,28 @@ const SavedEventsListFeature = () => {
   const { events, loading } = useEvents();
   const { savedIds, isSaved, toggleSavedEvent } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation("events");
 
   const navigate = useNavigate();
 
   /**
    * Internal Time Filter State.
-   * Defaults to 'all' because the calendar or generic list acts as the core hub here.
+   * @type {string} Defaults to 'all' because the calendar or generic list acts as the core hub here.
    */
   const [timeFilter, setTimeFilter] = useState("all");
 
-  // Captures the query state modified by the calendar feature
+  /**
+   * Captures the query state modified by the calendar feature.
+   * @type {string|null} Clean YYYY-MM-DD literal from URL parameters or null if idle.
+   */
   const dateFilter = searchParams.get("date");
 
   /**
-   * Generates localized uppercase headings for strict calendar filtering parameters.
-   * Expects a clean literal date sequence string (YYYY-MM-DD).
-   * * @param {string} dateString - Clean date sequence from URL query parameter.
-   * @returns {string} Fully formatted uppercase localized title.
-   */
-  const formatDynamicTitle = (dateString) => {
-    try {
-      const parsedDate = parseISO(dateString);
-      return `EVENTOS DEL ${format(parsedDate, "d 'DE' MMMM", { locale: es })}`.toUpperCase();
-    } catch {
-      return `EVENTOS PARA ${dateString}`;
-    }
-  };
-
-  /**
-   * Changes the time window filter and clears any active calendar date query params
-   * to avoid unexpected intersections.
+   * Dispatches and updates the active macro time scope window.
+   * Purges active micro calendar parameters from URL state to prevent unexpected filter intersections.
+   *
+   * @param {string} filterId - Target time filter scope designation (e.g., 'dia', 'semana', 'mes', 'all').
+   * @returns {void}
    */
   const handleTimeFilterChange = (filterId) => {
     setTimeFilter(filterId);
@@ -70,7 +67,13 @@ const SavedEventsListFeature = () => {
   };
 
   /**
-   * Combined Pipeline Data Filtering (Memoized).
+   * Combined Pipeline Data Filtering Stage.
+   * Memoizes collection changes across cascading filters:
+   * 1. Bookmarked explicit IDs mapping.
+   * 2. URL single-day constraint enforcement.
+   * 3. Macro window timeline bounds.
+   *
+   * @type {Array<Object>}
    */
   const displayList = useMemo(() => {
     // Stage 1: Filter full catalog against user personal bookmarks
@@ -92,11 +95,13 @@ const SavedEventsListFeature = () => {
   if (loading) {
     return (
       <div
-        className="p-20 text-center animate-pulse text-slate-400 font-medium"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         role="status"
-        aria-live="polite"
+        aria-label={t("savedEventsListFeature.loading")}
       >
-        Loading your curated experiences...
+        {Array.from({ length: 6 }).map((_, i) => (
+          <EventCardSkeleton key={`saved-skeleton-${i}`} />
+        ))}
       </div>
     );
   }
@@ -105,14 +110,16 @@ const SavedEventsListFeature = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Dynamic Header: Adapts based on active URL filters or selected time scope */}
       <header className="border-b border-slate-100 pb-6 space-y-6">
-        {/*Integrated Reusable Title*/}
+        {/* Integrated Reusable Title with Pluralized Event Count Context */}
         <PageHeader
           title={
             dateFilter
               ? formatDynamicTitle(dateFilter)
-              : "Mis Experiencias Guardadas"
+              : t("savedEventsListFeature.mySaved")
           }
-          description={`${displayList.length} ${displayList.length === 1 ? "evento" : "eventos"} encontrados en tu selección.`}
+          description={t("savedEventsListFeature.event", {
+            count: displayList.length,
+          })}
         />
 
         {/* Integrated Reusable Time Filters Navigation */}
@@ -120,6 +127,14 @@ const SavedEventsListFeature = () => {
           <TimeFilterNav
             activeFilter={dateFilter ? "" : timeFilter}
             onFilterChange={handleTimeFilterChange}
+            i18n={{
+              timeFilterNav: {
+                dia: t("timeFilterNav.dia"),
+                semana: t("timeFilterNav.semana"),
+                mes: t("timeFilterNav.mes"),
+                all: t("timeFilterNav.all"),
+              },
+            }}
           />
         </div>
       </header>
@@ -137,15 +152,19 @@ const SavedEventsListFeature = () => {
               isSaved={isSaved(event.id)}
               onToggleSave={toggleSavedEvent}
               showRemoveButton={true}
+              i18n={{
+                directPurchase: t("events.eventCard.buy"),
+                viewDetails: t("events.eventCard.viewDetails"),
+              }}
             />
           ))}
         </div>
       ) : (
         /* Empty State Handler */
         <EmptyState
-          title="No tienes eventos programados para esta selección"
-          description="Tu lista de favoritos o el filtro seleccionado no registran experiencias activas en este momento."
-          actionLabel="EXPLORAR MÁS EVENTOS"
+          title={t("savedEventsListFeature.emptyState.title")}
+          description={t("savedEventsListFeature.emptyState.description")}
+          actionLabel={t("savedEventsListFeature.emptyState.actionLabel")}
           onAction={() => navigate("/")}
         />
       )}

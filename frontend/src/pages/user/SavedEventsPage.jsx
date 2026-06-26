@@ -1,4 +1,4 @@
-import SavedEventsListFeature from '../../user/features/SavedEventsListFeature';
+import SavedEventsListFeature from "../../user/features/SavedEventsListFeature";
 
 /**
  * SavedEventsPage Component.
@@ -11,8 +11,8 @@ import SavedEventsListFeature from '../../user/features/SavedEventsListFeature';
  */
 const SavedEventsPage = () => {
   return (
-    <main 
-      className="container mx-auto px-4 py-8 min-h-screen" 
+    <main
+      className="container mx-auto px-4 py-8 min-h-screen"
       aria-label="Saved Events Page"
     >
       <section className="max-w-7xl mx-auto">

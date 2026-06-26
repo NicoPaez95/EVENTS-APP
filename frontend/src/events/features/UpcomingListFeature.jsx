@@ -58,7 +58,6 @@ const UpcomingListFeature = () => {
   /**
    * Global i18next Translation Instance.
    * Pulls the reactive localization hook scoped exclusively to the "events" namespace.
-   * @type {Function} t - Contextual namespace translator function.
    */
   const { t } = useTranslation("events");
 
@@ -70,7 +69,7 @@ const UpcomingListFeature = () => {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <p className="text-lg text-slate-600 animate-pulse">
-          {t("UpcomingListFeature.scanning")}
+          {t("savedEventsListFeature.loading")}
         </p>
       </div>
     );
@@ -80,17 +79,17 @@ const UpcomingListFeature = () => {
     <div className="container mx-auto py-8 space-y-8 animate-fade-in">
       {/* Feature Header & Filter Controls */}
       <div className="space-y-6">
-        <PageHeader title={t("UpcomingListFeature.pageHeader")} level={2} />
+        <PageHeader title={t("upcomingListFeature.pageHeader")} level={2} />
 
         <TimeFilterNav
           activeFilter={timeFilter}
           onFilterChange={setTimeFilter}
           i18n={{
             timeFilterNav: {
-              dia: t("UpcomingListFeature.timeFilterNav.dia"),
-              semana: t("UpcomingListFeature.timeFilterNav.semana"),
-              mes: t("UpcomingListFeature.timeFilterNav.mes"),
-              all: t("UpcomingListFeature.timeFilterNav.all"),
+              dia: t("timeFilterNav.dia"),
+              semana: t("timeFilterNav.semana"),
+              mes: t("timeFilterNav.mes"),
+              all: t("timeFilterNav.all"),
             },
           }}
         />
@@ -112,14 +111,14 @@ const UpcomingListFeature = () => {
           /* Empty State Handler for filtered results */
           <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
             <p className="text-slate-500 text-lg">
-              {t("UpcomingListFeature.notFound")}
+              {t("upcomingListFeature.notFound")}
             </p>
             <button
               type="button"
               onClick={() => setTimeFilter("all")}
               className="mt-4 text-blue-600 font-semibold hover:underline"
             >
-              {t("UpcomingListFeature.showAll")}
+              {t("upcomingListFeature.showAll")}
             </button>
           </div>
         )}
