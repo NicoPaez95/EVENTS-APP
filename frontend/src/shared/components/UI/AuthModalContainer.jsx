@@ -1,20 +1,35 @@
 /**
  * @file AuthModalContainer.jsx
  * @description Presentational overlay portal that renders the sign-in prompt modal.
- * Consumes the global visibility state and utilizes routing hooks safely within the Router context.
+ * Consumes global visibility states and couples localization directly due to its ambient layout nature.
  * @module shared/components/UI/AuthModalContainer
  * @author Nico Paez
  */
 
 import React, { useCallback } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useAuthModal } from "../../context/AuthModalContext";
+import { useTranslation } from "react-i18next";
+
+/**
+ * @typedef {Object} AuthModalTranslations
+ * @property {string} title - Localized modal header announcement text.
+ * @property {string} description - Localized instructional paragraph messaging context.
+ * @property {string} buttonCancel - Localized action label applied to the dismissal button element.
+ * @property {string} buttonSubmit - Localized action label applied to the navigation login prompt.
+ */
+
+/**
+ * @typedef {Object} SharedNamespaceTranslations
+ * @property {AuthModalTranslations} authModal - Translation schema mappings explicitly scoped to the authentication interceptor view.
+ */
 
 /**
  * AuthModalContainer Component.
  *
  * Renders the structural layout and redirection behaviors for the guest interception workflow.
- * Leverages defensive interaction paradigms to prevent background link click collisions.
+ * Directly initializes useTranslation because it operates as a global ambient shell element.
  *
  * @component
  * @category Shared/UI
@@ -25,9 +40,15 @@ const AuthModalContainer = () => {
   const navigate = useNavigate();
 
   /**
+   * Internationalization Hook binding the container to the shared workspace.
+   * @type {Object}
+   */
+  const { t } = useTranslation("shared");
+
+  /**
    * Dismisses the modal popup securely and reroutes the user session to the authentication portal form.
    * Encapsulates callbacks to stabilize layout renderings.
-   * * @type {function(): void}
+   * @type {function(): void}
    */
   const handleRedirect = useCallback(() => {
     closeAuthPrompt();
@@ -56,12 +77,11 @@ const AuthModalContainer = () => {
           id="auth-modal-title"
           className="text-2xl font-black text-slate-900 tracking-tight mb-2"
         >
-          Save Your Experiences
+          {t("authModal.title")}
         </h2>
 
         <p className="text-slate-500 text-sm leading-relaxed mb-8">
-          Oops! You need to be signed in to curate your personal event calendar.
-          Create an account or log in to keep track of premium experiences.
+          {t("authModal.description")}
         </p>
 
         {/* Action Trigger Interface Layout */}
@@ -71,19 +91,21 @@ const AuthModalContainer = () => {
             onClick={closeAuthPrompt}
             className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 active:scale-[0.98] transition-all duration-200"
           >
-            Keep Exploring
+            {t("authModal.buttonCancel")}
           </button>
           <button
             type="button"
             onClick={handleRedirect}
             className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 active:scale-[0.98] transition-all duration-200"
           >
-            Sign In Now
+            {t("authModal.buttonSubmit")}
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+AuthModalContainer.propTypes = {};
 
 export default AuthModalContainer;

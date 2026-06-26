@@ -7,17 +7,18 @@
  */
 
 import React, { useMemo, useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
 import { useUser } from "../context/UserContext";
 import SavedEventsCalendar from "../components/SavedEventsCalendar";
 import { addMonths, subMonths, setMonth } from "date-fns";
 import { groupSavedEventsByDate } from "events/utils/eventTransformers";
-// Importamos el componente PageHeader respetando tu estructura de carpetas compartidas
 import PageHeader from "../../shared/components/UI/PageHeader";
+import { useTranslation } from "react-i18next";
 
 /**
- * SavedCalendarFeature Component.
+ * SavedCalendarFeature Component (Feature Orchestrator).
  *
  * This feature-level smart orchestrator connects calendar viewport states with cross-domain
  * context providers, translating atomic grid selections into explicit localized URL state updates.
@@ -34,6 +35,12 @@ const SavedCalendarFeature = () => {
   const { events } = useEvents();
 
   /**
+   * Internationalization Hook scoped to the local events localization bundle workspace.
+   * @type {Object}
+   */
+  const { t } = useTranslation("events");
+
+  /**
    * User Domain State Consumption.
    * Pulls localized user configuration arrays to manage bookmark references safely.
    */
@@ -45,7 +52,7 @@ const SavedCalendarFeature = () => {
   /**
    * Calendar Viewport State.
    * Tracks the active month and year calendar matrix currently being inspected by the user.
-   * @type {[Date, function]}
+   * @type {[Date, function(Date|function(Date): Date): void]}
    */
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -55,15 +62,19 @@ const SavedCalendarFeature = () => {
    * @type {string|null}
    */
   const activeUrlDate = searchParams.get("date");
+
   /**
    * O(1) Data Transformation Matrix (Memoized).
    * Bundles linear master events mapping collections against active user selections into data blocks.
    * Tracks clean, shallow references to keep the ESLint rule completely satisfied.
+   *
+   * @type {Object<string, Array<Object>>}
    */
   const eventsByDate = useMemo(() => {
     if (!events || !savedIds) return {};
     return groupSavedEventsByDate(events, savedIds);
   }, [events, savedIds]);
+
   /**
    * Advances the calendar viewport context forward sequentially by exactly one month.
    * @function
@@ -107,8 +118,8 @@ const SavedCalendarFeature = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <PageHeader
-        title="My Saved Events Calendar"
-        description="Visually explore and manage the customized experiences you have reserved month by month."
+        title={t("savedEventsCalendarFeature.title")}
+        description={t("savedEventsCalendarFeature.description")}
       />
 
       {/* Presentational Calendar Component View */}
@@ -120,9 +131,21 @@ const SavedCalendarFeature = () => {
         onNextMonth={handleNextMonth}
         onPrevMonth={handlePrevMonth}
         onSelectMonth={handleSelectMonth}
+        i18n={{
+          SavedEventsCalendar: {
+            changeMonth: t(
+              "savedEventsCalendarFeature.SavedEventsCalendar.changeMonth"
+            ),
+            actionLink: t(
+              "savedEventsCalendarFeature.SavedEventsCalendar.actionLink"
+            ),
+          },
+        }}
       />
     </div>
   );
 };
+
+SavedCalendarFeature.propTypes = {};
 
 export default SavedCalendarFeature;

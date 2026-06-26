@@ -7,6 +7,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "../pages/events/HomePage";
 import EventDetailPage from "../pages/events/EventDetailPage";
@@ -40,30 +41,18 @@ const AppRouter = () => {
     <BrowserRouter>
       {/* Centralized UI portal container for unauthenticated guest interception alerts */}
       <AuthModalContainer />
+
       {/* Ambient notification layer tracking global transaction entities in real-time */}
       <FloatingCartWidget />
+
       <Routes>
         {/* --- Primary UI Shell Layer (Standard View with Sidebar) --- */}
         <Route element={<MainLayout />}>
-          {/**
-           * Home: The default discovery hub.
-           * Inherits the full MainLayout configuration.
-           */}
           <Route path="/" element={<Home />} />
-
-          {/** Upcoming Events: Filtered discovery stream */}
           <Route path="/events/upcoming" element={<UpcomingEventsPage />} />
-
-          {/**
-           * Cart Workspace: Ambient transaction pool.
-           * Publicly accessible to allow flexible pre-checkout booking reviews.
-           */}
           <Route path="/cart" element={<CartPage />} />
 
-          {/**
-           * Protected User Domain:
-           * Routes that require an active session and the persistent UI Shell.
-           */}
+          {/* Protected User Domain */}
           <Route
             path="/profile"
             element={
@@ -93,20 +82,16 @@ const AppRouter = () => {
         />
 
         {/* --- Independent Layer (Minimalist View, No Layout) --- */}
-        {/**
-         * Auth: Login and Registration flows.
-         * Rendered independently to maximize focus and minimize navigation noise.
-         */}
-
         <Route path="/login" element={<Auth />} />
         <Route path="/register" element={<Auth />} />
 
         {/* --- Global Fallback Layer --- */}
-        {/** Redirects any undefined paths back to the home entry point */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 };
+
+AppRouter.propTypes = {};
 
 export default AppRouter;

@@ -77,7 +77,7 @@ const CHEVRON_RIGHT = (
 
 /**
  * Month short abbreviations used within the local dropdown popover interface.
- * @type {Array.<string>}
+ * @type {Array<string>}
  */
 const MONTHS_SHORT = [
   "Jan",
@@ -96,9 +96,20 @@ const MONTHS_SHORT = [
 
 /**
  * Weekday singular initials displayed at the top grid level layout of the component.
- * @type {Array.<string>}
+ * @type {Array<string>}
  */
 const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
+
+/**
+ * @typedef {Object} CalendarI18nLabels
+ * @property {string} changeMonth - Localized small banner caption indicating interactive dropdown triggers.
+ * @property {string} actionLink - Localized redirection label located inside the footer ActionLink element.
+ */
+
+/**
+ * @typedef {Object} SavedEventsCalendarI18n
+ * @property {CalendarI18nLabels} SavedEventsCalendar - Namespace nested translation bindings for the calendar workspace.
+ */
 
 /**
  * SavedEventsCalendar Component (Presentational).
@@ -107,15 +118,16 @@ const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
  * event listeners for cell hovers, abstracting complex transformations to parent features.
  *
  * @component
- * @category Components
+ * @category Components/User
  * @param {Object} props - The component properties.
  * @param {Date} props.currentDate - Reference date object used to frame the current monthly view context.
- * @param {Object.<string, Array.<Object>>} [props.eventsMap={}] - High-efficiency dictionary lookup mapping ISO timestamp strings to arrays of saved event objects.
+ * @param {Object<string, Array<Object>>} [props.eventsMap={}] - High-efficiency dictionary lookup mapping ISO timestamp strings to arrays of saved event objects.
  * @param {string|null} props.selectedDate - The active full ISO string key indicating a single-day item selection.
- * @param {function} props.onDateClick - Event handler triggered when clicking an eligible day cell wrapper. Receives the string ISO date key.
- * @param {function} props.onNextMonth - Callback function responsible for advancing the temporal calendar state forward by one month.
- * @param {function} props.onPrevMonth - Callback function responsible for rewinding the temporal calendar state backward by one month.
- * @param {function} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index value.
+ * @param {function(string): void} props.onDateClick - Event handler triggered when clicking an eligible day cell wrapper. Receives the string ISO date key.
+ * @param {function(): void} props.onNextMonth - Callback function responsible for advancing the temporal calendar state forward by one month.
+ * @param {function(): void} props.onPrevMonth - Callback function responsible for rewinding the temporal calendar state backward by one month.
+ * @param {function(number): void} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index value.
+ * @param {SavedEventsCalendarI18n} props.i18n - Explicit translation schema dictionary passed down by structural parents.
  * @returns {React.JSX.Element} The presentational interactive calendar shell mesh.
  */
 const SavedEventsCalendar = ({
@@ -126,6 +138,7 @@ const SavedEventsCalendar = ({
   onNextMonth,
   onPrevMonth,
   onSelectMonth,
+  i18n,
 }) => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [hoveredDate, setHoveredDate] = useState(null);
@@ -152,7 +165,7 @@ const SavedEventsCalendar = ({
                 </span>
               </h2>
               <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">
-                Click to change month
+                {i18n.SavedEventsCalendar.changeMonth}
               </span>
             </div>
           </button>
@@ -278,7 +291,7 @@ const SavedEventsCalendar = ({
       {/* Footer redirection asset link container */}
       <footer className="mt-6 pt-3 border-t border-slate-100">
         <ActionLink to="/user/saved-events" centered>
-          View full collection
+          {i18n.SavedEventsCalendar.actionLink}
         </ActionLink>
       </footer>
     </section>
@@ -293,6 +306,12 @@ SavedEventsCalendar.propTypes = {
   onNextMonth: PropTypes.func.isRequired,
   onPrevMonth: PropTypes.func.isRequired,
   onSelectMonth: PropTypes.func.isRequired,
+  i18n: PropTypes.shape({
+    SavedEventsCalendar: PropTypes.shape({
+      changeMonth: PropTypes.string.isRequired,
+      actionLink: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 };
 
 export default SavedEventsCalendar;
