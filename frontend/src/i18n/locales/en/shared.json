@@ -1,0 +1,12 @@
+{
+    "authModal": {
+        "title": "Save Your Experiences",
+        "description": "Oops! You need to be signed in to curate your personal event calendar. Create an account or log in to keep track of premium experiences.",
+        "buttonCancel": "Keep Exploring",
+        "buttonSubmit": "Sign In Now"
+    },
+    "floatingCart": {
+        "title": "My Cart",
+        "ariaLabel": "View your shopping cart status"
+    }
+}

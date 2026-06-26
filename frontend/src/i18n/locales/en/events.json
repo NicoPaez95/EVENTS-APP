@@ -36,7 +36,7 @@
     "events": {
         "eventsHeader": {
             "exploreEvents": "Explore Events",
-            "searchExperiencies": "Searching for best experiences..."
+            "searchExperiencies": "Searching for the best experiences..."
         },
         "emptyState": {
             "error": {
@@ -49,6 +49,10 @@
                 "description": "None of our current live experiences match the specific parameters defined in your search filters.",
                 "actionText": "Clear All Filters"
             }
+        },
+        "eventCard": {
+            "buy": "Direct Purchase",
+            "viewDetails": "View Details"
         }
     },
     "CheckoutModal": {
@@ -84,5 +88,191 @@
             "processingPayment": "Processing Payment",
             "validate": "We are securely validating your transaction with your bank. Please do not close this window."
         }
+    },
+    "eventDetailhub": {
+        "venueYlogistic": "Venue & Logistics",
+        "wheaterForecast": "Note: Weather forecasts for",
+        "areUpdated": "are updated in real-time.",
+        "dontForget": "Don't forget to check the map for the best route to "
+    },
+    "eventDetailsFeature": {
+        "loadingState": "Loading experience details...",
+        "notFound": {
+            "title": "Event not found",
+            "message": "The experience you're looking for might have been removed or moved.",
+            "linkText": "Back to all events"
+        },
+        "eventDetail": {
+            "fallback": {
+                "title": "Untitled Experience",
+                "category": "Special Event",
+                "description": "Experience something unique. This event showcases the best in its category within a premium environment."
+            },
+            "backButton": "BACK TO EXPLORATION",
+            "bookmarkButton": {
+                "removeButton": "Remove experience",
+                "saveButton": "Save experience"
+            },
+            "venueName": "Venue TBD",
+            "venueCity": "Unknown City",
+            "venue": "Venue •",
+            "viewMap": "View Map",
+            "schedule": "Schedule",
+            "localTime": "Local Time",
+            "experienceDetails": "Experience Details",
+            "primaryButton": {
+                "secure": "Secure Your Tickets",
+                "signIn": "Sign In to Purchase"
+            }
+        },
+        "pageHeader": "Similar Experiences"
+    },
+    "eventMapFeature": {
+        "location": "Location",
+        "poweredBy": "Powered by OpenStreetMap",
+        "getDirections": "GET DIRECTIONS",
+        "useForGps": "Use 'Get Directions' for GPS"
+    },
+    "WeatherFeature": {
+        "weatherUnavailable": "Weather update unavailable",
+        "weatherWidget": {
+            "weatherConditions": {
+                "Clouds": "Clouds",
+                "Rain": "Rain",
+                "Clear": "Clear",
+                "Drizzle": "Drizzle",
+                "Thunderstorm": "Thunderstorm",
+                "Snow": "Snow",
+                "Mist": "Mist"
+            }
+        }
+    },
+    "upcomingSidebarFeature": {
+        "title": "Upcoming Events",
+        "upcomingEvents": {
+            "actionLink": "View All Upcoming"
+        }
+    },
+    "upcomingListFeature": {
+        "scanning": "Scanning the horizon for upcoming experiences...",
+        "pageHeader": "Upcoming Experiences",
+        "notFound": "No events found for this specific period.",
+        "showAll": "Show all upcoming events"
+    },
+    "recommendedEventsFeature": {
+        "title": "Recommended for you",
+        "recommendedEvents": {
+            "title": "Recommended Events"
+        }
+    },
+    "userAuthHub": {
+        "islogin": {
+            "welcome": "Welcome Back",
+            "createAccount": "Create Account",
+            "enterDetails": "Enter details to access your account",
+            "join": "Join our community of seekers"
+        }
+    },
+    "loginFeature": {
+        "showtoast": {
+            "welcome": "Welcome back! You have logged in successfully.",
+            "error": "An unexpected error occurred. Please try again."
+        },
+        "loginForm": {
+            "email": "Email Address",
+            "placeholder": "your@email.com",
+            "password": "Password",
+            "loadingText": "SIGNING IN...",
+            "signin": "SIGN IN TO ACCOUNT"
+        }
+    },
+    "registerFeature": {
+        "showtoast": {
+            "welcome": "Account created successfully! You are now logged in.",
+            "error": "An unexpected error occurred. Please try again."
+        },
+        "registerForm": {
+            "name": "Full Name",
+            "placeholdername": "Write your name",
+            "email": "Email Address",
+            "placeholder": "your@email.com",
+            "password": "Password",
+            "loadingText": "CREATING ACCOUNT...",
+            "createAccount": "CREATE FREE ACCOUNT"
+        }
+    },
+    "authFooterNav": {
+        "notAccount": "Don't have an account? ",
+        "yesAccount": "Already have an account?",
+        "register": "Register here",
+        "signin": "Sign in"
+    },
+    "savedEventsCalendarFeature": {
+        "title": "My Saved Events Calendar",
+        "description": "Visually explore and manage the customized experiences you have reserved month by month.",
+        "SavedEventsCalendar": {
+            "changeMonth": "Click to change month",
+            "actionLink": "View full collection"
+        }
+    },
+    "savedEventsListFeature": {
+        "loading": "Loading your curated experiences...",
+        "mySaved": "My Saved Experiences",
+        "event_one": "{{count}} event found in your selection.",
+        "event_other": "{{count}} events found in your selection.",
+        "founded": "found in your selection.",
+        "emptyState": {
+            "title": "You have no events scheduled for this selection",
+            "description": "Your favorites list or the selected filter does not show any active experiences at this time.",
+            "actionLabel": "EXPLORE MORE EVENTS →"
+        }
+    },
+    "timeFilterNav": {
+        "dia": "Next 24 Hours",
+        "semana": "This Week",
+        "mes": "This Month",
+        "all": "All"
+    },
+    "cartHub": {
+        "titleModal_one": "Massive Reservation ({{count}} Ticket)",
+        "titleModal_other": "Massive Reservation ({{count}} Tickets)"
+    },
+    "cartFeature": {
+        "cartList": {
+            "empty": "Your shopping cart is empty.",
+            "PrimaryButton": "Explore Experiences →",
+            "eventPrice": " per ticket",
+            "purchaseSummary": "Purchase Summary",
+            "subTotal": "Subtotal Items",
+            "serviceCharge": "Service Charge (Simulated)",
+            "serviceChargeCosts": "FREE",
+            "Total": "Total Order",
+            "proceedtoPayment": "Proceed to Payment"
+        }
+    },
+    "profileFeature": {
+        "userProfileCard": {
+            "title": "User Profile",
+            "description": "Manage your account details and personal credentials",
+            "fullName": "Full Name",
+            "email": "Email Address",
+            "activeAccount": "Active Account"
+        }
+    },
+    "eventDiscovery": {
+        "placeholder": {
+            "whatLook": "What are you looking for?",
+            "category": "Category",
+            "location": "Location"
+        },
+        "buttonSearch": "SEARCH"
+    },
+    "backendErrors": {
+        "invalidInputs": "Invalid data provided. Please check your fields and try again.",
+        "userExists": "An account with this email address already exists.",
+        "registerFailed": "Could not create your account right now. Please try again later.",
+        "invalidCredentials": "Invalid credentials. Please check your email and password.",
+        "serverError": "The server is temporarily unavailable. Please try again later.",
+        "unknown": "An unexpected error occurred. Please try again."
     }
 }

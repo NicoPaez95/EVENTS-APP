@@ -1,0 +1,12 @@
+{
+    "authModal": {
+        "title": "Guarda tus Experiencias",
+        "description": "¡Ups! Necesitas iniciar sesión para armar tu calendario personal de eventos. Crea una cuenta o inicia sesión para hacer un seguimiento de las experiencias premium.",
+        "buttonCancel": "Seguir Explorando",
+        "buttonSubmit": "Iniciar Sesión Ahora"
+    },
+    "floatingCart": {
+        "title": "Mi Carrito",
+        "ariaLabel": "Ver el estado de tu carrito de compras"
+    }
+}

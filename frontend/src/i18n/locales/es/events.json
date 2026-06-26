@@ -1,15 +1,15 @@
 {
     "featured": {
-        "sectionTitle": "Experiencias destacadas",
-        "clickToSeeDetails": "Haz clic para ver los detalles."
+        "sectionTitle": "Experiencias Destacadas",
+        "clickToSeeDetails": "Click para ver detalles →"
     },
     "category": {
-        "sectionTitle": "Explorar por Categoría",
+        "sectionTitle": "Buscar por Categoría",
         "name": [
             {
                 "id": "c0",
                 "key": "all",
-                "title": "Todos"
+                "title": "Todas"
             },
             {
                 "id": "c1",
@@ -29,8 +29,250 @@
             {
                 "id": "c4",
                 "key": "food",
-                "title": "Comidas"
+                "title": "Gastronomía"
             }
         ]
+    },
+    "events": {
+        "eventsHeader": {
+            "exploreEvents": "Explorar Eventos",
+            "searchExperiencies": "Buscando las mejores experiencias..."
+        },
+        "emptyState": {
+            "error": {
+                "title": "Fallo de Conexión Detectado",
+                "description": "Ocurrió un error crítico de infraestructura al intentar obtener el catálogo disponible desde el servidor.",
+                "actionText": "Restablecer Parámetros de Búsqueda"
+            },
+            "notFound": {
+                "title": "No se Encontraron Resultados",
+                "description": "Ninguna de nuestras experiencias activas actuales coincide con los parámetros definidos en tus filtros de búsqueda.",
+                "actionText": "Limpiar Todos los Filtros"
+            }
+        },
+        "eventCard": {
+            "buy": "Compra Directa",
+            "viewDetails": "Ver Detalles"
+        }
+    },
+    "CheckoutModal": {
+        "cartLot": "Lote del Carrito",
+        "paymentFramework": "Protegido por Simulación de Stripe",
+        "quantityStep": {
+            "load": "Cargando detalles del evento...",
+            "admission": "Entrada General",
+            "formatCurrency": "por entrada",
+            "totalCalculation": "Visualización del Cálculo Total",
+            "total": "Total",
+            "confirm": "Confirmar y Continuar"
+        },
+        "paymentStep": {
+            "cardHolder": "Titular de la Tarjeta",
+            "demoUser": "USUARIO DE DEMO",
+            "expires": "Vence",
+            "securityCode": "Código de Seguridad",
+            "demoHint": "Demo",
+            "demoHintUSe": "Usar",
+            "codeToSuceed": "para procesar con éxito.",
+            "paymentError": "Error de Pago",
+            "backButton": "Volver",
+            "payButton": "Pagar"
+        },
+        "successStep": {
+            "purchaseSuccessful": "¡Compra Exitosa!",
+            "entryFor": "Tu entrada para",
+            "isready": "está lista. Presenta este código QR en la entrada.",
+            "finish": "Finalizar"
+        },
+        "processingStep": {
+            "processingPayment": "Procesando Pago",
+            "validate": "Estamos validando tu transacción de forma segura con tu banco. Por favor, no cierres esta ventana."
+        }
+    },
+    "eventDetailhub": {
+        "venueYlogistic": "Lugar y Logística",
+        "wheaterForecast": "Nota: Los pronósticos climáticos para",
+        "areUpdated": "se actualizan en tiempo real.",
+        "dontForget": "No olvides consultar el mapa para encontrar la mejor ruta hacia "
+    },
+    "eventDetailsFeature": {
+        "loadingState": "Cargando detalles de la experiencia...",
+        "notFound": {
+            "title": "Evento no encontrado",
+            "message": "La experiencia que estás buscando pudo haber sido eliminada o movida.",
+            "linkText": "Volver a todos los eventos"
+        },
+        "eventDetail": {
+            "fallback": {
+                "title": "Experiencia Sin Título",
+                "category": "Evento Especial",
+                "description": "Vive algo único. Este evento presenta lo mejor de su categoría dentro de un entorno premium."
+            },
+            "backButton": "VOLVER A LA EXPLORACIÓN",
+            "bookmarkButton": {
+                "removeButton": "Eliminar experiencia",
+                "saveButton": "Guardar experiencia"
+            },
+            "venueName": "Lugar a Confirmar",
+            "venueCity": "Ciudad Desconocida",
+            "venue": "Lugar •",
+            "viewMap": "Ver Mapa",
+            "schedule": "Horario",
+            "localTime": "Hora Local",
+            "experienceDetails": "Detalles de la Experiencia",
+            "primaryButton": {
+                "secure": "Asegurar mis Entradas",
+                "signIn": "Iniciar Sesión para Comprar"
+            }
+        },
+        "pageHeader": "Experiencias Similares"
+    },
+    "eventMapFeature": {
+        "location": "Ubicación",
+        "poweredBy": "Desarrollado con OpenStreetMap",
+        "getDirections": "CÓMO LLEGAR",
+        "useForGps": "Usa 'Cómo Llegar' para el GPS"
+    },
+    "WeatherFeature": {
+        "weatherUnavailable": "Actualización del clima no disponible",
+        "weatherWidget": {
+            "weatherConditions": {
+                "Clouds": "Nublado",
+                "Rain": "Lluvia",
+                "Clear": "Despejado",
+                "Drizzle": "Llovizna",
+                "Thunderstorm": "Tormenta",
+                "Snow": "Nieve",
+                "Mist": "Neblina"
+            }
+        }
+    },
+    "upcomingSidebarFeature": {
+        "title": "Próximos Eventos",
+        "upcomingEvents": {
+            "actionLink": "Ver Todos los Próximos"
+        }
+    },
+    "upcomingListFeature": {
+        "scanning": "Explorando el horizonte en busca de próximas experiencias...",
+        "pageHeader": "Próximas Experiencias",
+        "notFound": "No se encontraron eventos para este período específico.",
+        "showAll": "Mostrar todos los próximos eventos"
+    },
+    "recommendedEventsFeature": {
+        "title": "Recomendados para ti",
+        "recommendedEvents": {
+            "title": "Eventos Recomendados"
+        }
+    },
+    "userAuthHub": {
+        "islogin": {
+            "welcome": "Te Damos la Bienvenida",
+            "createAccount": "Crear Cuenta",
+            "enterDetails": "Ingresa tus datos para acceder a tu cuenta",
+            "join": "Únete a nuestra comunidad de exploradores"
+        }
+    },
+    "loginFeature": {
+        "showtoast": {
+            "welcome": "¡Bienvenido de nuevo! Has iniciado sesión con éxito.",
+            "error": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+        },
+        "loginForm": {
+            "email": "Correo Electrónico",
+            "placeholder": "tu@email.com",
+            "password": "Contraseña",
+            "loadingText": "INICIANDO SESIÓN...",
+            "signin": "INICIAR SESIÓN EN LA CUENTA"
+        }
+    },
+    "registerFeature": {
+        "showtoast": {
+            "welcome": "¡Cuenta creada con éxito! Ya has iniciado sesión.",
+            "error": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
+        },
+        "registerForm": {
+            "name": "Nombre Completo",
+            "placeholdername": "Escribe tu nombre",
+            "email": "Correo Electrónico",
+            "placeholder": "tu@email.com",
+            "password": "Contraseña",
+            "loadingText": "CREANDO CUENTA...",
+            "createAccount": "CREAR CUENTA GRATUITA"
+        }
+    },
+    "authFooterNav": {
+        "notAccount": "¿No tienes una cuenta? ",
+        "yesAccount": "¿Ya tienes una cuenta?",
+        "register": "Regístrate aquí",
+        "signin": "Inicia sesión"
+    },
+    "savedEventsCalendarFeature": {
+        "title": "Mi Calendario de Eventos Guardados",
+        "description": "Explora visualmente y gestiona mes a mes las experiencias personalizadas que has reservado.",
+        "SavedEventsCalendar": {
+            "changeMonth": "Click para cambiar de mes",
+            "actionLink": "Ver colección completa"
+        }
+    },
+    "savedEventsListFeature": {
+        "loading": "Cargando tus experiencias seleccionadas...",
+        "mySaved": "Mis Experiencias Guardadas",
+        "event_one": "{{count}} evento encontrado en tu selección.",
+        "event_other": "{{count}} eventos encontrados en tu selección.",
+        "founded": "encontrados en tu selección.",
+        "emptyState": {
+            "title": "No tienes eventos programados para esta selección",
+            "description": "Tu lista de favoritos o el filtro seleccionado no muestran ninguna experiencia activa en este momento.",
+            "actionLabel": "EXPLORAR MÁS EVENTOS →"
+        }
+    },
+    "timeFilterNav": {
+        "dia": "Próximas 24 Horas",
+        "semana": "Esta Semana",
+        "mes": "Este Mes",
+        "all": "Todos"
+    },
+    "cartHub": {
+        "titleModal_one": "Reserva Masiva ({{count}} Entrada)",
+        "titleModal_other": "Reserva Masiva ({{count}} Entradas)"
+    },
+    "cartFeature": {
+        "cartList": {
+            "empty": "Tu carrito de compras está vacío.",
+            "PrimaryButton": "Explorar Experiencias →",
+            "eventPrice": " por entrada",
+            "purchaseSummary": "Resumen de Compra",
+            "subTotal": "Subtotal de Artículos",
+            "serviceCharge": "Cargo de Servicio (Simulado)",
+            "serviceChargeCosts": "GRATIS",
+            "Total": "Total del Pedido",
+            "proceedtoPayment": "Proceder al Pago"
+        }
+    },
+    "profileFeature": {
+        "userProfileCard": {
+            "title": "Perfil de Usuario",
+            "description": "Gestiona los detalles de tu cuenta y credenciales personales",
+            "fullName": "Nombre Completo",
+            "email": "Correo Electrónico",
+            "activeAccount": "Cuenta Activa"
+        }
+    },
+    "eventDiscovery": {
+        "placeholder": {
+            "whatLook": "¿Qué estás buscando?",
+            "category": "Categoría",
+            "location": "Ubicación"
+        },
+        "buttonSearch": "BUSCAR"
+    },
+    "backendErrors": {
+        "invalidInputs": "Datos proporcionados no válidos. Por favor, revisa los campos e inténtalo de nuevo.",
+        "userExists": "Ya existe una cuenta con esta dirección de correo electrónico.",
+        "registerFailed": "No se pudo crear tu cuenta en este momento. Por favor, inténtalo más tarde.",
+        "invalidCredentials": "Credenciales no válidas. Por favor, revisa tu correo y contraseña.",
+        "serverError": "El servidor no está disponible temporalmente. Por favor, inténtalo de nuevo más tarde.",
+        "unknown": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo."
     }
 }
