@@ -7,6 +7,7 @@
  * @layer components - Reusable complex classes (buttons, cards, etc.).
  * @layer utilities - Low-level functional classes (margin, padding, flex).
  */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;

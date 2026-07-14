@@ -26,29 +26,37 @@ export default {
        * Custom Theme Extensions mapped by operational roles.
        */
       colors: {
-        background: '#F8FAFC',
-        surface: '#FFFFFF',
+        background: '#f8fafc',//'#F8FAFC',
+        surface: ' #ffffff',//'#FFFFFF',
+        inverse: '#ffffff',
         primary: {
-          DEFAULT: '#0F172A',
+          DEFAULT: '#0f172a',//'#0F172A',
           hover: '#1E293B',
           disabled: '#CBD5E1'
         },
         secondary: {
           DEFAULT: '#475569',
           light: '#F1F5F9',
-          border: '#E2E8F0',
+          border: '#e2e8f0', //'#E2E8F0',
           muted: '#94A3B8',
         },
         accent: {
-          DEFAULT: '#0EA5E9',
+          DEFAULT: '#2563eb',// '#0EA5E9',
           hover: '#0284C7',
-          muted: '#E0F2FE',
+          muted: '#eff6ff',//'#E0F2FE',
+          light: '#60a5fa',
+          dark: '#0f1e43',
+
         },
         danger: {
           DEFAULT: '#EF4444',
           hover: '#DC2626',
           light: '#FEF2F2',
         }
+      },
+      fontFamily: {
+        sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Montserrat"', 'sans-serif'],
       },
       keyframes: {
         float: {
