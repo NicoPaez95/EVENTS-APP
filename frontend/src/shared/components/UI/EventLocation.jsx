@@ -22,7 +22,7 @@ import { cn } from "../../utils/cn";
  */
 const EventLocation = ({ city, className = "" }) => (
   <p
-    className={cn("text-xs text-slate-500 flex items-center gap-2", className)}
+    className={cn("text-xs text-secondary flex items-center gap-2", className)}
   >
     <span className="opacity-70" aria-hidden="true">
       📍

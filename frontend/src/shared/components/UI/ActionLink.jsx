@@ -24,7 +24,7 @@ import { Link } from "react-router-dom";
  */
 const ActionLink = ({ to, children, className = "", centered = false }) => {
   const baseStyles =
-    "text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest transition-all flex items-center gap-1";
+    "group text-[10px] font-bold text-secondary hover:text-accent uppercase tracking-widest transition-all flex items-center gap-1";
   const alignment = centered ? "justify-center" : "";
 
   return (

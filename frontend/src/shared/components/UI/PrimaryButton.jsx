@@ -1,4 +1,13 @@
 /**
+ * @file PrimaryButton.jsx
+ * @description Reusable atomic component for the design system's primary action button.
+ * @module shared/components/UI/PrimaryButton
+ * @author Nico Paez
+ *
+ */
+import React from "react";
+import PropTypes from "prop-types";
+/**
  * PrimaryButton Component.
  *
  * A high-level atomic component that standardizes primary actions.
@@ -35,9 +44,12 @@ const PrimaryButton = ({
       className={`
         ${fullWidth ? "w-full" : "w-auto"}
         ${sizeStyles[size]}
-        bg-slate-900 text-white font-black shadow-lg shadow-blue-100
-        hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95 
-        transition-all duration-200 disabled:bg-slate-300 disabled:shadow-none
+  
+        bg-primary text-surface font-black
+        hover:bg-primary-hover hover:-translate-y-0.5 active:scale-95 
+        shadow-lg shadow-secondary-light
+        transition-all duration-200 
+        disabled:bg-primary-disabled disabled:text-secondary-muted disabled:shadow-none
         flex justify-center items-center gap-2 uppercase tracking-wider
         ${className}
       `}
@@ -54,4 +66,12 @@ const PrimaryButton = ({
   );
 };
 
+PrimaryButton.propTypes = {
+  children: PropTypes.node.isRequired,
+  isLoading: PropTypes.bool,
+  loadingText: PropTypes.string,
+  fullWidth: PropTypes.bool,
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
+  className: PropTypes.string,
+};
 export default PrimaryButton;

@@ -39,7 +39,7 @@ const EventDate = ({ date, className = "" }) => {
   return (
     <p
       className={cn(
-        "text-xs text-slate-600 flex items-center gap-2",
+        "text-xs text-secondary flex items-center gap-2",
         className
       )}
     >

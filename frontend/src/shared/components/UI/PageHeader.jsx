@@ -36,10 +36,10 @@ const PageHeader = ({
   // Dynamic semantic tag construction based on architectural hierarchy level
   const Tag = `h${level}`;
 
-  // Rigid typography design tokens calibrated by semantic layer depth
+  // Typography design tokens scaled dynamically by heading depth (Mobile-First approach)
   const sizeStyles = {
-    1: "text-3xl font-bold tracking-tight",
-    2: "text-2xl font-bold tracking-tight",
+    1: "text-3xl font-bold tracking-tight md:text-4xl",
+    2: "text-2xl font-bold tracking-tight md:text-3xl",
     3: "text-xl font-semibold tracking-wide",
   };
 
@@ -53,13 +53,15 @@ const PageHeader = ({
       className={`space-y-2 ${alignStyles[align]} ${className}`}
       {...props} // Securely spreads native attributes (e.g. id for aria-labelledby, data-attributes, roles)
     >
-      <Tag className={`${sizeStyles[level]} text-slate-900 font-display`}>
+      {/* Uses text-primary (#0F172A) Slate Dark Blue for maximum visual hierarchy */}
+      <Tag className={`${sizeStyles[level]} text-primary font-sans`}>
         {title}
       </Tag>
 
       {description && (
+        /* Uses text-secondary (#475569) Charcoal Gray for a softer, highly readable text */
         <div
-          className={`text-slate-500 font-medium text-sm md:text-base ${alignStyles[align]}`}
+          className={`text-secondary font-medium text-sm md:text-base ${alignStyles[align]}`}
         >
           {description}
         </div>

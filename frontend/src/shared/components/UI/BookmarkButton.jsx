@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
  * BookmarkButton Component.
  *
  * An atomic, stateless button that encapsulates the visual representation of saving or removing
- * an event. It automatically intercepts pointer interactions to prevent unwanted parent bubble
+ * a target entity. It automatically intercepts pointer interactions to prevent unwanted parent bubble
  * propagation workflows.
  *
  * @component
@@ -54,7 +54,7 @@ const BookmarkButton = ({
       viewBox="0 0 24 24"
       fill={isSaved ? "currentColor" : "none"}
       stroke="currentColor"
-      className={`w-5 h-5 transition-colors duration-300 ${isSaved ? "text-red-500" : "text-slate-400"}`}
+      className={`w-5 h-5 transition-colors duration-300 ${isSaved ? "text-danger" : "text-secondary-muted"}`}
     >
       <path
         strokeLinecap="round"
@@ -84,11 +84,11 @@ const BookmarkButton = ({
       type="button"
       onClick={handleInteraction}
       aria-label={showRemoveButton ? "Remove experience" : "Save experience"}
-      className={`p-3 rounded-full backdrop-blur-md shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/50
+      className={`p-3 rounded-full backdrop-blur-md shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20 focus:outline-none focus:ring-2 focus:ring-accent/50
         ${
           showRemoveButton
-            ? "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
-            : "bg-white/90 text-slate-400 hover:text-red-500"
+            ? "bg-danger-light text-danger hover:bg-danger hover:text-white"
+            : "bg-surface/90 text-secondary-muted hover:text-danger"
         } ${className}`}
     >
       {showRemoveButton ? CLOSE_ICON : HEART_ICON}

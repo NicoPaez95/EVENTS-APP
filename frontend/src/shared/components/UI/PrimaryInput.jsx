@@ -39,10 +39,7 @@ const PrimaryInput = ({
   return (
     <div className="space-y-2 w-full text-left">
       {label && (
-        <label
-          htmlFor={id}
-          className="block text-sm font-bold text-slate-700 ml-1"
-        >
+        <label htmlFor={id} className="block text-sm font-bold text-secondary">
           {label}
         </label>
       )}
@@ -50,14 +47,16 @@ const PrimaryInput = ({
         <input
           id={id}
           ref={inputRef}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
             // 1. Base default layout classes applied consistently
-            "w-full px-4 py-3 border rounded-2xl transition-all outline-none",
-            "focus:ring-4 focus:ring-blue-50 disabled:opacity-70 disabled:bg-slate-50",
+            "w-full px-4 py-3 border border-secondary rounded-2xl transition-[border-color,box-shadow,background-color,opacity] duration-200 outline-none",
+            "focus:ring-4  focus:ring-accent/30 disabled:opacity-70 disabled:bg-secondary/10",
             // 2. Conditional status validation styles evaluated dynamically
             error
               ? "border-red-300 bg-red-50 focus:border-red-500"
-              : "border-slate-200 focus:border-blue-500 bg-white",
+              : "border-secondary focus:border-accent bg-surface",
             // 3. User custom utility class overrides passed via props
             className
           )}
@@ -65,7 +64,10 @@ const PrimaryInput = ({
         />
       </div>
       {error && (
-        <p className="text-red-500 text-xs mt-1 font-medium ml-1 animate-in slide-in-from-top-1">
+        <p
+          id={`${id}-error`}
+          className="text-red-500 text-xs mt-1 font-medium ml-1 animate-in slide-in-from-top-1"
+        >
           {error}
         </p>
       )}

@@ -1,4 +1,11 @@
-import { Link } from "react-router-dom";
+/**
+ * @file NotFound.jsx
+ * @description Reusable atomic fallback component. Standardizes displaying status messages.
+ * @module shared/components/UI/NotFound
+ * @author Nico Paez
+ */
+import { useNavigate } from "react-router-dom";
+import PrimaryButton from "./PrimaryButton";
 
 /**
  * NotFound Component (Atomic UI).
@@ -27,26 +34,48 @@ const NotFound = ({
   link = "/",
   linkText = "Back to Home",
 }) => {
+  const navigate = useNavigate();
   return (
     <div
-      className="text-center py-20 px-4 animate-in fade-in duration-500"
+      className="flex flex-col items-center justify-center min-h-[65vh] text-center px-4 animate-in fade-in duration-500"
       role="alert"
     >
-      {/* Visual Header */}
-      <h2 className="text-2xl font-bold text-slate-800 font-display">
-        {title}
-      </h2>
-
-      {/* Contextual Description */}
-      <p className="text-slate-500 mt-2">{message}</p>
-
-      {/* Recovery Action: Declarative Link */}
-      <Link
-        to={link}
-        className="inline-block mt-8 px-6 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors shadow-lg active:scale-95"
-      >
-        &larr; {linkText}
-      </Link>
+      {/*Visual Indicator*/}
+      <div className="mb-6 text-secondary-muted/30 transform hover:scale-105 transition-transform duration-300 select-none">
+        <svg
+          className="w-32 h-32 lg:w-36 lg:h-36 text-secondary-muted"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+          />
+        </svg>
+      </div>
+      {/**Text Group Container */}
+      <div className="max-w-lg space-y-4">
+        <h2 className="text-3xl lg:text-4xl font-bold text-primary font-display tracking-tight">
+          {title}
+        </h2>
+        <p className="text-lg  text-secondary leading-relaxed">{message}</p>
+      </div>
+      {/* Recovery Action Container */}
+      <div className="mt-5 w-full max-w-sm">
+        <PrimaryButton
+          type="button"
+          size="lg"
+          fullWidth={true}
+          onClick={() => navigate(link)}
+        >
+          &larr; {linkText}
+        </PrimaryButton>
+      </div>
     </div>
   );
 };

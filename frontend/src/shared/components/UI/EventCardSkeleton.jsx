@@ -21,38 +21,38 @@ import React from "react";
 const EventCardSkeleton = () => {
   return (
     <div
-      className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-pulse flex flex-col h-full"
+      className="bg-surface rounded-3xl overflow-hidden border border-secondary-border shadow-sm animate-pulse flex flex-col h-full"
       aria-hidden="true"
     >
       {/* 1. Structural Media Container Placeholder */}
-      <div className="bg-slate-200 h-48 w-full" />
+      <div className="bg-secondary-muted/20 h-48 w-full" />
 
       {/* 2. Operational Information Content Grid Placeholder */}
       <div className="p-6 flex flex-col flex-grow space-y-4">
         {/* Meta Taxonomy / Actions Action Bar */}
         <div className="flex justify-between items-center">
-          <div className="bg-slate-200 h-4 w-20 rounded-full" />
-          <div className="bg-slate-200 h-6 w-6 rounded-full" />
+          <div className="bg-secondary-muted/20 h-4 w-20 rounded-full" />
+          <div className="bg-secondary-muted/20 h-6 w-6 rounded-full" />
         </div>
 
         {/* Core Narrative / Typography Title Stack */}
         <div className="space-y-2 flex-grow">
-          <div className="bg-slate-200 h-5 w-5/6 rounded-lg" />
-          <div className="bg-slate-200 h-5 w-1/2 rounded-lg" />
+          <div className="bg-secondary-muted/20 h-5 w-5/6 rounded-lg" />
+          <div className="bg-secondary-muted/20 h-5 w-1/2 rounded-lg" />
         </div>
 
         {/* Logistics Metadata / Temporal & Spatial Footer Partition */}
-        <div className="pt-4 border-t border-slate-50 space-y-2">
+        <div className="pt-4 border-t border-secondary-border/70 space-y-2">
           {/* Calendar Date Track Placeholder */}
           <div className="flex items-center gap-2">
-            <div className="bg-slate-200 h-4 w-4 rounded-md" />
-            <div className="bg-slate-200 h-4 w-32 rounded-lg" />
+            <div className="bg-secondary-muted/20 h-4 w-4 rounded-md" />
+            <div className="bg-secondary-muted/20 h-4 w-32 rounded-lg" />
           </div>
 
           {/* Geographical Venue Boundary Placeholder */}
           <div className="flex items-center gap-2">
-            <div className="bg-slate-200 h-4 w-4 rounded-md" />
-            <div className="bg-slate-200 h-4 w-24 rounded-lg" />
+            <div className="bg-secondary-muted/20 h-4 w-4 rounded-md" />
+            <div className="bg-secondary-muted/20 h-4 w-24 rounded-lg" />
           </div>
         </div>
       </div>

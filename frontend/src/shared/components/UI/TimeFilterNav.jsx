@@ -51,21 +51,28 @@ const TimeFilterNav = ({
   const buttons = customFilters || defaultFilters;
 
   return (
+    /* Utilizes spacing scale (gap-4 mapping to 16px) for corporate consistency. 
+      The modern flex-wrap ensures flawless execution on smaller devices (Mobile-First).
+    */
     <nav className="flex flex-wrap gap-4" aria-label="Time filters">
-      {buttons.map((btn) => (
-        <button
-          key={btn.id}
-          type="button"
-          onClick={() => onFilterChange(btn.id)}
-          className={`px-6 py-2 rounded-full font-medium transition-all duration-300 border ${
-            activeFilter === btn.id
-              ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-105"
-              : "bg-white text-slate-600 border-slate-200 hover:border-blue-400 hover:text-blue-600"
-          }`}
-        >
-          {btn.label}
-        </button>
-      ))}
+      {buttons.map((btn) => {
+        const isActive = activeFilter === btn.id;
+
+        return (
+          <button
+            key={btn.id}
+            type="button"
+            onClick={() => onFilterChange(btn.id)}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${
+              isActive
+                ? "bg-accent text-surface border-accent shadow-md shadow-sky-100 scale-105"
+                : "bg-surface text-secondary border-slate-200 hover:border-primary hover:text-primary"
+            }`}
+          >
+            {btn.label}
+          </button>
+        );
+      })}
     </nav>
   );
 };

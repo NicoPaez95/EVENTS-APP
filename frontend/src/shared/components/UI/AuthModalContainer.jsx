@@ -7,23 +7,11 @@
  */
 
 import React, { useCallback } from "react";
-import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useAuthModal } from "../../context/AuthModalContext";
 import { useTranslation } from "react-i18next";
-
-/**
- * @typedef {Object} AuthModalTranslations
- * @property {string} title - Localized modal header announcement text.
- * @property {string} description - Localized instructional paragraph messaging context.
- * @property {string} buttonCancel - Localized action label applied to the dismissal button element.
- * @property {string} buttonSubmit - Localized action label applied to the navigation login prompt.
- */
-
-/**
- * @typedef {Object} SharedNamespaceTranslations
- * @property {AuthModalTranslations} authModal - Translation schema mappings explicitly scoped to the authentication interceptor view.
- */
+import PrimaryButton from "./PrimaryButton";
+import SecondaryButton from "./SecondaryButton";
 
 /**
  * AuthModalContainer Component.
@@ -32,7 +20,7 @@ import { useTranslation } from "react-i18next";
  * Directly initializes useTranslation because it operates as a global ambient shell element.
  *
  * @component
- * @category Shared/UI
+ * @category Components/Shared/UI
  * @returns {React.JSX.Element|null} The interactive modal layout or null if visibility state is closed.
  */
 const AuthModalContainer = () => {
@@ -41,7 +29,7 @@ const AuthModalContainer = () => {
 
   /**
    * Internationalization Hook binding the container to the shared workspace.
-   * @type {Object}
+   * @type {{ t: function(string): string }}
    */
   const { t } = useTranslation("shared");
 
@@ -67,45 +55,53 @@ const AuthModalContainer = () => {
       {/* Backdrop Click Dismissal Safeguard */}
       <div className="absolute inset-0" onClick={closeAuthPrompt} />
 
-      <div className="relative bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl border border-slate-100 text-center animate-in zoom-in-95 duration-300 z-10">
-        {/* Decorative Status Identity Badge */}
-        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-blue-50 text-blue-600 text-3xl flex items-center justify-center shadow-inner">
-          ✨
+      {/* Modal Surface Structure (Overflow-hidden is added to contain the blurs)*/}
+      <div className="relative bg-surface w-full max-w-md rounded-3xl shadow-2xl border border-secondary-border/20 text-center animate-in zoom-in-95 duration-300 z-10 overflow-hidden flex flex-col animate-float-slow ">
+        {/* Absolute invisible layer that projects the dynamic shadow below */}
+        <div className="absolute inset-0 rounded-3xl pointer-events-none animate-shadow-slow" />
+        {/* --- AMBIENT GLASSMORPHISM BANNER*/}
+        <div className="relative w-full h-32 bg-primary flex items-center justify-center select-none overflow-hidden">
+          {/* Blurred accent light sphere on the left */}
+          <div className="absolute -top-10 -left-10 w-32 h-32 bg-accent rounded-full blur-2xl opacity-50 pointer-events-none" />
+
+          {/* Complementary light sphere on the right */}
+          <div className="absolute -bottom-8 -right-6 w-28 h-28 bg-blue-500 rounded-full blur-2xl opacity-40 pointer-events-none" />
+
+          {/* Internal gradient mask to soften the base and add depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-black/15 pointer-events-none" />
+
+          {/* Decorative Status Identity Badge (Inserted floating inside the Banner) */}
+          <div className="relative w-16 h-16 rounded-2xl bg-surface/10 backdrop-blur-md text-surface text-3xl flex items-center justify-center shadow-lg border border-surface/20 z-10 translate-y-4">
+            ✨
+          </div>
         </div>
 
-        <h2
-          id="auth-modal-title"
-          className="text-2xl font-black text-slate-900 tracking-tight mb-2"
-        >
-          {t("authModal.title")}
-        </h2>
-
-        <p className="text-slate-500 text-sm leading-relaxed mb-8">
-          {t("authModal.description")}
-        </p>
-
-        {/* Action Trigger Interface Layout */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={closeAuthPrompt}
-            className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 active:scale-[0.98] transition-all duration-200"
+        {/* --- CONTENT CONTAINER --- */}
+        <div className="p-8 pt-10">
+          <h2
+            id="auth-modal-title"
+            className="text-2xl font-black text-primary tracking-tight mb-2"
           >
-            {t("authModal.buttonCancel")}
-          </button>
-          <button
-            type="button"
-            onClick={handleRedirect}
-            className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 active:scale-[0.98] transition-all duration-200"
-          >
-            {t("authModal.buttonSubmit")}
-          </button>
+            {t("authModal.title")}
+          </h2>
+
+          <p className="text-secondary text-sm leading-relaxed mb-8">
+            {t("authModal.description")}
+          </p>
+
+          {/* Action Trigger Interface Layout */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <SecondaryButton type="button" onClick={closeAuthPrompt} size="md">
+              {t("authModal.buttonCancel")}
+            </SecondaryButton>
+
+            <PrimaryButton type="button" onClick={handleRedirect} size="md">
+              {t("authModal.buttonSubmit")}
+            </PrimaryButton>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
-AuthModalContainer.propTypes = {};
-
 export default AuthModalContainer;

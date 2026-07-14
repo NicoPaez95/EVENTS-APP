@@ -7,6 +7,7 @@
  */
 
 import React from "react";
+import PropTypes from "prop-types";
 import PrimaryButton from "./PrimaryButton";
 
 /**
@@ -42,14 +43,14 @@ const EmptyState = ({
 
   return (
     <div
-      className="flex flex-col items-center justify-center text-center p-12 bg-slate-50/50 border border-dashed border-slate-200 rounded-3xl animate-in fade-in zoom-in-95 duration-300 my-4"
+      className="flex flex-col items-center justify-center text-center p-12 bg-surface border border-dashed border-secondary-border rounded-3xl animate-in fade-in zoom-in-95 duration-300 my-4"
       role="status"
       aria-live="polite"
     >
       {/* 2. Visual Icon Anchor (Hidden from screen readers if decorative) */}
       {!isLegacyInvocation && (
         <div
-          className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl mb-5 shadow-inner select-none animate-bounce duration-1000"
+          className="w-16 h-16 rounded-2xl bg-secondary-light flex items-center justify-center text-3xl mb-5 shadow-inner select-none animate-bounce duration-1000"
           aria-hidden="true"
         >
           🔍
@@ -57,12 +58,12 @@ const EmptyState = ({
       )}
 
       {/* 3. Semantic Typography Hierarchy */}
-      <h3 className="text-lg font-bold text-slate-800 tracking-tight max-w-md">
+      <h3 className="text-lg font-bold text-primary tracking-tight max-w-md">
         {headline}
       </h3>
 
       {!isLegacyInvocation && (
-        <p className="text-sm font-medium text-slate-500 mt-2 max-w-sm leading-relaxed">
+        <p className="text-sm font-medium text-secondary mt-2 max-w-sm leading-relaxed">
           {description}
         </p>
       )}
@@ -77,6 +78,14 @@ const EmptyState = ({
       )}
     </div>
   );
+};
+
+EmptyState.propTypes = {
+  message: PropTypes.string,
+  title: PropTypes.string,
+  description: PropTypes.string,
+  actionLabel: PropTypes.string,
+  onAction: PropTypes.func,
 };
 
 export default EmptyState;

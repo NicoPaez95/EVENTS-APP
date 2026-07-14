@@ -49,7 +49,7 @@ const CloseButton = ({
       type="button"
       onClick={handleInteraction}
       aria-label={ariaLabel}
-      className={`p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${className}`}
+      className={`p-2 rounded-xl text-secondary-muted hover:text-primary hover:bg-surface active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/40 ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
