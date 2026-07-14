@@ -6,12 +6,13 @@
 // to generate utility classes.
 // ===============================
 
-/** * @type {import('tailwindcss').Config} 
+/**
+ * @type {import('tailwindcss').Config} 
  * * This configuration ensures Tailwind's "Just-In-Time" (JIT) engine 
  * scans the correct files and allows for project-specific 
  * theme extensions like colors or custom spacing.
  */
-module.exports = {
+export default {
   content: [
     /**
      * Paths to all of our components and pages.
@@ -22,10 +23,53 @@ module.exports = {
   theme: {
     extend: {
       /**
-       * Custom Theme Extensions.
-       * * Tip: Since you're building an events app, you could add 
-       * custom colors like 'brand-primary' or 'event-tech' here.
+       * Custom Theme Extensions mapped by operational roles.
        */
+      colors: {
+        background: '#F8FAFC',
+        surface: '#FFFFFF',
+        primary: {
+          DEFAULT: '#0F172A',
+          hover: '#1E293B',
+          disabled: '#CBD5E1'
+        },
+        secondary: {
+          DEFAULT: '#475569',
+          light: '#F1F5F9',
+          border: '#E2E8F0',
+          muted: '#94A3B8',
+        },
+        accent: {
+          DEFAULT: '#0EA5E9',
+          hover: '#0284C7',
+          muted: '#E0F2FE',
+        },
+        danger: {
+          DEFAULT: '#EF4444',
+          hover: '#DC2626',
+          light: '#FEF2F2',
+        }
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        shadowFloat: {
+          '0%, 100%': {
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+            transform: 'scale(1)'
+          },
+          '50%': {
+            boxShadow: '0 35px 60px -15px rgba(0, 0, 0, 0.15)',
+            transform: 'scale(0.93)'
+          },
+        }
+
+      },
+      animation: {
+        'float-slow': 'float 4s ease-in-out infinite',
+      }
     },
   },
   plugins: [
