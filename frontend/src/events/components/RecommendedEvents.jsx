@@ -48,12 +48,16 @@ import EventLocation from "shared/components/UI/EventLocation";
 const RecommendedEvents = ({ events, i18n }) => {
   return (
     <section
-      className="bg-sky-50 p-5 rounded-2xl shadow-sm border border-slate-200"
+      /* 
+        Cambiamos bg-surface por bg-secondary-light para crear la "cuna" grisácea.
+        Esto resalta las tarjetas blancas interiores y da un aspecto mucho más moderno y limpio.
+      */
+      className="bg-secondary-light p-5 rounded-2xl shadow-sm border border-secondary-border"
       aria-labelledby="recommended-heading"
     >
       <h2
         id="recommended-heading"
-        className="text-lg font-bold text-slate-800 mb-4 px-1"
+        className="text-lg font-bold text-primary mb-4 px-1"
       >
         {i18n.title}
       </h2>
@@ -66,8 +70,16 @@ const RecommendedEvents = ({ events, i18n }) => {
             className="block group"
             aria-label={`${i18n.link} ${event.title}`}
           >
-            <article className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 group-hover:border-blue-400 group-hover:shadow-md transition-all duration-300">
-              <h3 className="text-md font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+            {/* 
+              - Mantenemos bg-surface para la tarjeta individual para que flote sobre el fondo grisáceo.
+              - group-hover:border-accent suaviza el cambio de color de borde.
+            */}
+            <article className="bg-surface p-4 rounded-xl shadow-sm border border-secondary-border group-hover:border-accent group-hover:shadow-md transition-all duration-300">
+              {/* 
+                - Cambiamos group-hover:text-accent-light a group-hover:text-accent.
+                Esto garantiza que siga siendo legible sobre la tarjeta blanca (bg-surface) al hacer hover.
+              */}
+              <h3 className="text-md font-semibold text-primary group-hover:text-accent transition-colors line-clamp-2">
                 {event.title}
               </h3>
 

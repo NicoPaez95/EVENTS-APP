@@ -72,28 +72,30 @@ const PaymentStep = ({
           }`}
         >
           {/* FRONT SIDE */}
-          <div className="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-gray-800 to-gray-950 rounded-2xl p-6 text-white shadow-2xl flex flex-col justify-between border border-white/10">
+          <div className="absolute inset-0 w-full h-full backface-hidden bg-gradient-to-br from-primary-hover to-primary rounded-2xl p-6 text-inverse shadow-2xl flex flex-col justify-between border border-inverse/10">
             <div className="flex justify-between items-start">
               <div className="w-10 h-7 bg-amber-400/20 rounded border border-amber-400/40" />
-              <span className="font-bold italic text-gray-400">VISA</span>
+              <span className="font-bold italic text-secondary-muted">
+                VISA
+              </span>
             </div>
-            <p className="text-xl font-mono tracking-[0.25em] text-center">
+            <p className="text-xl font-mono tracking-[0.25em] text-center text-inverse">
               {paymentData.cardNumber || "•••• •••• •••• ••••"}
             </p>
             <div className="flex justify-between items-end">
               <div>
-                <p className="text-[9px] uppercase text-gray-400 mb-0.5">
+                <p className="text-[9px] uppercase text-secondary-muted mb-0.5">
                   {i18n.cardHolder}
                 </p>
-                <p className="text-xs font-medium tracking-widest uppercase">
+                <p className="text-xs font-medium tracking-widest uppercase text-inverse">
                   {i18n.demoUser}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[9px] uppercase text-gray-400 mb-0.5">
+                <p className="text-[9px] uppercase text-secondary-muted mb-0.5">
                   {i18n.expires}
                 </p>
-                <p className="text-sm font-mono">
+                <p className="text-sm font-mono text-inverse">
                   {paymentData.expiry || "MM/YY"}
                 </p>
               </div>
@@ -101,14 +103,14 @@ const PaymentStep = ({
           </div>
 
           {/* BACK SIDE */}
-          <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-gray-800 rounded-2xl py-6 text-white shadow-2xl flex flex-col border border-white/10">
-            <div className="w-full h-10 bg-black/80 mb-4" />
+          <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-primary rounded-2xl py-6 text-inverse shadow-2xl flex flex-col border border-inverse/10">
+            <div className="w-full h-10 bg-primary-hover mb-4" />
             <div className="px-6">
-              <p className="text-[8px] text-right text-gray-400 uppercase mb-1">
+              <p className="text-[8px] text-right text-secondary-muted uppercase mb-1">
                 {i18n.securityCode}
               </p>
-              <div className="bg-gray-300 h-9 rounded flex items-center justify-end px-4">
-                <span className="text-gray-900 font-mono font-bold italic tracking-widest">
+              <div className="bg-secondary-light h-9 rounded flex items-center justify-end px-4 border border-secondary-border">
+                <span className="text-primary font-mono font-bold italic tracking-widest">
                   {paymentData.cvv || "•••"}
                 </span>
               </div>
@@ -119,17 +121,17 @@ const PaymentStep = ({
 
       {/* 2. DEMO HINT & ERROR ALERT */}
       <div className="space-y-4 mb-6">
-        <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
+        <div className="p-3 bg-accent-muted border border-secondary-border rounded-xl flex items-center gap-3">
           <span className="text-lg">ℹ️</span>
-          <p className="text-[11px] text-blue-800 leading-tight">
+          <p className="text-[11px] text-accent leading-tight">
             <strong>{i18n.demoHint}:</strong> {i18n.demoHintUSe}{" "}
-            <code className="font-bold bg-blue-100 px-1">4242</code>
+            <code className="font-bold bg-secondary-light px-1">4242</code>
             {i18n.codeToSuceed}
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-lg animate-in shake-x duration-300">
+          <div className="p-3 bg-danger-light border-l-4 border-danger text-danger text-xs rounded-r-lg animate-in shake-x duration-300">
             <p className="font-bold">{i18n.paymentError}</p>
             <p>{error}</p>
           </div>
@@ -171,7 +173,7 @@ const PaymentStep = ({
         <button
           type="button"
           onClick={onPrev}
-          className="flex-1 py-4 text-gray-400 font-bold hover:bg-gray-50 rounded-xl transition-colors active:scale-95"
+          className="flex-1 py-4 text-secondary font-bold hover:bg-secondary-light rounded-xl transition-colors active:scale-95"
         >
           {i18n.backButton}
         </button>

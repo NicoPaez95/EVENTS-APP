@@ -1,3 +1,11 @@
+/**
+ * @file FeaturedEventsCarousel.jsx
+ * @description Presentational component for displaying featured events using an interactive sliding carousel.
+ * @module src/events/components/FeaturedEventsCarousel
+ * @author Nico Paez
+ */
+import React from "react";
+import PropTypes from "prop-types";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Link } from "react-router-dom";
@@ -26,7 +34,7 @@ import "swiper/css/pagination";
  * @param {Object} props - Component properties.
  * @param {FeaturedEvent[]} props.featuredEvents - An array of event objects to be rendered in the carousel.
  * @param {string} props.clickToSeeDetails - Localized action text overlay helper for user interaction cues.
- * @returns {JSX.Element} A full-width interactive slider with auto-playing capabilities.
+ * @returns {React.JSX.Element} A full-width interactive slider with auto-playing capabilities.
  */
 const FeaturedEventsCarousel = ({ featuredEvents = [], clickToSeeDetails }) => {
   return (
@@ -58,14 +66,14 @@ const FeaturedEventsCarousel = ({ featuredEvents = [], clickToSeeDetails }) => {
               />
 
               {/* UI Overlay: Visual hierarchy for event metadata */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-6">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">
+              <div className="absolute inset-0 bg-gradient-to-t from-accent-dark/80 via-transparent to-transparent flex flex-col justify-end p-6">
+                <span className="text-xs font-bold text-accent-light uppercase tracking-widest mb-2">
                   {event.category}
                 </span>
-                <h3 className="text-white text-2xl md:text-3xl font-bold font-display">
+                <h3 className="text-inverse text-2xl md:text-3xl font-bold font-display">
                   {event.title}
                 </h3>
-                <p className="text-white/80 text-sm mt-1">
+                <p className="text-inverse/80 text-sm mt-1">
                   {clickToSeeDetails}
                 </p>
               </div>
@@ -76,5 +84,15 @@ const FeaturedEventsCarousel = ({ featuredEvents = [], clickToSeeDetails }) => {
     </div>
   );
 };
-
+FeaturedEventsCarousel.propTypes = {
+  featuredEvents: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      title: PropTypes.string.isRequired,
+      image: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+    })
+  ),
+  clickToSeeDetails: PropTypes.string.isRequired,
+};
 export default FeaturedEventsCarousel;

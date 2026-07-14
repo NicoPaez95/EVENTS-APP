@@ -55,13 +55,13 @@ const CheckoutModal = ({
 
       {/* Modal Surface Structure */}
       <div
-        className="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col"
+        className="relative bg-surface w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col border border-secondary-border"
         role="dialog"
         aria-modal="true"
       >
         {/* --- HERO MEDIA BANNER (Dynamic Stack Selection) --- */}
         {(event.image || event.images?.length > 0) && currentStep < 3 && (
-          <div className="relative w-full h-44 bg-slate-950 overflow-hidden flex items-center justify-center select-none">
+          <div className="relative w-full h-44 bg-primary overflow-hidden flex items-center justify-center select-none">
             {event.isBulk && event.images?.length > 0 ? (
               <>
                 <img
@@ -75,7 +75,7 @@ const CheckoutModal = ({
                       key={index}
                       src={img}
                       alt={`Batch asset item detail ${index + 1}`}
-                      className={`w-20 h-28 object-cover rounded-xl shadow-2xl border-2 border-white/90 transition-transform duration-300 ${
+                      className={`w-20 h-28 object-cover rounded-xl shadow-2xl border-2 border-inverse/90 transition-transform duration-300 ${
                         stackRotations[index] || ""
                       }`}
                     />
@@ -90,10 +90,10 @@ const CheckoutModal = ({
               />
             )}
 
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-black/10 pointer-events-none" />
 
             {event.isBulk && (
-              <span className="absolute bottom-3 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md z-20">
+              <span className="absolute bottom-3 left-4 bg-primary/80 backdrop-blur-sm text-inverse text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md z-20">
                 {i18n.cartLot}
               </span>
             )}
@@ -147,8 +147,8 @@ const CheckoutModal = ({
 
         {/* Security Baseline Context */}
         {currentStep < 4 && (
-          <div className="bg-gray-50 py-3 border-t border-gray-100 flex justify-center items-center gap-2 mt-auto">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          <div className="bg-secondary-light py-3 border-t border-secondary-border flex justify-center items-center gap-2 mt-auto">
+            <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">
               {i18n.paymentFramework}
             </span>
           </div>

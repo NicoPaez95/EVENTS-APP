@@ -31,7 +31,7 @@ const WeatherWidget = ({ temp, city, icon, condition }) => {
   const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
   return (
-    <article className="bg-gradient-to-br from-blue-500 to-blue-600 p-5 rounded-2xl shadow-lg text-white animate-fade-in">
+    <article className="bg-gradient-to-br from-accent-dark to-accent p-5 rounded-2xl shadow-lg text-inverse animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
           <p className="text-xs font-medium opacity-80 uppercase tracking-wider">
@@ -41,7 +41,7 @@ const WeatherWidget = ({ temp, city, icon, condition }) => {
           <p className="text-sm font-medium capitalize mt-1">{condition}</p>
         </div>
 
-        <div className="bg-white/20 rounded-full p-2">
+        <div className="bg-inverse/20 rounded-full p-2">
           <img
             src={iconUrl}
             alt={condition}

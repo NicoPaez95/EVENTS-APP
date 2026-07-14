@@ -28,7 +28,7 @@ const ProcessingStep = ({ i18n }) => {
     <div className="flex flex-col items-center justify-center py-12 animate-in fade-in duration-500">
       {/* Animated Spinner */}
       <div className="relative mb-8">
-        <div className="w-20 h-20 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-20 h-20 border-4 border-accent-muted border-t-accent rounded-full animate-spin" />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-xl" role="img" aria-label="secure-lock">
             🔒
@@ -36,17 +36,17 @@ const ProcessingStep = ({ i18n }) => {
         </div>
       </div>
 
-      <h4 className="text-xl font-bold text-gray-900 mb-2">
+      <h4 className="text-xl font-bold text-primary mb-2">
         {i18n.processingPayment}
       </h4>
 
-      <p className="text-gray-500 text-center max-w-xs text-sm">
+      <p className="text-secondary text-center max-w-xs text-sm">
         {i18n.validate}
       </p>
 
       {/* Progress Bar Animation */}
-      <div className="mt-8 w-48 h-1 bg-gray-100 rounded-full overflow-hidden">
-        <div className="h-full bg-blue-600 animate-pulse w-full" />
+      <div className="mt-8 w-48 h-1 bg-secondary-light rounded-full overflow-hidden">
+        <div className="h-full bg-accent animate-pulse w-full" />
       </div>
     </div>
   );

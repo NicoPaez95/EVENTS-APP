@@ -1,7 +1,6 @@
 /**
  * @file EventsHeader.jsx
- * @description Presentational header component for the events catalog section.
- * Displays domain typography and interactive shortcuts alongside a contextual animated loading micro-state.
+ * @description Presentational header component for displaying the events catalog section and its operational search states.
  * @module components/events/EventsHeader
  * @author Nico Paez
  */
@@ -48,7 +47,7 @@ const EventsHeader = ({
             <button
               type="button"
               onClick={onSearchFocusRequested}
-              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              className="p-1.5 text-accent hover:text-accent-hover hover:bg-accent-muted rounded-lg transition-all"
               aria-label="Focus search input bar"
             >
               <Search className="w-5 h-5" />
@@ -57,8 +56,8 @@ const EventsHeader = ({
         }
         description={
           isLoading && (
-            <span className="text-sm font-medium text-blue-600 animate-pulse flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span>
+            <span className="text-sm font-medium text-accent animate-pulse flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-accent"></span>
               {searchExperiences}
             </span>
           )

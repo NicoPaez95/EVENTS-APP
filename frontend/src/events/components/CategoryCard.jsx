@@ -1,3 +1,9 @@
+/**
+ * @file CategoryCard.jsx
+ * @description Presentational component for displaying event categories using interactive visual cards.
+ * @module events/components/CategoryCard
+ * @author Nico Paez
+ */
 import React from "react";
 import PropTypes from "prop-types";
 import { resolveCategoryFallback } from "../utils/categoryAssetMapper";
@@ -28,7 +34,7 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
 
   return (
     <article
-      className="relative w-64 h-40 rounded-xl overflow-hidden cursor-pointer shadow-sm border border-solid border-slate-200 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group"
+      className="relative w-64 h-40 rounded-xl overflow-hidden cursor-pointer shadow-sm border border-solid border-secondary-border hover:shadow-md hover:scale-[1.02] transition-all duration-300 group"
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -48,11 +54,11 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
       />
 
       {/* Dark Overlay Mask for Text Legibility */}
-      <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/50 transition-colors" />
+      <div className="absolute inset-0 bg-primary/40 group-hover:bg-primary/50 transition-colors" />
 
       {/* Content Layer */}
       <div className="absolute inset-0 p-4 flex items-end">
-        <h3 className="font-bold text-white text-xl tracking-wide drop-shadow-sm font-display">
+        <h3 className="font-bold text-inverse text-xl tracking-wide drop-shadow-sm font-display">
           {title}
         </h3>
       </div>

@@ -48,7 +48,7 @@ const QuantityStep = ({
 }) => {
   if (!event) {
     return (
-      <div className="text-center p-10 text-gray-400 animate-pulse">
+      <div className="text-center p-10 text-secondary-muted animate-pulse">
         {i18n.load}
       </div>
     );
@@ -58,33 +58,33 @@ const QuantityStep = ({
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Event Header Summary */}
       <div className="mb-6 text-center">
-        <h4 className="text-xl font-bold text-gray-900 mb-1">{event.title}</h4>
-        <p className="text-sm text-gray-500">{event.location}</p>
+        <h4 className="text-xl font-bold text-primary mb-1">{event.title}</h4>
+        <p className="text-sm text-secondary">{event.location}</p>
       </div>
 
       {/* Pricing Card */}
-      <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
+      <div className="bg-secondary-light rounded-2xl p-6 mb-8 border border-secondary-border">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <p className="font-bold text-gray-900">{i18n.admission}</p>
-            <p className="text-sm text-blue-600 font-medium">
+            <p className="font-bold text-primary">{i18n.admission}</p>
+            <p className="text-sm text-accent font-medium">
               {formatCurrency(event?.price || 0)}
               {i18n.formatCurrency}
             </p>
           </div>
 
           {/* Quantity Selector Controls */}
-          <div className="flex items-center gap-4 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+          <div className="flex items-center gap-4 bg-surface p-2 rounded-xl border border-secondary-border shadow-sm">
             <button
               type="button"
               onClick={() => onQuantityChange(quantity - 1)}
               aria-label="Decrease quantity"
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 font-bold transition-colors active:scale-90"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary-light text-secondary font-bold transition-colors active:scale-90"
             >
               −
             </button>
             <span
-              className="w-4 text-center font-black text-gray-900"
+              className="w-4 text-center font-black text-primary"
               aria-live="polite"
             >
               {quantity}
@@ -93,7 +93,7 @@ const QuantityStep = ({
               type="button"
               onClick={() => onQuantityChange(quantity + 1)}
               aria-label="Increase quantity"
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 font-bold transition-colors active:scale-90"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-secondary-light text-secondary font-bold transition-colors active:scale-90"
             >
               +
             </button>
@@ -101,9 +101,9 @@ const QuantityStep = ({
         </div>
 
         {i18n.totalCalculation}
-        <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
-          <span className="text-gray-500 font-medium">{i18n.total}</span>
-          <span className="text-2xl font-black text-gray-900">
+        <div className="border-t border-secondary-border pt-4 flex justify-between items-center">
+          <span className="text-secondary font-medium">{i18n.total}</span>
+          <span className="text-2xl font-black text-primary">
             {formatCurrency(totalAmount)}
           </span>
         </div>

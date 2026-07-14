@@ -41,9 +41,8 @@ import EventDate from "shared/components/UI/EventDate";
  */
 const UpcomingEvents = ({ events, i18n }) => {
   return (
-    <div className="bg-blue-100 rounded-2xl p-5 shadow-sm border border-blue-200">
+    <div className="bg-secondary-light rounded-2xl p-5 shadow-sm border border-secondary-border">
       <ul className="space-y-3 text-sm" role="list">
-        {/* We display only the top 3 for maximum sidebar visual efficiency */}
         {events.slice(0, 3).map((event) => (
           <li
             key={event.id}
@@ -54,25 +53,20 @@ const UpcomingEvents = ({ events, i18n }) => {
               className="group block"
               aria-label={`${i18n.link} ${event.title}`}
             >
-              <span className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors">
+              <span className="font-semibold text-primary group-hover:text-accent transition-colors">
                 {event.title}
               </span>
 
-              {/* Atomic component for date. 
-                  We pass "italic" via className to maintain the specific 
-                  sidebar style without breaking global consistency.
-              */}
               <EventDate date={event.date} className="mt-0.5 italic" />
             </Link>
           </li>
         ))}
       </ul>
 
-      {/* Standardized Action Link */}
       <ActionLink
         to="/events/upcoming"
         centered
-        className="mt-5 pt-3 border-t border-blue-200"
+        className="mt-5 pt-3 border-t border-secondary-border"
       >
         {i18n.actionLink}
       </ActionLink>

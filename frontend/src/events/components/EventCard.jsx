@@ -90,7 +90,7 @@ const EventCard = ({
   };
 
   return (
-    <article className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+    <article className="group relative bg-surface border border-secondary-border rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full">
       <BookmarkButton
         isSaved={isSaved}
         showRemoveButton={showRemoveButton}
@@ -113,10 +113,10 @@ const EventCard = ({
       <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md">
+            <span className="text-[10px] font-bold text-accent uppercase tracking-widest bg-accent-muted px-2 py-1 rounded-md">
               {category}
             </span>
-            <span className="text-sm font-bold text-slate-900 font-display">
+            <span className="text-sm font-bold text-secondary font-display">
               ${price.toLocaleString()}
             </span>
           </div>
@@ -125,7 +125,7 @@ const EventCard = ({
             to={`/events/${id}`}
             className="block group-hover:text-blue-600 transition-colors"
           >
-            <h3 className="font-bold text-lg text-slate-800 leading-tight line-clamp-2">
+            <h3 className="font-bold text-lg text-primary leading-tight line-clamp-2">
               {title}
             </h3>
           </Link>
@@ -137,7 +137,7 @@ const EventCard = ({
         </div>
       </div>
 
-      <footer className="px-5 pb-5 pt-4 border-t border-slate-100 flex flex-col space-y-3 mt-auto">
+      <footer className="px-5 pb-5 pt-4 border-t  border-secondary-border flex flex-col space-y-3 mt-auto">
         <div className="flex items-center gap-2">
           <PrimaryButton
             onClick={(e) => {

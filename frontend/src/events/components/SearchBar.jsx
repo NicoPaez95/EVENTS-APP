@@ -101,7 +101,7 @@ const SearchBar = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full bg-white shadow-lg p-5 flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100"
+      className="w-full bg-surface shadow-lg p-5 flex flex-wrap items-center gap-4 rounded-2xl border border-secondary-border"
     >
       {/* --- Global/Title Search Section --- */}
       <div className="relative flex-1 min-w-[250px]">
@@ -115,12 +115,12 @@ const SearchBar = ({
           }
         />
         {suggestions.titles?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-1">
+          <ul className="absolute z-50 w-full bg-surface border border-secondary-border shadow-xl mt-2 rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-1">
             {suggestions.titles.map((event) => (
               <li
                 key={event.id}
                 onClick={() => handleSelect("searchTerm", event.title)}
-                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm border-b border-slate-50 last:border-none"
+                className="p-3 hover:bg-secondary-light cursor-pointer transition-colors text-primary text-sm border-b border-secondary-border last:border-none"
               >
                 {event.title}
               </li>
@@ -140,12 +140,12 @@ const SearchBar = ({
           }
         />
         {suggestions.categories?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
+          <ul className="absolute z-50 w-full bg-surface border border-secondary-border shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.categories.map((cat) => (
               <li
                 key={cat}
                 onClick={() => handleSelect("category", cat)}
-                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
+                className="p-3 hover:bg-secondary-light cursor-pointer transition-colors text-primary text-sm"
               >
                 {cat}
               </li>
@@ -165,12 +165,12 @@ const SearchBar = ({
           }
         />
         {suggestions.locations?.length > 0 && (
-          <ul className="absolute z-50 w-full bg-white border border-slate-100 shadow-xl mt-2 rounded-xl overflow-hidden">
+          <ul className="absolute z-50 w-full bg-surface border border-secondary-border shadow-xl mt-2 rounded-xl overflow-hidden">
             {suggestions.locations.map((loc) => (
               <li
                 key={loc}
                 onClick={() => handleSelect("location", loc)}
-                className="p-3 hover:bg-blue-50 cursor-pointer transition-colors text-slate-700 text-sm"
+                className="p-3 hover:bg-secondary-light cursor-pointer transition-colors text-primary text-sm"
               >
                 {loc}
               </li>
@@ -185,7 +185,7 @@ const SearchBar = ({
           type="date"
           value={values.date}
           onChange={(e) => handleSelect("date", e.target.value)}
-          className="cursor-pointer text-slate-600"
+          className="cursor-pointer text-secondary"
         />
       </div>
 

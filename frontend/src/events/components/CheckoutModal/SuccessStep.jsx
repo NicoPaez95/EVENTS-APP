@@ -47,24 +47,24 @@ const SuccessStep = ({ event, ticketData, onClose, i18n }) => {
   return (
     <div className="flex flex-col items-center animate-in zoom-in duration-500">
       {/* Success Badge */}
-      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+      <div className="w-16 h-16 bg-danger-light rounded-full flex items-center justify-center mb-4">
         <span className="text-3xl" role="img" aria-label="success-check">
           ✅
         </span>
       </div>
 
-      <h4 className="text-2xl font-black text-gray-900 mb-1 text-center">
+      <h4 className="text-2xl font-black text-primary mb-1 text-center">
         {i18n.purchaseSuccessful}
       </h4>
 
-      <p className="text-gray-500 text-center text-sm mb-6 px-4">
+      <p className="text-secondary text-center text-sm mb-6 px-4">
         {i18n.entryFor} <strong>{event.title}</strong> {i18n.isready}
       </p>
 
       {/* VIRTUAL TICKET VISUALIZATION */}
-      <div className="bg-gray-50 p-6 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center w-full shadow-inner mb-6">
+      <div className="bg-secondary-light p-6 rounded-3xl border-2 border-dashed border-secondary-border flex flex-col items-center w-full shadow-inner mb-6">
         {/* QR Code Container */}
-        <div className="bg-white p-3 rounded-2xl shadow-sm mb-4 border border-gray-100">
+        <div className="bg-surface p-3 rounded-2xl shadow-sm mb-4 border border-secondary-border">
           <QRCodeCanvas
             value={ticketData.qrValue}
             size={160}
@@ -75,10 +75,10 @@ const SuccessStep = ({ event, ticketData, onClose, i18n }) => {
 
         {/* Ticket Metadata */}
         <div className="text-center">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-1">
+          <p className="text-[10px] font-bold text-secondary-muted uppercase tracking-[0.2em] mb-1">
             Ticket ID
           </p>
-          <p className="font-mono text-xs text-gray-600 bg-gray-200/50 px-3 py-1 rounded-full italic">
+          <p className="font-mono text-xs text-secondary bg-secondary-border/50 px-3 py-1 rounded-full italic">
             {ticketData.ticketId}
           </p>
         </div>
