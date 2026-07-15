@@ -1,3 +1,10 @@
+/**
+ * @file AuthNav.jsx
+ * @description Presentational authentication navigation manager for the application top header bar.
+ * Handles display toggling between anonymous entry links and interactive authenticated user identity sessions.
+ * @module components/user/AuthNav
+ * @author Nico Paez
+ */
 import React from "react";
 import { Link } from "react-router-dom";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
@@ -7,11 +14,11 @@ import {
 } from "shared/utils/avatarHelpers";
 
 /**
- * @file AuthNav.jsx
- * @description Presentational authentication navigation manager for the application top header bar.
- * Handles display toggling between anonymous entry links and interactive authenticated user identity sessions.
- * @module components/user/AuthNav
- * @author Nico Paez
+ * @typedef {Object} AuthNavI18n
+ * @property {string} logged - "Logged In" prefix label.
+ * @property {string} logout - "Logout" action text.
+ * @property {string} login - "Login" trigger text.
+ * @property {string} getstarted - "Get Started" trigger text.
  */
 
 /**
@@ -27,7 +34,7 @@ import {
  * @param {Function} props.onLogout - Callback trigger to finalize termination of the session lifecycle.
  * @returns {JSX.Element} Structural navigation indicators.
  */
-const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar }) => {
+const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar, i18n }) => {
   if (isAuthenticated) {
     const initials = getInitials(userName);
     const gradientClasses = getAvatarColorGradient(userName);
@@ -65,10 +72,10 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar }) => {
 
           {/* User Identity Text Labels */}
           <div className="flex flex-col text-left">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5 group-hover:text-blue-500 transition-colors">
-              Logged In
+            <span className="text-[10px] text-secondary-muted font-sans font-bold uppercase tracking-wider leading-none mb-0.5 group-hover:text-accent transition-colors">
+              {i18n.logged}
             </span>
-            <span className="text-xs font-black text-slate-700 leading-none group-hover:text-slate-900 transition-colors">
+            <span className="text-xs font-sans font-bold text-primary leading-none group-hover:text-primary-hover transition-colors">
               {userName || "Demo User"}
             </span>
           </div>
@@ -84,7 +91,7 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar }) => {
           aria-label="Logout from account"
           className="bg-white text-slate-500 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all shadow-sm active:scale-95"
         >
-          Logout
+          {i18n.logout}
         </button>
       </div>
     );
@@ -92,16 +99,15 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar }) => {
 
   return (
     <div className="flex items-center gap-6">
-      <Link
-        to="/login"
-        className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors"
-      >
-        Login
+      <Link to="/login" tabIndex={-1}>
+        <SecondaryButton size="sm" fullWidth={false}>
+          {i18n.login}
+        </SecondaryButton>
       </Link>
 
       <Link to="/register" tabIndex={-1}>
         <PrimaryButton size="sm" fullWidth={false}>
-          Get Started
+          {i18n.getstarted}
         </PrimaryButton>
       </Link>
     </div>

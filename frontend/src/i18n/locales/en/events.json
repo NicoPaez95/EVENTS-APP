@@ -227,6 +227,12 @@
             "actionLabel": "EXPLORE MORE EVENTS →"
         }
     },
+    "userAuthFeature": {
+        "logged": " Logged In",
+        "logout": "Logout",
+        "login": "Login",
+        "getstarted": "Get Started"
+    },
     "timeFilterNav": {
         "dia": "Next 24 Hours",
         "semana": "This Week",

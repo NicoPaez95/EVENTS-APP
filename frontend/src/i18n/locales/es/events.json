@@ -227,6 +227,12 @@
             "actionLabel": "EXPLORAR MÁS EVENTOS →"
         }
     },
+    "userAuthFeature": {
+        "logged": " Sesión iniciada",
+        "logout": "Cerrar sesión",
+        "login": "Iniciar sesión",
+        "getstarted": "Comenzar"
+    },
     "timeFilterNav": {
         "dia": "Próximas 24 Horas",
         "semana": "Esta Semana",
