@@ -52,7 +52,8 @@ export default {
           DEFAULT: '#EF4444',
           hover: '#DC2626',
           light: '#FEF2F2',
-        }
+        },
+        success: '#10B981'
       },
       fontFamily: {
         sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],

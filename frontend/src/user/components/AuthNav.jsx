@@ -8,6 +8,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PrimaryButton from "shared/components/UI/PrimaryButton";
+import SecondaryButton from "shared/components/UI/SecondaryButton";
 import {
   getInitials,
   getAvatarColorGradient,
@@ -32,6 +33,7 @@ import {
  * @param {string} [props.userName] - Display name identifier string.
  * @param {string} [props.userAvatar] - Optional resource locator string for the user profile image.
  * @param {Function} props.onLogout - Callback trigger to finalize termination of the session lifecycle.
+ * @param {AuthNavI18n} props.i18n - Explicit translation contract providing interface labeling.
  * @returns {JSX.Element} Structural navigation indicators.
  */
 const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar, i18n }) => {
@@ -40,11 +42,11 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar, i18n }) => {
     const gradientClasses = getAvatarColorGradient(userName);
 
     return (
-      <div className="flex items-center gap-4 bg-slate-50 p-1.5 pr-4 rounded-full border border-slate-100 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="flex items-center gap-4 bg-secondary-light/40 p-1.5 pr-4 rounded-full border border-secondary-border animate-in fade-in slide-in-from-right-4 duration-300">
         {/* Interactive User Identity Anchor Link wrapper */}
         <Link
           to="/profile"
-          className="flex items-center gap-3 p-0.5 rounded-full hover:bg-slate-200/50 transition-all group active:scale-98"
+          className="flex items-center gap-3 p-0.5 rounded-full hover:bg-secondary-light/60 transition-all group active:scale-98"
           title="View profile settings"
         >
           {/* Dynamic Identity Avatar Wrapper */}
@@ -53,21 +55,21 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar, i18n }) => {
               <img
                 src={userAvatar}
                 alt={`${userName || "User"} profile avatar`}
-                className="w-9 h-9 rounded-full object-cover border border-slate-200/60 shadow-sm group-hover:border-blue-400 transition-colors"
+                className="w-9 h-9 rounded-full object-cover border border-secondary-border shadow-sm group-hover:border-accent-light transition-colors"
                 onError={(e) => {
                   e.target.style.display = "none";
                 }}
               />
             ) : (
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold tracking-wider shadow-inner bg-gradient-to-br ${gradientClasses} group-hover:scale-105 transition-transform`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-sans font-bold tracking-wider shadow-inner bg-gradient-to-br ${gradientClasses} group-hover:scale-105 transition-transform`}
                 aria-hidden="true"
               >
                 {initials}
               </div>
             )}
             {/* Active Online Pulse Dot Indicator */}
-            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-success ring-2 ring-white" />
           </div>
 
           {/* User Identity Text Labels */}
@@ -82,14 +84,14 @@ const AuthNav = ({ isAuthenticated, userName, onLogout, userAvatar, i18n }) => {
         </Link>
 
         {/* Separator line for explicit layout visual hierarchy */}
-        <div className="h-6 w-[1px] bg-slate-200" aria-hidden="true" />
+        <div className="h-6 w-[1px] bg-secondary-border" aria-hidden="true" />
 
         {/* Action Logout Button */}
         <button
           onClick={onLogout}
           type="button"
           aria-label="Logout from account"
-          className="bg-white text-slate-500 px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all shadow-sm active:scale-95"
+          className="bg-surface font-sans text-secondary px-3 py-1.5 rounded-full text-xs font-semibold border border-secondary-border hover:bg-danger-light hover:text-danger hover:border-danger/30 transition-all shadow-sm active:scale-95"
         >
           {i18n.logout}
         </button>

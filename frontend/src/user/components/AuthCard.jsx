@@ -1,4 +1,11 @@
 /**
+ * @file AuthCard
+ * @description Presentational component for displaying auth container.
+ * @module user/components/AuthCard
+ * @author Nico Paez
+ */
+
+/**
  * AuthCard Component (Presentational).
  *
  * This component serves as a specialized structural container for the Authentication domain.
@@ -24,11 +31,13 @@
  * @returns {JSX.Element} The rendered authentication card container.
  */
 const AuthCard = ({ children, title, subtitle }) => (
-  <div className="bg-white py-12 px-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[40px] border border-slate-100">
+  <div className="bg-surface py-12 px-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[40px] border border-secondary-border">
     {/* Header Section: Standardizes the title and subtitle alignment */}
     <div className="mb-10 text-center">
-      <h2 className="text-3xl font-black text-slate-900 mb-2">{title}</h2>
-      <p className="text-slate-500 font-medium">{subtitle}</p>
+      <h2 className="text-3xl font-black text-primary mb-2 font-display tracking-tight">
+        {title}
+      </h2>
+      <p className="text-secondary font-medium font-sans">{subtitle}</p>
     </div>
 
     {/* Content Slot: Where LoginFeature or RegisterFeature is injected */}

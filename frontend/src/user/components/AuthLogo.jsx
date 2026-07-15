@@ -1,3 +1,11 @@
+/**
+ * @file AuthLogo.jsx
+ * @description Presentational branding logo optimized for center-focused layouts inside the authentication flow.
+ * @module components/user/AuthLogo
+ * @author Nico Paez
+ */
+
+import React from "react";
 import { Link } from "react-router-dom";
 
 /**
@@ -19,15 +27,15 @@ import { Link } from "react-router-dom";
  * @component
  * @category Components/User
  *
- * @returns {JSX.Element} The stylized branding logo link for authentication views.
+ * @returns {React.JSX.Element} The stylized branding logo link for authentication views.
  */
 const AuthLogo = () => (
-  <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-10 text-center">
+  <div className="sm:mx-auto sm:w-full sm:max-w-lg mb-10 text-center select-none">
     <Link
       to="/"
-      className="text-4xl font-black text-blue-600 hover:opacity-80 transition-opacity inline-block tracking-tighter"
+      className="text-4xl font-black text-accent hover:opacity-80 transition-opacity inline-block tracking-tighter font-display"
     >
-      EVENT<span className="text-slate-800">APP</span>
+      EVENT<span className="text-primary">APP</span>
     </Link>
   </div>
 );

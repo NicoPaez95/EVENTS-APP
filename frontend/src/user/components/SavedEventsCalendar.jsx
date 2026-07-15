@@ -29,7 +29,7 @@ const CHEVRON_DOWN = (
       strokeLinejoin="round"
       strokeWidth="2"
       d="M19 9l-7 7-7-7"
-    />
+    ></path>
   </svg>
 );
 
@@ -124,9 +124,9 @@ const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
  * @param {Object<string, Array<Object>>} [props.eventsMap={}] - High-efficiency dictionary lookup mapping ISO timestamp strings to arrays of saved event objects.
  * @param {string|null} props.selectedDate - The active full ISO string key indicating a single-day item selection.
  * @param {function(string): void} props.onDateClick - Event handler triggered when clicking an eligible day cell wrapper. Receives the string ISO date key.
- * @param {function(): void} props.onNextMonth - Callback function responsible for advancing the temporal calendar state forward by one month.
- * @param {function(): void} props.onPrevMonth - Callback function responsible for rewinding the temporal calendar state backward by one month.
- * @param {function(number): void} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index value.
+ * @param {function(): void} props.onNextMonth - Callback responsible for advancing the temporal calendar state.
+ * @param {function(): void} props.onPrevMonth - Callback responsible for rewinding the temporal calendar state.
+ * @param {function(number): void} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index.
  * @param {SavedEventsCalendarI18n} props.i18n - Explicit translation schema dictionary passed down by structural parents.
  * @returns {React.JSX.Element} The presentational interactive calendar shell mesh.
  */
@@ -145,18 +145,18 @@ const SavedEventsCalendar = ({
   const { days, blanks } = getCalendarGrid(currentDate);
 
   return (
-    <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 min-h-[380px] relative">
+    <section className="bg-surface rounded-2xl p-5 shadow-sm border border-secondary-border min-h-[380px] relative">
       {/* Header: Temporal Context & Picker Toggle */}
       <header className="flex justify-between items-center mb-6">
         <div className="relative">
           <button
             onClick={() => setShowMonthPicker(!showMonthPicker)}
-            className="group flex items-center gap-2 hover:bg-slate-50 px-2 py-1 -ml-2 rounded-lg transition-all"
+            className="group flex items-center gap-2 hover:bg-secondary-light px-2 py-1 -ml-2 rounded-lg transition-all"
             aria-haspopup="grid"
             aria-expanded={showMonthPicker}
           >
             <div>
-              <h2 className="text-lg font-bold text-slate-800 capitalize leading-none flex items-center gap-1">
+              <h2 className="text-lg font-sans font-bold text-primary capitalize leading-none flex items-center gap-1">
                 {format(currentDate, "MMMM yyyy")}
                 <span
                   className={`transition-transform duration-200 ${showMonthPicker ? "rotate-180" : ""}`}
@@ -164,7 +164,7 @@ const SavedEventsCalendar = ({
                   {CHEVRON_DOWN}
                 </span>
               </h2>
-              <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">
+              <span className="font-sans text-[10px] text-accent font-bold uppercase tracking-tighter">
                 {i18n.SavedEventsCalendar.changeMonth}
               </span>
             </div>
@@ -172,7 +172,7 @@ const SavedEventsCalendar = ({
 
           {/* Month Selection Dropdown */}
           {showMonthPicker && (
-            <div className="absolute top-12 left-0 z-50 bg-white border border-slate-200 shadow-2xl rounded-xl p-3 w-64 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-12 left-0 z-50 bg-surface border border-secondary-border shadow-2xl rounded-xl p-3 w-64 animate-in fade-in zoom-in-95 duration-200">
               <div className="grid grid-cols-3 gap-2">
                 {MONTHS_SHORT.map((month, index) => (
                   <button
@@ -183,8 +183,8 @@ const SavedEventsCalendar = ({
                     }}
                     className={`text-xs py-2 rounded-lg font-medium transition-colors ${
                       currentDate.getMonth() === index
-                        ? "bg-blue-600 text-white"
-                        : "hover:bg-slate-100 text-slate-600"
+                        ? "bg-accent text-inverse"
+                        : "hover:bg-secondary-light text-secondary"
                     }`}
                   >
                     {month}
@@ -200,14 +200,14 @@ const SavedEventsCalendar = ({
           <button
             onClick={onPrevMonth}
             aria-label="Previous month"
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-2 hover:bg-secondary-light rounded-lg text-secondary hover:text-primary transition-colors"
           >
             {CHEVRON_LEFT}
           </button>
           <button
             onClick={onNextMonth}
             aria-label="Next month"
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+            className="p-2 hover:bg-secondary-light rounded-lg text-secondary hover:text-primary transition-colors"
           >
             {CHEVRON_RIGHT}
           </button>
@@ -219,7 +219,7 @@ const SavedEventsCalendar = ({
         {WEEKDAYS_INITIALS.map((day, i) => (
           <div
             key={i}
-            className="text-[10px] font-bold text-slate-300 text-center uppercase tracking-widest"
+            className="text-[10px] font-bold text-secondary text-center uppercase tracking-widest opacity-60"
           >
             {day}
           </div>
@@ -233,10 +233,6 @@ const SavedEventsCalendar = ({
         ))}
 
         {days.map((day) => {
-          /**
-           * Build standard UTC midnights to eliminate time zone displacement offsets.
-           * This matches the exact ISO string schema used to index keys inside eventsMap.
-           */
           const utcDate = new Date(
             Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), day)
           );
@@ -247,11 +243,12 @@ const SavedEventsCalendar = ({
           const isSelected = selectedDate === dateKey;
 
           // Resolve dynamic layout styles for day buttons based on event status
-          let buttonStyles = "bg-slate-50 text-slate-400 cursor-default";
+          let buttonStyles =
+            "bg-secondary-light text-secondary opacity-40 cursor-default";
           if (hasEvents) {
             buttonStyles = isSelected
-              ? "bg-blue-800 text-white font-bold ring-2 ring-offset-2 ring-blue-600 scale-105 shadow-md"
-              : "bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-md scale-105";
+              ? "bg-accent text-inverse font-bold ring-2 ring-offset-2 ring-accent scale-105 shadow-md"
+              : "bg-accent/10 text-accent font-bold hover:bg-accent hover:text-inverse shadow-sm scale-105";
           }
 
           return (
@@ -268,8 +265,8 @@ const SavedEventsCalendar = ({
 
               {/* Hover Tooltip Preview */}
               {hoveredDate === dateKey && hasEvents && !isSelected && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] w-36 bg-white rounded-xl shadow-2xl border border-slate-100 p-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none">
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] w-36 bg-surface rounded-xl shadow-2xl border border-secondary-border p-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none">
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-secondary-light">
                     <img
                       src={
                         dayEvents[0].image || "https://via.placeholder.com/150"
@@ -278,7 +275,7 @@ const SavedEventsCalendar = ({
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <p className="text-[9px] font-bold text-slate-800 mt-1.5 truncate px-1 text-center">
+                  <p className="text-[9px] font-sans font-bold text-primary mt-1.5 truncate px-1 text-center">
                     {dayEvents[0].title}
                   </p>
                 </div>
@@ -289,7 +286,7 @@ const SavedEventsCalendar = ({
       </div>
 
       {/* Footer redirection asset link container */}
-      <footer className="mt-6 pt-3 border-t border-slate-100">
+      <footer className="mt-6 pt-3 border-t border-secondary-border">
         <ActionLink to="/user/saved-events" centered>
           {i18n.SavedEventsCalendar.actionLink}
         </ActionLink>
