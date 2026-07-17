@@ -52,7 +52,9 @@
         },
         "eventCard": {
             "buy": "Direct Purchase",
-            "viewDetails": "View Details"
+            "viewDetails": "View Details",
+            "addtocart": "ADD TO CART",
+            "addedtocart": "ADDED TO CART"
         }
     },
     "CheckoutModal": {

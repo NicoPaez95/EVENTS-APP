@@ -52,7 +52,9 @@
         },
         "eventCard": {
             "buy": "Compra Directa",
-            "viewDetails": "Ver Detalles"
+            "viewDetails": "Ver Detalles",
+            "addtocart": "AÑADIR AL CARRITO",
+            "addedtocart": "AÑADIDO AL CARRITO"
         }
     },
     "CheckoutModal": {
