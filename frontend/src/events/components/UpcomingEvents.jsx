@@ -1,8 +1,7 @@
 /**
  * @file UpcomingEvents.jsx
- * @description Presentational component that renders a compact list of upcoming events.
- * Tailored for secondary layouts such as sidebars, utilizing the EventDate atom for
- * typographic consistency and ActionLink for explicit route navigation.
+ * @description Presentational component that displays a compressed list of upcoming events with thumbnails aligned to the left.
+ * Optimizes vertical real estate for sidebars and secondary content feeds.
  * @module components/events/UpcomingEvents
  * @author Nico Paez
  */
@@ -12,36 +11,42 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import ActionLink from "shared/components/UI/ActionLink";
 import EventDate from "shared/components/UI/EventDate";
+import EventThumbnail from "shared/components/UI/EventThumbnail";
 
 /**
- * @typedef {Object} UpcomingEventsI18n
- * @property {string} actionLink - Localized label text displayed within the bottom ActionLink element.
- * @property {string} link - Localized accessibility prefix context for screen reader announcements.
+ * @typedef {Object} UpcomingEvent
+ * @property {string|number} id - Unique domain identifier of the event.
+ * @property {string} title - Explicit display name of the event.
+ * @property {string} date - Temporal ISO operational schedule string.
+ * @property {string} [image] - Remote asset raw image path string.
  */
 
 /**
- * @typedef {Object} UpcomingEventEntity
- * @property {string|number} id - Unique entity identifier matching standard schema definitions.
- * @property {string} title - The primary textual banner or headline designation of the event.
- * @property {string} date - Scheduled calendar timestamp or formatted date string representation.
+ * @typedef {Object} UpcomingEventsI18n
+ * @property {string} actionLink - Localized label text applied to the bottom navigation anchor.
+ * @property {string} link - Localized screen-reader accessible prefix for individual event items.
+ */
+
+/**
+ * @typedef {Object} UpcomingEventsProps
+ * @property {UpcomingEvent[]} events - Collection of event payloads to filter and render.
+ * @property {UpcomingEventsI18n} i18n - Structured localization dictionary payload.
  */
 
 /**
  * UpcomingEvents Presentational Component.
  *
- * Slices the incoming collection to enforce a maximum display layout constraints,
- * ensuring high visual efficiency within space-restricted container bounds.
+ * A pure user interface element that lists upcoming events using a tight, left-aligned thumbnail layout.
+ * Enforces a hard structural limit, slicing the provided data down to the top 3 items max.
  *
  * @component
  * @category Components/Events
- * @param {Object} props - Component properties.
- * @param {Array<UpcomingEventEntity>} props.events - A collection of future event entities to be previewed.
- * @param {UpcomingEventsI18n} props.i18n - Explicit internationalization language contract definitions.
- * @returns {React.JSX.Element} A stylized card wrapping a localized collection list.
+ * @param {UpcomingEventsProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The rendered upcoming events feed markup tree structure.
  */
 const UpcomingEvents = ({ events, i18n }) => {
   return (
-    <div className="bg-secondary-light rounded-2xl p-5 shadow-sm border border-secondary-border">
+    <div className="bg-surface rounded-2xl p-5 shadow-sm border border-secondary-border">
       <ul className="space-y-3 text-sm" role="list">
         {events.slice(0, 3).map((event) => (
           <li
@@ -50,14 +55,19 @@ const UpcomingEvents = ({ events, i18n }) => {
           >
             <Link
               to={`/events/${event.id}`}
-              className="group block"
+              className="group flex items-center justify-start gap-3 p-1 rounded-xl hover:bg-secondary-light/30 transition-colors w-full"
               aria-label={`${i18n.link} ${event.title}`}
             >
-              <span className="font-semibold text-primary group-hover:text-accent transition-colors">
-                {event.title}
-              </span>
+              {/* Event thumbnail placed on the left side */}
+              <EventThumbnail src={event.image} alt={event.title} size="md" />
 
-              <EventDate date={event.date} className="mt-0.5 italic" />
+              {/* Text content container placed on the right side */}
+              <div className="flex-1 min-w-0">
+                <span className="block font-semibold text-secondary-subtitle group-hover:text-primary transition-colors truncate">
+                  {event.title}
+                </span>
+                <EventDate date={event.date} className="mt-0.5" />
+              </div>
             </Link>
           </li>
         ))}
@@ -80,6 +90,7 @@ UpcomingEvents.propTypes = {
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       title: PropTypes.string.isRequired,
       date: PropTypes.string.isRequired,
+      image: PropTypes.string,
     })
   ).isRequired,
   i18n: PropTypes.shape({

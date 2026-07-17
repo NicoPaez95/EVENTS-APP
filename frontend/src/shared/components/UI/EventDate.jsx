@@ -6,8 +6,16 @@
  * @author Nico Paez
  */
 
+import React from "react";
+import PropTypes from "prop-types";
 import { cn } from "../../utils/cn";
 import { formatEventDate } from "../../utils/dateHelpers";
+
+/**
+ * @typedef {Object} EventDateProps
+ * @property {string} date - The raw ISO timestamp string delivered by the orchestration layers.
+ * @property {string} [className=""] - Optional Tailwind CSS utility classes to alter structural alignment or typography styles.
+ */
 
 /**
  * EventDate Atomic Component.
@@ -18,12 +26,8 @@ import { formatEventDate } from "../../utils/dateHelpers";
  *
  * @component
  * @category Components/Shared/UI
- *
- * @param {Object} props - Component properties.
- * @param {string} props.date - The raw ISO timestamp string delivered by the orchestration layers.
- * @param {string} [props.className=""] - Optional Tailwind CSS utility classes to alter structural alignment or typography styles.
- *
- * @returns {JSX.Element|null} An accessible text block element, or null if the execution payload lacks a valid date parameter.
+ * @param {EventDateProps} props - Component property payloads.
+ * @returns {React.JSX.Element|null} An accessible text block element, or null if the execution payload lacks a valid date parameter.
  */
 const EventDate = ({ date, className = "" }) => {
   if (!date) return null;
@@ -39,7 +43,7 @@ const EventDate = ({ date, className = "" }) => {
   return (
     <p
       className={cn(
-        "text-xs text-secondary flex items-center gap-2",
+        "text-xs text-secondary-subtitle flex items-center gap-2",
         className
       )}
     >
@@ -49,6 +53,15 @@ const EventDate = ({ date, className = "" }) => {
       {displayDate}
     </p>
   );
+};
+
+EventDate.propTypes = {
+  date: PropTypes.string.isRequired,
+  className: PropTypes.string,
+};
+
+EventDate.defaultProps = {
+  className: "",
 };
 
 export default EventDate;

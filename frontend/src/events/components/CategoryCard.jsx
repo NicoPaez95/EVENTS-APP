@@ -1,32 +1,32 @@
 /**
  * @file CategoryCard.jsx
  * @description Presentational component for displaying event categories using interactive visual cards.
- * @module events/components/CategoryCard
+ * Integrates synchronized local asset mapping and full keyboard interaction support for screen reader accessibility.
+ * @module components/events/CategoryCard
  * @author Nico Paez
  */
+
 import React from "react";
 import PropTypes from "prop-types";
 import { resolveCategoryFallback } from "../utils/categoryAssetMapper";
 
 /**
- * CategoryCard Component.
+ * @typedef {Object} CategoryCardProps
+ * @property {string} title - The explicit display name or taxonomic title of the category (e.g., 'Music', 'Tech').
+ * @property {string} imagekey - The unique asset resolution token mapped to static local images.
+ * @property {Function} onClick - Interceptor callback executed upon pointer activation or keyboard confirmation.
+ */
+
+/**
+ * CategoryCard Presentational Component.
  *
- * A presentational "Dumb" component that displays a single category's title
- * along with its corresponding contextual background image resolved locally.
- *
- * Architectural Design:
- * - Separation of Concerns: It does not handle category data states or filters directly;
- *   it receives configuration properties from its orchestrator parent.
- * - Asset Resolution: Delegates the background image mapping to an external, pure utility
- *   (`resolveCategoryFallback`) to keep the JSX markup free of dictionary strings.
+ * A stateless, pure user interface element responsible for rendering an interactive category tile.
+ * Leverages local synchronous resolution for background layers and enforces semantic keyboard accessibility boundaries.
  *
  * @component
- * @category Components
- * @param {Object} props - The component properties.
- * @param {string} props.title - The name or title of the category to display (e.g., 'Music', 'Tech', 'All').
- * @param {string} props.imagekey - The matching asset resolution token used to map local static images.
- * @param {function} props.onClick - Callback function executed when the card is clicked.
- * @returns {React.JSX.Element} A styled article element acting as an interactive category card.
+ * @category Components/Events
+ * @param {CategoryCardProps} props - Component property payloads.
+ * @returns {React.JSX.Element} An accessible and styled visual category summary markup tree structure.
  */
 const CategoryCard = ({ title, imagekey, onClick }) => {
   // Resolve the visual asset path synchronously inside the presentational layer
@@ -53,8 +53,7 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
         loading="lazy"
       />
 
-      {/* Dark Overlay Mask for Text Legibility */}
-      <div className="absolute inset-0 bg-primary/40 group-hover:bg-primary/50 transition-colors" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:from-black/85 transition-colors duration-300" />
 
       {/* Content Layer */}
       <div className="absolute inset-0 p-4 flex items-end">

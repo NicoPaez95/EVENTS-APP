@@ -1,8 +1,7 @@
 /**
  * @file RecommendedEvents.jsx
- * @description Presentational component that renders a curated vertical list of event previews.
- * Designed specifically for application sidebars, utilizing atomic UI components to maintain
- * design language consistency across the platform.
+ * @description Presentational component that displays recommended events with thumbnails constrained on the right side.
+ * Acts as a contextual widget for cross-promoting related experiences within detail or checkout views.
  * @module components/events/RecommendedEvents
  * @author Nico Paez
  */
@@ -11,53 +10,56 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import EventDate from "shared/components/UI/EventDate";
-import EventLocation from "shared/components/UI/EventLocation";
-
-/**
- * @typedef {Object} RecommendedEventsI18n
- * @property {string} title - Localized main heading text for the recommended sidebar segment.
- * @property {string} link - Localized assistance description value utilized inside accessible contextual attributes.
- */
+import VenueInfo from "shared/components/UI/VenueInfo";
+import EventThumbnail from "shared/components/UI/EventThumbnail";
 
 /**
  * @typedef {Object} RecommendedEventVenue
- * @property {string} [city] - The specific municipality or city location name where the venue rests.
+ * @property {string} [city] - Metropolitan region location boundary.
  */
 
 /**
- * @typedef {Object} RecommendedEventEntity
- * @property {string|number} id - Unique database record identifier for the target event.
- * @property {string} title - Primary headline or textual subject designation of the event.
- * @property {string} date - Structured ISO-8601 calendar timestamp string.
- * @property {RecommendedEventVenue} [venue] - Spatial geographical coordinates or data structure mapping options.
+ * @typedef {Object} RecommendedEvent
+ * @property {string|number} id - Unique target primary domain identifier of the event.
+ * @property {string} title - Explicit display name of the event asset.
+ * @property {string} date - Temporal ISO operational schedule string.
+ * @property {string} [image] - Remote asset raw image path string signature.
+ * @property {RecommendedEventVenue} [venue] - Geographic venue spatial compound entity.
+ */
+
+/**
+ * @typedef {Object} RecommendedEventsI18n
+ * @property {string} title - Localized heading text for the recommendations section.
+ * @property {string} link - Localized screen-reader accessible text for the navigation action.
+ */
+
+/**
+ * @typedef {Object} RecommendedEventsProps
+ * @property {RecommendedEvent[]} events - Collection of event payloads to be rendered as recommendations.
+ * @property {RecommendedEventsI18n} i18n - Structured localization dictionary payload.
  */
 
 /**
  * RecommendedEvents Presentational Component.
  *
- * Maps over a provided collection of event data models to display a clean,
- * stacked layout of navigable preview cards optimized for secondary content areas.
+ * A pure user interface element responsible for rendering a list of recommended events.
+ * It enforces strict visual constraints, keeping text content on the left and thumbnails on the right,
+ * ensuring layout stability across different screen sizes.
  *
  * @component
  * @category Components/Events
- * @param {Object} props - Component properties.
- * @param {Array<RecommendedEventEntity>} props.events - A collection of structured event entities to be rendered.
- * @param {RecommendedEventsI18n} props.i18n - Explicit localization contract encapsulating presentational textual content labels.
- * @returns {React.JSX.Element} A themed sidebar container holding a stack of event links.
+ * @param {RecommendedEventsProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The rendered recommended events section markup tree structure.
  */
 const RecommendedEvents = ({ events, i18n }) => {
   return (
     <section
-      /* 
-        Cambiamos bg-surface por bg-secondary-light para crear la "cuna" grisácea.
-        Esto resalta las tarjetas blancas interiores y da un aspecto mucho más moderno y limpio.
-      */
-      className="bg-secondary-light p-5 rounded-2xl shadow-sm border border-secondary-border"
+      className="bg-surface p-5 rounded-2xl shadow-sm border border-secondary-border"
       aria-labelledby="recommended-heading"
     >
       <h2
         id="recommended-heading"
-        className="text-lg font-bold text-primary mb-4 px-1"
+        className="text-lg font-bold text-secondary-subtitle mb-4 px-1"
       >
         {i18n.title}
       </h2>
@@ -70,27 +72,24 @@ const RecommendedEvents = ({ events, i18n }) => {
             className="block group"
             aria-label={`${i18n.link} ${event.title}`}
           >
-            {/* 
-              - Mantenemos bg-surface para la tarjeta individual para que flote sobre el fondo grisáceo.
-              - group-hover:border-accent suaviza el cambio de color de borde.
-            */}
-            <article className="bg-surface p-4 rounded-xl shadow-sm border border-secondary-border group-hover:border-accent group-hover:shadow-md transition-all duration-300">
-              {/* 
-                - Cambiamos group-hover:text-accent-light a group-hover:text-accent.
-                Esto garantiza que siga siendo legible sobre la tarjeta blanca (bg-surface) al hacer hover.
-              */}
-              <h3 className="text-md font-semibold text-primary group-hover:text-accent transition-colors line-clamp-2">
-                {event.title}
-              </h3>
+            <article className="bg-surface-subcard p-4 rounded-xl shadow-sm border border-secondary-border group-hover:border-primary group-hover:shadow-md transition-all duration-300 flex items-center justify-start gap-3 w-full">
+              {/* Text content container on the left with max-width restriction to handle large displays */}
+              <div className="flex-1 min-w-0 max-w-[70%] sm:max-w-[75%] space-y-1.5">
+                <h3 className="text-md font-semibold text-secondary-subtitle group-hover:text-primary transition-colors line-clamp-2 operational-title">
+                  {event.title}
+                </h3>
 
-              <div className="mt-2 space-y-1">
-                {/* Using atomic components ensures that date and location 
-                    look the same here as they do in EventCard or UpcomingEvents.
-                */}
-                <EventDate date={event.date} />
-
-                <EventLocation city={event.venue?.city} />
+                <div className="space-y-1">
+                  <EventDate date={event.date} />
+                  <VenueInfo
+                    venue={{ city: event.venue?.city }}
+                    useEmoji={true}
+                  />
+                </div>
               </div>
+
+              {/* Event thumbnail placed consistently on the right side */}
+              <EventThumbnail src={event.image} alt={event.title} size="md" />
             </article>
           </Link>
         ))}
@@ -105,6 +104,7 @@ RecommendedEvents.propTypes = {
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       title: PropTypes.string.isRequired,
       date: PropTypes.string.isRequired,
+      image: PropTypes.string,
       venue: PropTypes.shape({
         city: PropTypes.string,
       }),
@@ -114,6 +114,10 @@ RecommendedEvents.propTypes = {
     title: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
   }).isRequired,
+};
+
+RecommendedEvents.defaultProps = {
+  events: [],
 };
 
 export default RecommendedEvents;
