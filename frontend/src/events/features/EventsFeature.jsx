@@ -1,3 +1,12 @@
+/**
+ * @file EventsFeature.jsx
+ * @description Smart orchestrator component for the events domain catalogue layer.
+ * Coordinates global context state tracking, side-effect pipeline workflows,
+ * asynchronous hydration boundaries, and structural localization dictionary injections.
+ * @module features/events/EventsFeature
+ * @author Nico Paez
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
@@ -11,12 +20,16 @@ import EmptyState from "shared/components/UI/EmptyState";
 import { useTranslation } from "react-i18next";
 
 /**
- * @file EventsFeature.jsx
- * @description Smart orchestrator component for the events domain catalogue layer.
- * Coordinates global context state tracking, side-effect pipeline workflows,
- * asynchronous hydration boundaries, and structural localization dictionary injections.
- * @module features/events/EventsFeature
- * @author Nico Paez
+ * @typedef {Object} EventPayload
+ * @property {string|number} id - Unique domain identifier of the event entity.
+ * @property {string} title - Explicit display name of the event asset.
+ * @property {string} date - Temporal ISO operational schedule string.
+ * @property {string} [image] - Remote asset raw image path string.
+ */
+
+/**
+ * @typedef {Object} EventsFeatureProps
+ * @property {function(EventPayload): void} [onDirectPurchase] - Optional external fast checkout context handler.
  */
 
 /**
@@ -27,8 +40,7 @@ import { useTranslation } from "react-i18next";
  *
  * @component
  * @category Features/Events
- * @param {Object} props - Component properties.
- * @param {Function} [props.onDirectPurchase] - Optional external fast checkout context handler.
+ * @param {EventsFeatureProps} props - Component property payloads.
  * @returns {React.JSX.Element} The fully operational, cross-domain localized events feature container.
  */
 const EventsFeature = ({ onDirectPurchase }) => {
@@ -50,7 +62,7 @@ const EventsFeature = ({ onDirectPurchase }) => {
   /**
    * Toggles the presence of an item inside the user application cart.
    *
-   * @param {Object} eventPayload - The structural data transfer object representing an event.
+   * @param {EventPayload} eventPayload - The structural data transfer object representing an event.
    */
   const handleCartToggle = (eventPayload) => {
     if (isInCart(eventPayload.id)) {
@@ -65,7 +77,7 @@ const EventsFeature = ({ onDirectPurchase }) => {
    * If an external callback override exists, it delegates control up;
    * otherwise, it triggers fallback redirection via the standard cart view.
    *
-   * @param {Object} eventPayload - The structural data transfer object representing an event.
+   * @param {EventPayload} eventPayload - The structural data transfer object representing an event.
    */
   const handleDirectPurchaseWorkflow = (eventPayload) => {
     try {
@@ -99,9 +111,9 @@ const EventsFeature = ({ onDirectPurchase }) => {
     return (
       <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <EmptyState
-          title={t("events.emptyState.error.title")}
-          description={t("events.emptyState.error.description")}
-          actionText={t("events.emptyState.error.actionText")}
+          title={t("emptyState.error.title")}
+          description={t("emptyState.error.description")}
+          actionText={t("emptyState.error.actionText")}
           onAction={clearFilters}
         />
       </div>
@@ -112,9 +124,9 @@ const EventsFeature = ({ onDirectPurchase }) => {
     return (
       <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <EmptyState
-          title={t("events.emptyState.notFound.title")}
-          description={t("events.emptyState.notFound.description")}
-          actionText={t("events.emptyState.notFound.actionText")}
+          title={t("emptyState.notFound.title")}
+          description={t("emptyState.notFound.description")}
+          actionText={t("emptyState.notFound.actionText")}
           onAction={clearFilters}
         />
       </div>
@@ -146,8 +158,10 @@ const EventsFeature = ({ onDirectPurchase }) => {
         onDirectPurchase={handleDirectPurchaseWorkflow}
         onDetailNavigate={handleDetailNavigate}
         i18n={{
-          directPurchase: t("events.eventCard.buy"),
-          viewDetails: t("events.eventCard.viewDetails"),
+          directPurchase: t("eventCard.buy"),
+          viewDetails: t("eventCard.viewDetails"),
+          addtocart: t("eventCard.addtocart"),
+          addedtocart: t("eventCard.addedtocart"),
         }}
       />
     </section>

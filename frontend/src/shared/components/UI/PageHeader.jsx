@@ -10,6 +10,15 @@ import React from "react";
 import PropTypes from "prop-types";
 
 /**
+ * @typedef {Object} PageHeaderProps
+ * @property {React.ReactNode} title - The primary headline string, translation node, or custom compound elements.
+ * @property {React.ReactNode} [description] - Optional context subtitle text, reactive counters, or micro-state loaders.
+ * @property {1|2|3} [level=1] - Semantic HTML heading rank used to generate dynamic nodes (H1, H2, H3).
+ * @property {'left'|'center'} [align='left'] - Structural layout inline text orchestration alignment.
+ * @property {string} [className=''] - Escape hatch utility used to inject custom margins, paddings, or flex parameters.
+ */
+
+/**
  * PageHeader Polymorphic Component.
  *
  * Highly adaptive presentational component designed to unify semantic heading ranks
@@ -17,13 +26,8 @@ import PropTypes from "prop-types";
  *
  * @component
  * @category Components/Shared/UI
- * @param {Object} props - Component properties.
- * @param {React.ReactNode} props.title - The primary headline string, translation node, or custom compound elements.
- * @param {React.ReactNode} [props.description] - Optional context subtitle text, reactive counters, or micro-state loaders.
- * @param {1|2|3} [props.level=1] - Semantic HTML heading rank used to generate dynamic nodes (H1, H2, H3).
- * @param {'left'|'center'} [props.align='left'] - Structural layout inline text orchestration alignment.
- * @param {string} [props.className=''] - Escape hatch utility used to inject custom margins, paddings, or flex parameters.
- * @returns {React.JSX.Element} A scalable, accessible semantic header layout tree.
+ * @param {PageHeaderProps} props - Component property payloads.
+ * @returns {React.JSX.Element} A scalable, accessible semantic header layout tree structure.
  */
 const PageHeader = ({
   title,
@@ -61,7 +65,7 @@ const PageHeader = ({
       {description && (
         /* Uses text-secondary (#475569) Charcoal Gray for a softer, highly readable text */
         <div
-          className={`text-secondary font-medium text-sm md:text-base ${alignStyles[align]}`}
+          className={`text-secondary-description font-medium text-sm md:text-base ${alignStyles[align]}`}
         >
           {description}
         </div>
@@ -76,6 +80,13 @@ PageHeader.propTypes = {
   level: PropTypes.oneOf([1, 2, 3]),
   align: PropTypes.oneOf(["left", "center"]),
   className: PropTypes.string,
+};
+
+PageHeader.defaultProps = {
+  description: null,
+  level: 1,
+  align: "left",
+  className: "",
 };
 
 export default PageHeader;

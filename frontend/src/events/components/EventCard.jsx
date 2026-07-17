@@ -10,7 +10,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import VenueInfo from "./VenueInfo";
+import VenueInfo from "../../shared/components/UI/VenueInfo";
 import ActionLink from "shared/components/UI/ActionLink";
 import EventDate from "shared/components/UI/EventDate";
 import BookmarkButton from "shared/components/UI/BookmarkButton";
@@ -25,8 +25,10 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
 
 /**
  * @typedef {Object} EventCardI18n
- * @property {string} directPurchase - Localized label text assigned to the primary checkout button.
+ * @property {string} directPurchase - Localized label text assigned to the primary express checkout button.
  * @property {string} viewDetails - Localized anchor text targeting the granular details layout view.
+ * @property {string} addtocart - Localized text for the default state of the shopping cart action.
+ * @property {string} addedtocart - Localized confirmation text when the item matches shopping cart presence.
  */
 
 /**
@@ -53,6 +55,7 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  *
  * A stateless, pure user interface element responsible for rendering a summarized preview tile of an event experience.
  * Consumes pre-localized properties to ensure separation of concerns between layout rendering and runtime i18n context state.
+ * Refactored action layout using vertical stacking to ensure structural integrity across desktop and laptop viewports.
  *
  * @component
  * @category Components/Events
@@ -78,7 +81,6 @@ const EventCard = ({
 }) => {
   const resolvedImage = resolveEventImage(category, image);
 
-  // Structural DTO data compilation pipeline optimized for external domain handlers consumption
   const eventPayload = {
     id,
     title,
@@ -100,7 +102,7 @@ const EventCard = ({
 
       <div
         onClick={() => onDetailNavigate && onDetailNavigate(id)}
-        className="relative w-full aspect-video bg-slate-50 overflow-hidden cursor-pointer"
+        className="relative w-full aspect-video bg-surface-subcard overflow-hidden cursor-pointer"
       >
         <img
           src={resolvedImage}
@@ -116,16 +118,16 @@ const EventCard = ({
             <span className="text-[10px] font-bold text-accent uppercase tracking-widest bg-accent-muted px-2 py-1 rounded-md">
               {category}
             </span>
-            <span className="text-sm font-bold text-secondary font-display">
+            <span className="text-sm font-bold text-secondary-title font-display">
               ${price.toLocaleString()}
             </span>
           </div>
 
           <Link
             to={`/events/${id}`}
-            className="block group-hover:text-blue-600 transition-colors"
+            className="block group-hover:text-primary transition-colors"
           >
-            <h3 className="font-bold text-lg text-primary leading-tight line-clamp-2">
+            <h3 className="font-bold text-lg text-secondary-title leading-tight line-clamp-2">
               {title}
             </h3>
           </Link>
@@ -137,15 +139,15 @@ const EventCard = ({
         </div>
       </div>
 
-      <footer className="px-5 pb-5 pt-4 border-t  border-secondary-border flex flex-col space-y-3 mt-auto">
-        <div className="flex items-center gap-2">
+      <footer className="px-5 pb-5 pt-4 border-t border-secondary-border flex flex-col space-y-3 mt-auto">
+        <div className="flex flex-col gap-2 w-full">
           <PrimaryButton
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               if (onDirectPurchase) onDirectPurchase(eventPayload);
             }}
-            className="flex-1 text-xs py-3 px-4 rounded-xl tracking-wide shadow-sm"
+            className="w-full text-xs py-3 px-4 rounded-xl tracking-wide shadow-sm text-center justify-center"
           >
             {i18n?.directPurchase}
           </PrimaryButton>
@@ -158,13 +160,34 @@ const EventCard = ({
                 ? "Remove experience from cart"
                 : "Add experience to cart"
             }
-            className={`p-2.5 rounded-xl border transition-all duration-200 text-sm ${
+            className={`w-full py-3 px-4 rounded-xl border transition-all duration-300 text-xs font-bold tracking-wide flex items-center justify-center gap-1.5 select-none ${
               isInCart
-                ? "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-sm font-bold"
-                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                ? "bg-success/10 border-success/30 text-success shadow-sm animate-in fade-in zoom-in-95 duration-200"
+                : "bg-surface-subcard border-secondary-border text-secondary-description hover:bg-surface-disabled"
             }`}
           >
-            {isInCart ? "✓" : "🛒"}
+            {isInCart ? (
+              <>
+                <svg
+                  className="w-3.5 h-3.5 stroke-[3] shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+                <span>{i18n?.addedtocart}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-sm mr-1">🛒</span>
+                <span>{i18n?.addtocart}</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -197,7 +220,19 @@ EventCard.propTypes = {
   i18n: PropTypes.shape({
     directPurchase: PropTypes.string.isRequired,
     viewDetails: PropTypes.string.isRequired,
+    addtocart: PropTypes.string.isRequired,
+    addedtocart: PropTypes.string.isRequired,
   }).isRequired,
+};
+
+EventCard.defaultProps = {
+  price: 0,
+  image: null,
+  showRemoveButton: false,
+  onToggleSave: null,
+  onCartToggle: null,
+  onDirectPurchase: null,
+  onDetailNavigate: null,
 };
 
 export default EventCard;

@@ -1,8 +1,18 @@
 /**
- * @file AuthCard
- * @description Presentational component for displaying auth container.
+ * @file AuthCard.jsx
+ * @description Presentational component for displaying the authentication layout container.
  * @module user/components/AuthCard
  * @author Nico Paez
+ */
+
+import React from "react";
+import PropTypes from "prop-types";
+
+/**
+ * @typedef {Object} AuthCardProps
+ * @property {React.ReactNode} children - The dynamic content (usually a feature form) to render inside the card.
+ * @property {string} title - The primary heading for the card (e.g., "Welcome Back").
+ * @property {string} [subtitle=""] - The supporting text to guide the user (e.g., "Enter details to access").
  */
 
 /**
@@ -22,27 +32,36 @@
  *
  * @component
  * @category Components/User
- *
- * @param {Object} props - Component properties.
- * @param {React.ReactNode} props.children - The dynamic content (usually a Feature form) to render inside the card.
- * @param {string} props.title - The primary heading for the card (e.g., "Welcome Back").
- * @param {string} props.subtitle - The supporting text to guide the user (e.g., "Enter details to access").
- *
- * @returns {JSX.Element} The rendered authentication card container.
+ * @param {AuthCardProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The structural authentication card container markup root tree.
  */
-const AuthCard = ({ children, title, subtitle }) => (
-  <div className="bg-surface py-12 px-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[40px] border border-secondary-border">
-    {/* Header Section: Standardizes the title and subtitle alignment */}
-    <div className="mb-10 text-center">
-      <h2 className="text-3xl font-black text-primary mb-2 font-display tracking-tight">
-        {title}
-      </h2>
-      <p className="text-secondary font-medium font-sans">{subtitle}</p>
+const AuthCard = ({ children, title, subtitle = "" }) => {
+  return (
+    <div className="bg-surface py-12 px-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-[40px] border border-secondary-border">
+      <div className="mb-10 text-center">
+        <h2 className="text-3xl font-black text-primary mb-2 font-display tracking-tight">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-secondary-subtitle font-medium font-sans">
+            {subtitle}
+          </p>
+        )}
+      </div>
+      {children}
     </div>
+  );
+};
 
-    {/* Content Slot: Where LoginFeature or RegisterFeature is injected */}
-    {children}
-  </div>
-);
+AuthCard.propTypes = {
+  children: PropTypes.node.isRequired,
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+};
+
+// Declared explicitly to sustain architecture uniformity with the atomic design ecosystem
+AuthCard.defaultProps = {
+  subtitle: "",
+};
 
 export default AuthCard;

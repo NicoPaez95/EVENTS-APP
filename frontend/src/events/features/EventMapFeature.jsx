@@ -9,9 +9,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import InteractiveMap from "../../shared/components/UI/InteractiveMap";
-import VenueInfo from "../components/VenueInfo";
+import InteractiveMap from "shared/components/UI/InteractiveMap";
+import VenueInfo from "shared/components/UI/VenueInfo";
 import { getExternalMapUrl } from "../utils/mapHelpers";
+
+/**
+ * @typedef {Object} EventMapVenue
+ * @property {string} name - Operational display identifier label representing the physical venue site.
+ * @property {string} [city] - City territory where the event is structurally scheduled.
+ * @property {number} lat - Spatial floating point parameter representing latitude.
+ * @property {number} lng - Spatial floating point parameter representing longitude.
+ */
+
+/**
+ * @typedef {Object} EventMapFeatureProps
+ * @property {EventMapVenue} [venue] - Core geographic and building infrastructure structure.
+ */
 
 /**
  * EventMapFeature Component.
@@ -19,14 +32,13 @@ import { getExternalMapUrl } from "../utils/mapHelpers";
  * Orchestrates rendering boundaries for embedded geolocation components. Consumes deep coordinate variables
  * defensively to block fatal layout rendering crashes when data streams are partial or missing.
  *
+ * Architectural Strategy:
+ * - Resource Synchronization: Integrates the unbundled, shared `VenueInfo` atom directly to avoid
+ *   local context state duplication.
+ *
  * @component
  * @category Features/Events
- * @param {Object} props - The component properties.
- * @param {Object} props.venue - Core geographic and building infrastructure structure.
- * @param {string} props.venue.name - Operational display identifier label representing the physical venue site.
- * @param {string} props.venue.city - City territory where the event is structurally scheduled.
- * @param {number} props.venue.lat - Spatial floating point parameter representing latitude.
- * @param {number} props.venue.lng - Spatial floating point parameter representing longitude.
+ * @param {EventMapFeatureProps} props - Component property payloads.
  * @returns {React.JSX.Element|null} The interactive map feature node layout, or null if coordinates breach validation.
  */
 const EventMapFeature = ({ venue }) => {

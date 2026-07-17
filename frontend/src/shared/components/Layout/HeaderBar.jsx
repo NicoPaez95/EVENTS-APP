@@ -1,3 +1,13 @@
+/**
+ * @file HeaderBar.jsx
+ * @description Primary navigational and branding anchor layout component.
+ * Acts as a host container orchestrating core feature slots like user authentication
+ * and context-aware event discovery workflows.
+ * @module components/layout/HeaderBar
+ * @author Nico Paez
+ */
+
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import UserAuthFeature from "../../../user/features/UserAuthFeature";
@@ -20,8 +30,8 @@ import EventDiscoveryFeature from "../../../events/features/EventDiscoveryFeatur
  *   stacked mobile views to justified desktop layouts.
  *
  * @component
- * @category Components/Shared
- * @returns {JSX.Element} The adaptive navigation header bar.
+ * @category Components/Layout
+ * @returns {React.JSX.Element} The adaptive navigation header bar markup tree structure.
  */
 const HeaderBar = () => {
   const { pathname } = useLocation();
@@ -31,18 +41,26 @@ const HeaderBar = () => {
    * Visibility Logic:
    * Determines if the EventDiscovery search bar should be rendered.
    * Currently enabled for the Root (Home) and Upcoming Events views.
+   * @type {boolean}
    */
   const showDiscovery = pathname === "/" || pathname === "/events/upcoming";
 
+  /**
+   * Normalized active locale string sequence.
+   * @type {string}
+   */
   const currentLang = i18n.language?.slice(0, 2) || "en";
+
   /**
    * Translation Logic:
    * Switches the application's active locale between English and Spanish
-   * when the language toggle button is triggered
+   * when the language toggle button is triggered.
+   * @returns {void}
    */
   const toggleLanguage = () => {
     i18n.changeLanguage(currentLang === "en" ? "es" : "en");
   };
+
   return (
     <header
       className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10"
@@ -52,9 +70,9 @@ const HeaderBar = () => {
         {/* Brand Identity: Serves as the primary 'Reset' navigation trigger */}
         <Link
           to="/"
-          className="text-2xl font-black text-blue-600 hover:scale-105 transition-transform shrink-0 flex items-center"
+          className="text-2xl font-black text-accent hover:scale-105 transition-transform shrink-0 flex items-center"
         >
-          EVENT<span className="text-slate-800">APP</span>
+          EVENT<span className="text-primary">APP</span>
         </Link>
 
         {/* 
@@ -68,6 +86,7 @@ const HeaderBar = () => {
           </div>
         )}
       </div>
+
       <div className="flex items-center gap-3 flex-shrink-0">
         {/* Language Toggle Button */}
         <button
@@ -78,16 +97,13 @@ const HeaderBar = () => {
         >
           {currentLang === "en" ? "ES" : "EN"}
         </button>
+
         {/* 
-        Identity Management Slot: 
-        Hosts the UserAuthFeature which manages the Login/Register/Logout state.
-      */}
+          Identity Management Slot: 
+          Hosts the UserAuthFeature which manages the Login/Register/Logout state.
+        */}
         <UserAuthFeature />
       </div>
-
-      {/*<div className="flex-shrink-0">
-        <UserAuthFeature />
-      </div>*/}
     </header>
   );
 };

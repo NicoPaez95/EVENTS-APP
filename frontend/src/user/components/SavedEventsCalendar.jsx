@@ -2,6 +2,7 @@
  * @file SavedEventsCalendar.jsx
  * @description Presentational high-fidelity calendar interface component.
  * Visualizes user-saved events mapping inside a structural monthly grid arrangement.
+ * Implements a dynamic, responsive grid tooltip to display multiple events without scrolling.
  * @module components/user/SavedEventsCalendar
  * @author Nico Paez
  */
@@ -11,11 +12,38 @@ import PropTypes from "prop-types";
 import { format } from "date-fns";
 import { getCalendarGrid } from "../../shared/utils/dateHelpers";
 import ActionLink from "../../shared/components/UI/ActionLink";
+import EventThumbnail from "shared/components/UI/EventThumbnail";
 
 /**
- * Static UI SVG Icon representing a generic chevron down vector asset.
- * @type {React.JSX.Element}
+ * @typedef {Object} CalendarEvent
+ * @property {string|number} id - Unique identifier for the event.
+ * @property {string} title - The title/headline of the event.
+ * @property {string} image - Source URL or reference path for the event thumbnail imagery.
  */
+
+/**
+ * @typedef {Object} CalendarLocalization
+ * @property {string} changeMonth - Label text instructing the user they can modify the active calendar month.
+ * @property {string} actionLink - Footer link label routing to the extended saved events overview screen.
+ */
+
+/**
+ * @typedef {Object} SavedEventsCalendarI18n
+ * @property {CalendarLocalization} SavedEventsCalendar - Localization tokens grouped by domain key.
+ */
+
+/**
+ * @typedef {Object} SavedEventsCalendarProps
+ * @property {Date} currentDate - The currently active/focused JavaScript Date pointer.
+ * @property {Object.<string, CalendarEvent[]>} [eventsMap={}] - Mapping dictionary with key strings matching ISO strings containing lists of event entities.
+ * @property {string} [selectedDate=null] - The ISO string pointer representing the currently active user date choice.
+ * @property {function(string): void} onDateClick - Event handler triggered when selecting an active day button cell.
+ * @property {function(): void} onNextMonth - Notification handler shifting pagination forward one month cycle.
+ * @property {function(): void} onPrevMonth - Notification handler shifting pagination backward one month cycle.
+ * @property {function(number): void} onSelectMonth - Direct pagination selection update callback matching index mappings.
+ * @property {SavedEventsCalendarI18n} i18n - Core localization multi-language context values.
+ */
+
 const CHEVRON_DOWN = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -29,14 +57,10 @@ const CHEVRON_DOWN = (
       strokeLinejoin="round"
       strokeWidth="2"
       d="M19 9l-7 7-7-7"
-    ></path>
+    />
   </svg>
 );
 
-/**
- * Static UI SVG Icon representing a generic chevron left vector asset.
- * @type {React.JSX.Element}
- */
 const CHEVRON_LEFT = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -54,10 +78,6 @@ const CHEVRON_LEFT = (
   </svg>
 );
 
-/**
- * Static UI SVG Icon representing a generic chevron right vector asset.
- * @type {React.JSX.Element}
- */
 const CHEVRON_RIGHT = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -75,10 +95,6 @@ const CHEVRON_RIGHT = (
   </svg>
 );
 
-/**
- * Month short abbreviations used within the local dropdown popover interface.
- * @type {Array<string>}
- */
 const MONTHS_SHORT = [
   "Jan",
   "Feb",
@@ -94,46 +110,20 @@ const MONTHS_SHORT = [
   "Dec",
 ];
 
-/**
- * Weekday singular initials displayed at the top grid level layout of the component.
- * @type {Array<string>}
- */
 const WEEKDAYS_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
-
-/**
- * @typedef {Object} CalendarI18nLabels
- * @property {string} changeMonth - Localized small banner caption indicating interactive dropdown triggers.
- * @property {string} actionLink - Localized redirection label located inside the footer ActionLink element.
- */
-
-/**
- * @typedef {Object} SavedEventsCalendarI18n
- * @property {CalendarI18nLabels} SavedEventsCalendar - Namespace nested translation bindings for the calendar workspace.
- */
 
 /**
  * SavedEventsCalendar Component (Presentational).
  *
- * Renders a standard calendar structure to map bookmarked items. Implements high-performance
- * event listeners for cell hovers, abstracting complex transformations to parent features.
- *
  * @component
  * @category Components/User
- * @param {Object} props - The component properties.
- * @param {Date} props.currentDate - Reference date object used to frame the current monthly view context.
- * @param {Object<string, Array<Object>>} [props.eventsMap={}] - High-efficiency dictionary lookup mapping ISO timestamp strings to arrays of saved event objects.
- * @param {string|null} props.selectedDate - The active full ISO string key indicating a single-day item selection.
- * @param {function(string): void} props.onDateClick - Event handler triggered when clicking an eligible day cell wrapper. Receives the string ISO date key.
- * @param {function(): void} props.onNextMonth - Callback responsible for advancing the temporal calendar state.
- * @param {function(): void} props.onPrevMonth - Callback responsible for rewinding the temporal calendar state.
- * @param {function(number): void} props.onSelectMonth - Direct month alteration dropdown handler. Receives the numeric 0-indexed month index.
- * @param {SavedEventsCalendarI18n} props.i18n - Explicit translation schema dictionary passed down by structural parents.
- * @returns {React.JSX.Element} The presentational interactive calendar shell mesh.
+ * @param {SavedEventsCalendarProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The visual monthly grid layout structured ecosystem tree.
  */
 const SavedEventsCalendar = ({
   currentDate,
   eventsMap = {},
-  selectedDate,
+  selectedDate = null,
   onDateClick,
   onNextMonth,
   onPrevMonth,
@@ -146,7 +136,6 @@ const SavedEventsCalendar = ({
 
   return (
     <section className="bg-surface rounded-2xl p-5 shadow-sm border border-secondary-border min-h-[380px] relative">
-      {/* Header: Temporal Context & Picker Toggle */}
       <header className="flex justify-between items-center mb-6">
         <div className="relative">
           <button
@@ -164,13 +153,12 @@ const SavedEventsCalendar = ({
                   {CHEVRON_DOWN}
                 </span>
               </h2>
-              <span className="font-sans text-[10px] text-accent font-bold uppercase tracking-tighter">
+              <span className="font-sans text-[10px] text-accent font-bold uppercase tracking-tighter block mt-0.5">
                 {i18n.SavedEventsCalendar.changeMonth}
               </span>
             </div>
           </button>
 
-          {/* Month Selection Dropdown */}
           {showMonthPicker && (
             <div className="absolute top-12 left-0 z-50 bg-surface border border-secondary-border shadow-2xl rounded-xl p-3 w-64 animate-in fade-in zoom-in-95 duration-200">
               <div className="grid grid-cols-3 gap-2">
@@ -181,10 +169,10 @@ const SavedEventsCalendar = ({
                       onSelectMonth(index);
                       setShowMonthPicker(false);
                     }}
-                    className={`text-xs py-2 rounded-lg font-medium transition-colors ${
+                    className={`text-xs py-2 rounded-lg font-semibold transition-colors ${
                       currentDate.getMonth() === index
                         ? "bg-accent text-inverse"
-                        : "hover:bg-secondary-light text-secondary"
+                        : "hover:bg-secondary-light text-secondary-dark"
                     }`}
                   >
                     {month}
@@ -195,7 +183,6 @@ const SavedEventsCalendar = ({
           )}
         </div>
 
-        {/* Navigation Controllers */}
         <div className="flex gap-1">
           <button
             onClick={onPrevMonth}
@@ -214,7 +201,6 @@ const SavedEventsCalendar = ({
         </div>
       </header>
 
-      {/* Week Day Labels */}
       <div className="grid grid-cols-7 gap-2 mb-2">
         {WEEKDAYS_INITIALS.map((day, i) => (
           <div
@@ -226,7 +212,6 @@ const SavedEventsCalendar = ({
         ))}
       </div>
 
-      {/* Days Grid */}
       <div className="grid grid-cols-7 gap-2 relative">
         {blanks.map((_, i) => (
           <div key={`blank-${i}`} className="aspect-square"></div>
@@ -242,13 +227,28 @@ const SavedEventsCalendar = ({
           const hasEvents = dayEvents.length > 0;
           const isSelected = selectedDate === dateKey;
 
-          // Resolve dynamic layout styles for day buttons based on event status
-          let buttonStyles =
-            "bg-secondary-light text-secondary opacity-40 cursor-default";
+          let buttonStyles = "";
           if (hasEvents) {
             buttonStyles = isSelected
               ? "bg-accent text-inverse font-bold ring-2 ring-offset-2 ring-accent scale-105 shadow-md"
               : "bg-accent/10 text-accent font-bold hover:bg-accent hover:text-inverse shadow-sm scale-105";
+          } else {
+            buttonStyles =
+              "bg-transparent text-secondary hover:bg-secondary-light opacity-50 cursor-default";
+          }
+
+          let tooltipWidth = "w-36";
+          let gridLayout = "grid-cols-1";
+
+          if (dayEvents.length === 2) {
+            tooltipWidth = "w-56";
+            gridLayout = "grid-cols-2";
+          } else if (dayEvents.length >= 3 && dayEvents.length <= 4) {
+            tooltipWidth = "w-64";
+            gridLayout = "grid-cols-2";
+          } else if (dayEvents.length >= 5) {
+            tooltipWidth = "w-72";
+            gridLayout = "grid-cols-3";
           }
 
           return (
@@ -263,21 +263,28 @@ const SavedEventsCalendar = ({
                 {day}
               </button>
 
-              {/* Hover Tooltip Preview */}
               {hoveredDate === dateKey && hasEvents && !isSelected && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] w-36 bg-surface rounded-xl shadow-2xl border border-secondary-border p-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none">
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-secondary-light">
-                    <img
-                      src={
-                        dayEvents[0].image || "https://via.placeholder.com/150"
-                      }
-                      alt={dayEvents[0].title}
-                      className="w-full h-full object-cover"
-                    />
+                <div
+                  className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[60] bg-surface rounded-xl shadow-2xl border border-secondary-border p-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300 pointer-events-none transition-all ${tooltipWidth}`}
+                >
+                  <div className={`grid gap-2 ${gridLayout}`}>
+                    {dayEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        className="flex flex-col items-center justify-start"
+                      >
+                        <EventThumbnail
+                          src={event.image}
+                          alt={event.title}
+                          size="fluid"
+                          className="aspect-[4/3] shadow-sm"
+                        />
+                        <p className="text-[9px] font-sans font-bold text-secondary-dark mt-1.5 line-clamp-2 w-full text-center px-1 leading-tight">
+                          {event.title}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-[9px] font-sans font-bold text-primary mt-1.5 truncate px-1 text-center">
-                    {dayEvents[0].title}
-                  </p>
                 </div>
               )}
             </div>
@@ -285,7 +292,6 @@ const SavedEventsCalendar = ({
         })}
       </div>
 
-      {/* Footer redirection asset link container */}
       <footer className="mt-6 pt-3 border-t border-secondary-border">
         <ActionLink to="/user/saved-events" centered>
           {i18n.SavedEventsCalendar.actionLink}
@@ -297,7 +303,16 @@ const SavedEventsCalendar = ({
 
 SavedEventsCalendar.propTypes = {
   currentDate: PropTypes.instanceOf(Date).isRequired,
-  eventsMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.object)),
+  eventsMap: PropTypes.objectOf(
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+          .isRequired,
+        title: PropTypes.string.isRequired,
+        image: PropTypes.string.isRequired,
+      })
+    )
+  ),
   selectedDate: PropTypes.string,
   onDateClick: PropTypes.func.isRequired,
   onNextMonth: PropTypes.func.isRequired,
@@ -309,6 +324,12 @@ SavedEventsCalendar.propTypes = {
       actionLink: PropTypes.string.isRequired,
     }).isRequired,
   }).isRequired,
+};
+
+// Declared explicitly to sustain architecture uniformity with the atomic design ecosystem
+SavedEventsCalendar.defaultProps = {
+  eventsMap: {},
+  selectedDate: null,
 };
 
 export default SavedEventsCalendar;

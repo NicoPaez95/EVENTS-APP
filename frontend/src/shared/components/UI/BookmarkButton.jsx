@@ -10,6 +10,14 @@ import React from "react";
 import PropTypes from "prop-types";
 
 /**
+ * @typedef {Object} BookmarkButtonProps
+ * @property {boolean} [isSaved=false] - Evaluated state matching user bookmarks catalog presence.
+ * @property {boolean} [showRemoveButton=false] - Operational toggle switch to display alternative removal elements.
+ * @property {function(React.MouseEvent<HTMLButtonElement>): void} onClick - Interaction callback handler.
+ * @property {string} [className=""] - Optional template extension strings for tailored layout modifications.
+ */
+
+/**
  * BookmarkButton Component.
  *
  * An atomic, stateless button that encapsulates the visual representation of saving or removing
@@ -18,12 +26,8 @@ import PropTypes from "prop-types";
  *
  * @component
  * @category Shared/UI
- * @param {Object} props - Component properties.
- * @param {boolean} [props.isSaved=false] - Reactive flag indicating if the target entity is bookmarked.
- * @param {boolean} [props.showRemoveButton=false] - Swaps the heart icon for a removal close badge.
- * @param {function(React.MouseEvent): void} props.onClick - Upward callback handler triggered upon selection.
- * @param {string} [props.className=""] - Optional alternative utility classes to append or override positions.
- * @returns {React.JSX.Element} An isolated, interactive vector button shell.
+ * @param {BookmarkButtonProps} props - Component property payloads.
+ * @returns {React.JSX.Element} The isolated bookmark toggle action element markup tree structure.
  */
 const BookmarkButton = ({
   isSaved = false,
@@ -34,7 +38,7 @@ const BookmarkButton = ({
   const CLOSE_ICON = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
+      className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -54,7 +58,11 @@ const BookmarkButton = ({
       viewBox="0 0 24 24"
       fill={isSaved ? "currentColor" : "none"}
       stroke="currentColor"
-      className={`w-5 h-5 transition-colors duration-300 ${isSaved ? "text-danger" : "text-secondary-muted"}`}
+      className={`w-5 h-5 transition-all duration-300 ${
+        isSaved
+          ? "text-danger scale-110 animate-heartbeat"
+          : "text-secondary-dark/60 group-hover:text-primary group-hover:scale-110"
+      }`}
     >
       <path
         strokeLinecap="round"
@@ -79,17 +87,24 @@ const BookmarkButton = ({
     }
   };
 
+  let buttonColorStyles = "";
+  if (showRemoveButton) {
+    buttonColorStyles =
+      "bg-danger/10 text-danger hover:bg-danger hover:text-inverse border border-danger/20";
+  } else if (isSaved) {
+    buttonColorStyles =
+      "bg-surface/90 border border-danger/30 text-danger hover:bg-white hover:border-danger hover:ring-4 hover:ring-danger/20";
+  } else {
+    buttonColorStyles =
+      "bg-surface/90 border border-secondary-border text-secondary-dark hover:text-primary hover:border-primary hover:bg-white hover:ring-4 hover:ring-primary/20";
+  }
+
   return (
     <button
       type="button"
       onClick={handleInteraction}
       aria-label={showRemoveButton ? "Remove experience" : "Save experience"}
-      className={`p-3 rounded-full backdrop-blur-md shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20 focus:outline-none focus:ring-2 focus:ring-accent/50
-        ${
-          showRemoveButton
-            ? "bg-danger-light text-danger hover:bg-danger hover:text-white"
-            : "bg-surface/90 text-secondary-muted hover:text-danger"
-        } ${className}`}
+      className={`group p-3 rounded-full backdrop-blur-md shadow-md hover:shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40 ${buttonColorStyles} ${className}`}
     >
       {showRemoveButton ? CLOSE_ICON : HEART_ICON}
     </button>
@@ -101,6 +116,12 @@ BookmarkButton.propTypes = {
   showRemoveButton: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
   className: PropTypes.string,
+};
+
+BookmarkButton.defaultProps = {
+  isSaved: false,
+  showRemoveButton: false,
+  className: "",
 };
 
 export default BookmarkButton;
