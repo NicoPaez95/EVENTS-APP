@@ -44,19 +44,18 @@ const PrimaryButton = ({
       className={`
         ${fullWidth ? "w-full" : "w-auto"}
         ${sizeStyles[size]}
-  
-        bg-primary text-surface font-black
+      bg-primary text-inverse font-black
         hover:bg-primary-hover hover:-translate-y-0.5 active:scale-95 
-        shadow-lg shadow-secondary-light
+        shadow-lg shadow-primary/20
         transition-all duration-200 
-        disabled:bg-primary-disabled disabled:text-secondary-muted disabled:shadow-none
+        disabled:bg-surface-disabled disabled:text-secondary-muted disabled:shadow-none disabled:translate-y-0 disabled:scale-100
         flex justify-center items-center gap-2 uppercase tracking-wider
         ${className}
       `}
     >
       {isLoading ? (
         <>
-          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <span className="w-4 h-4 border-2 border-inverse/30 border-t-inverse rounded-full animate-spin" />
           <span>{loadingText || "Loading..."}</span>
         </>
       ) : (

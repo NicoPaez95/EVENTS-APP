@@ -51,12 +51,12 @@ const PrimaryInput = ({
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
             // 1. Base default layout classes applied consistently
-            "w-full px-4 py-3 border border-secondary rounded-2xl transition-[border-color,box-shadow,background-color,opacity] duration-200 outline-none",
-            "focus:ring-4  focus:ring-accent/30 disabled:opacity-70 disabled:bg-secondary/10",
+            "w-full px-4 py-3 border border-secondary-border rounded-2xl transition-[border-color,box-shadow,background-color,opacity] duration-200 outline-none",
+            "focus:ring-1  focus:ring-accent/30 disabled:opacity-70 disabled:bg-secondary/10",
             // 2. Conditional status validation styles evaluated dynamically
             error
               ? "border-red-300 bg-red-50 focus:border-red-500"
-              : "border-secondary focus:border-accent bg-surface",
+              : "border-secondary-border focus:border-accent bg-surface",
             // 3. User custom utility class overrides passed via props
             className
           )}

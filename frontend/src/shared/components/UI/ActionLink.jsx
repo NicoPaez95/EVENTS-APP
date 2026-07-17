@@ -6,7 +6,17 @@
  * @author Nico Paez
  */
 
+import React from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+
+/**
+ * @typedef {Object} ActionLinkProps
+ * @property {string} to - The destination route path managed by the router package.
+ * @property {React.ReactNode} children - Text content or inline child elements to render within the link hook.
+ * @property {string} [className=""] - Optional template extension strings for tailored layout modifications.
+ * @property {boolean} [centered=false] - Explicit spatial modifier switch to justify elements symmetrically inside parent nodes.
+ */
 
 /**
  * ActionLink Component.
@@ -15,16 +25,13 @@ import { Link } from "react-router-dom";
  * design hints (such as animated inline direction glyphs) and flexible spatial alignment.
  *
  * @component
- * @param {Object} props - Component properties.
- * @param {string} props.to - The destination route path managed by the router package.
- * @param {React.ReactNode} props.children - Text content or inline child elements to render within the link hook.
- * @param {string} [props.className=""] - Optional template extension strings for tailored layout modifications.
- * @param {boolean} [props.centered=false] - Explicit spatial modifier switch to justify elements symmetrically inside parent nodes.
- * @returns {JSX.Element} An isolated thematic interactive application navigation anchor.
+ * @category Components/Shared/UI
+ * @param {ActionLinkProps} props - Component property payloads.
+ * @returns {React.JSX.Element} An isolated thematic interactive application navigation anchor markup tree.
  */
 const ActionLink = ({ to, children, className = "", centered = false }) => {
   const baseStyles =
-    "group text-[10px] font-bold text-secondary hover:text-accent uppercase tracking-widest transition-all flex items-center gap-1";
+    "group text-[10px] font-bold text-action hover:text-action-hover uppercase tracking-widest transition-all flex items-center gap-1";
   const alignment = centered ? "justify-center" : "";
 
   return (
@@ -38,6 +45,18 @@ const ActionLink = ({ to, children, className = "", centered = false }) => {
       </span>
     </Link>
   );
+};
+
+ActionLink.propTypes = {
+  to: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+  centered: PropTypes.bool,
+};
+
+ActionLink.defaultProps = {
+  className: "",
+  centered: false,
 };
 
 export default ActionLink;

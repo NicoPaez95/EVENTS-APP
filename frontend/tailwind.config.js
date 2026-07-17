@@ -1,59 +1,68 @@
-// ===============================
-// Tailwind CSS Configuration
-// -------------------------------
-// Defines the project's design tokens and 
-// determines which files the compiler scans 
-// to generate utility classes.
-// ===============================
-
 /**
- * @type {import('tailwindcss').Config} 
- * * This configuration ensures Tailwind's "Just-In-Time" (JIT) engine 
- * scans the correct files and allows for project-specific 
- * theme extensions like colors or custom spacing.
+ * @file tailwind.config.js
+ * @description Tailwind CSS framework design tokens configuration.
+ * Maps application semantic color palettes, custom typography families,
+ * layout surface variants, and interactive UI micro-animation keyframes.
+ * @type {import('tailwindcss').Config}
+ * @module config/tailwind
+ * @author Nico Paez
  */
+
 export default {
   content: [
-    /**
-     * Paths to all of our components and pages.
-     * Tailwind will tree-shake any unused styles based on these files.
-     */
+    "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
-      /**
-       * Custom Theme Extensions mapped by operational roles.
-       */
       colors: {
-        background: '#f8fafc',//'#F8FAFC',
-        surface: ' #ffffff',//'#FFFFFF',
-        inverse: '#ffffff',
+        // 1. Contrast Utilities & Typography Overlays
+        inverse: '#FFFFFF',
+
+        // 2. Brand Identity & Interactive States
         primary: {
-          DEFAULT: '#0f172a',//'#0F172A',
-          hover: '#1E293B',
-          disabled: '#CBD5E1'
-        },
-        secondary: {
-          DEFAULT: '#475569',
-          light: '#F1F5F9',
-          border: '#e2e8f0', //'#E2E8F0',
-          muted: '#94A3B8',
+          DEFAULT: '#00ACEE', // Main bright sky blue
+          hover: '#0284C7',   // Deeper blue interaction variant
         },
         accent: {
-          DEFAULT: '#2563eb',// '#0EA5E9',
-          hover: '#0284C7',
-          muted: '#eff6ff',//'#E0F2FE',
-          light: '#60a5fa',
-          dark: '#0f1e43',
-
+          DEFAULT: '#2563EB', // High-contrast action blue
+          hover: '#1D4ED8',   // Focus interaction state
+          muted: '#EFF6FF',   // Subtle alert backgrounds
+          light: '#60A5FA',   // Border highlight variants
+          dark: '#0F1E43',    // Dark contextual text
         },
+
+        // 3. UI Surface Container System
+        surface: {
+          DEFAULT: '#FCFCFD',  // Primary card container backgrounds
+          subcard: '#F1F5F9',  // Secondary nesting structures
+          page: '#F8FAFC',     // Structural application background canvas
+          disabled: '#F8FAFC', // Read-only form components
+          input: '#FFFFFF',    // Interactive field text inputs
+        },
+
+        // 4. Semantic Typographies & Layout Borders
+        secondary: {
+          DEFAULT: '#475569',
+          title: '#0F172A',       // Main viewport layouts headings
+          subtitle: '#334155',    // Inner section headers
+          description: '#475569', // Body text paragraphs
+          muted: '#94A3B8',       // Deactivated state descriptions
+          border: '#E2E8F0',      // Standard container lines
+          input: '#FFFFFF',       // Secondary form elements token
+        },
+
+        // 5. System Status Notifications
         danger: {
           DEFAULT: '#EF4444',
           hover: '#DC2626',
           light: '#FEF2F2',
         },
-        success: '#10B981'
+        success: '#10B981',
+        action: {
+          DEFAULT: '#0284C7',
+          hover: '#0369A1',
+        },
       },
       fontFamily: {
         sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
@@ -67,23 +76,25 @@ export default {
         shadowFloat: {
           '0%, 100%': {
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-            transform: 'scale(1)'
+            transform: 'scale(1)',
           },
           '50%': {
             boxShadow: '0 35px 60px -15px rgba(0, 0, 0, 0.15)',
-            transform: 'scale(0.93)'
+            transform: 'scale(0.93)',
           },
-        }
-
+        },
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '25%': { transform: 'scale(1.2)' },
+          '40%': { transform: 'scale(1.05)' },
+          '60%': { transform: 'scale(1.15)' },
+        },
       },
       animation: {
         'float-slow': 'float 4s ease-in-out infinite',
-      }
+        heartbeat: 'heartbeat 0.4s ease-in-out',
+      },
     },
   },
-  plugins: [
-    /**
-     * Official or custom plugins (e.g., forms, typography, line-clamp).
-     */
-  ],
+  plugins: [],
 };

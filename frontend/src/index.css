@@ -1,25 +1,41 @@
 /**
- * Global Styles Entry Point.
- * -------------------------------
- * This file initializes the Tailwind CSS framework by injecting 
- * the base styles, component classes, and utility layers.
- * * @layer base - Resets and standard HTML element styles.
- * @layer components - Reusable complex classes (buttons, cards, etc.).
- * @layer utilities - Low-level functional classes (margin, padding, flex).
+ * @file index.css
+ * @description Global styles entry point.
+ * Initializes the Tailwind CSS layers and configures root design tokens,
+ * typography imports, and core HTML body container resets.
+ * @module styles/global
+ * @author Nico Paez
  */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Global Overrides (Optional) */
-:root {
-  --app-bg-color: #f8fafc;
-}
+@layer base {
+  :root {
+    /* Main Layout Design Tokens & Surface Assets */
+    --app-bg: radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 45%),
+      linear-gradient(180deg,
+        #fafafa 0%,
+        #ececec 35%,
+        #dbdbdb 70%,
+        #c3c3c5 100%);
+  }
 
-body {
-  background-color: var(--app-bg-color);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--app-bg);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
