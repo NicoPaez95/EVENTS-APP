@@ -158,10 +158,10 @@ const EventsFeature = ({ onDirectPurchase }) => {
         onDirectPurchase={handleDirectPurchaseWorkflow}
         onDetailNavigate={handleDetailNavigate}
         i18n={{
-          directPurchase: t("eventCard.buy"),
-          viewDetails: t("eventCard.viewDetails"),
-          addtocart: t("eventCard.addtocart"),
-          addedtocart: t("eventCard.addedtocart"),
+          directPurchase: t("events.eventCard.buy"),
+          viewDetails: t("events.eventCard.viewDetails"),
+          addtocart: t("events.eventCard.addtocart"),
+          addedtocart: t("events.eventCard.addedtocart"),
         }}
       />
     </section>

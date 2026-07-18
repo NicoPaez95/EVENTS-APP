@@ -3,6 +3,7 @@
  * @description Presentational component for displaying a summarized event card with defensive UI image handling.
  * Integrates atomic UI components for consistent typography, branding, spacing, and bookmark isolation.
  * Completely decoupled from global side-effects, relying entirely on layout injection handlers and internationalization payloads.
+ * Supports a flexible design matrix containing both default and compact display configurations.
  * @module components/events/EventCard
  * @author Nico Paez
  */
@@ -47,6 +48,7 @@ import { resolveEventImage } from "../utils/eventFallbackMapper";
  * @property {Function} [onCartToggle] - Business mutation callback dispatched to handle additions or removals from the shopping cart.
  * @property {Function} [onDirectPurchase] - Interceptor hook dispatched when triggering immediate express checkout workflow.
  * @property {Function} [onDetailNavigate] - Clean layout callback used to route browser location to an exclusive details view.
+ * @property {("default"|"compact")} [variant="default"] - Layout structural configuration determining bounding box constraints and font scales.
  * @property {EventCardI18n} i18n - Structured localization dictionary payload delegated down from the parent orchestration layer.
  */
 
@@ -77,9 +79,11 @@ const EventCard = ({
   onCartToggle,
   onDirectPurchase,
   onDetailNavigate,
+  variant = "default",
   i18n,
 }) => {
   const resolvedImage = resolveEventImage(category, image);
+  const isCompact = variant === "compact";
 
   const eventPayload = {
     id,
@@ -92,14 +96,26 @@ const EventCard = ({
   };
 
   return (
-    <article className="group relative bg-surface border border-secondary-border rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+    /* 
+      The layout uses h-auto to enforce proportional height changes driven 
+      by the width constraints and the inner media aspect ratio.
+    */
+    <article
+      className={`group relative bg-surface border border-secondary-border rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-auto w-full ${
+        isCompact ? "max-w-[260px]" : "max-w-[340px]"
+      }`}
+    >
       <BookmarkButton
         isSaved={isSaved}
         showRemoveButton={showRemoveButton}
         onClick={() => onToggleSave && onToggleSave(id)}
-        className="absolute top-3 right-3 z-10 scale-90"
+        className={`absolute top-3 right-3 z-10 ${isCompact ? "scale-75" : "scale-90"}`}
       />
 
+      {/* 
+        Enforces a uniform layout profile across both standard and compact views.
+        Prevents horizontal stretching by letting the height scale reactively.
+      */}
       <div
         onClick={() => onDetailNavigate && onDetailNavigate(id)}
         className="relative w-full aspect-video bg-surface-subcard overflow-hidden cursor-pointer"
@@ -112,13 +128,18 @@ const EventCard = ({
         />
       </div>
 
-      <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
-        <div className="space-y-3">
+      {/* Structured content container using conditional padding to support scaled down layouts */}
+      <div
+        className={`${isCompact ? "p-3 space-y-2" : "p-5 space-y-3"} flex-grow flex flex-col justify-between`}
+      >
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-accent uppercase tracking-widest bg-accent-muted px-2 py-1 rounded-md">
+            <span className="text-[9px] font-bold text-accent uppercase tracking-widest bg-accent-muted px-1.5 py-0.5 rounded-md">
               {category}
             </span>
-            <span className="text-sm font-bold text-secondary-title font-display">
+            <span
+              className={`font-bold text-secondary-title font-display ${isCompact ? "text-xs" : "text-sm"}`}
+            >
               ${price.toLocaleString()}
             </span>
           </div>
@@ -127,27 +148,37 @@ const EventCard = ({
             to={`/events/${id}`}
             className="block group-hover:text-primary transition-colors"
           >
-            <h3 className="font-bold text-lg text-secondary-title leading-tight line-clamp-2">
+            <h3
+              className={`font-bold text-secondary-title leading-tight line-clamp-2 ${isCompact ? "text-xs" : "text-lg"}`}
+            >
               {title}
             </h3>
           </Link>
 
-          <div className="space-y-2 pt-1">
+          <div className="space-y-1 pt-0.5">
             <EventDate date={date} />
             <VenueInfo venue={venue} isClickable={false} />
           </div>
         </div>
       </div>
 
-      <footer className="px-5 pb-5 pt-4 border-t border-secondary-border flex flex-col space-y-3 mt-auto">
-        <div className="flex flex-col gap-2 w-full">
+      <footer
+        className={`border-t border-secondary-border flex flex-col ${
+          isCompact
+            ? "px-3 pb-3 pt-2 space-y-1.5"
+            : "px-5 pb-5 pt-3 space-y-2.5"
+        }`}
+      >
+        <div className="flex flex-col gap-1 w-full">
           <PrimaryButton
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               if (onDirectPurchase) onDirectPurchase(eventPayload);
             }}
-            className="w-full text-xs py-3 px-4 rounded-xl tracking-wide shadow-sm text-center justify-center"
+            className={`w-full text-center justify-center rounded-xl tracking-wide shadow-sm ${
+              isCompact ? "text-[10px] py-1.5 px-2.5" : "text-xs py-2.5 px-4"
+            }`}
           >
             {i18n?.directPurchase}
           </PrimaryButton>
@@ -155,21 +186,18 @@ const EventCard = ({
           <button
             type="button"
             onClick={() => onCartToggle && onCartToggle(eventPayload)}
-            aria-label={
+            className={`w-full rounded-xl border transition-all duration-300 font-bold tracking-wide flex items-center justify-center gap-1 select-none ${
+              isCompact ? "py-1.5 px-2.5 text-[10px]" : "py-2.5 px-4 text-xs"
+            } ${
               isInCart
-                ? "Remove experience from cart"
-                : "Add experience to cart"
-            }
-            className={`w-full py-3 px-4 rounded-xl border transition-all duration-300 text-xs font-bold tracking-wide flex items-center justify-center gap-1.5 select-none ${
-              isInCart
-                ? "bg-success/10 border-success/30 text-success shadow-sm animate-in fade-in zoom-in-95 duration-200"
+                ? "bg-success/10 border-success/30 text-success shadow-sm"
                 : "bg-surface-subcard border-secondary-border text-secondary-description hover:bg-surface-disabled"
             }`}
           >
             {isInCart ? (
               <>
                 <svg
-                  className="w-3.5 h-3.5 stroke-[3] shrink-0"
+                  className={`${isCompact ? "w-2.5 h-2.5" : "w-3.5 h-3.5"} stroke-[3] shrink-0`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -184,14 +212,14 @@ const EventCard = ({
               </>
             ) : (
               <>
-                <span className="text-sm mr-1">🛒</span>
+                <span className="text-xs">🛒</span>
                 <span>{i18n?.addtocart}</span>
               </>
             )}
           </button>
         </div>
 
-        <div className="text-center pt-1">
+        <div className="text-center pt-0.5">
           <ActionLink to={`/events/${id}`}>{i18n?.viewDetails}</ActionLink>
         </div>
       </footer>
@@ -217,22 +245,13 @@ EventCard.propTypes = {
   onCartToggle: PropTypes.func,
   onDirectPurchase: PropTypes.func,
   onDetailNavigate: PropTypes.func,
+  variant: PropTypes.oneOf(["default", "compact"]),
   i18n: PropTypes.shape({
     directPurchase: PropTypes.string.isRequired,
     viewDetails: PropTypes.string.isRequired,
     addtocart: PropTypes.string.isRequired,
     addedtocart: PropTypes.string.isRequired,
   }).isRequired,
-};
-
-EventCard.defaultProps = {
-  price: 0,
-  image: null,
-  showRemoveButton: false,
-  onToggleSave: null,
-  onCartToggle: null,
-  onDirectPurchase: null,
-  onDetailNavigate: null,
 };
 
 export default EventCard;

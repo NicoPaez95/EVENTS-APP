@@ -185,16 +185,20 @@ const EventDetailsFeature = ({
       <div className="space-y-8">
         <PageHeader title={t("eventDetailsFeature.pageHeader")} level={3} />
 
-        <EventGrid
-          events={relatedEvents}
-          onToggleSave={onToggleSave}
-          isEventSaved={isEventSaved}
-          onDirectPurchase={handleSecureTickets}
-          i18n={{
-            directPurchase: t("events.eventCard.buy"),
-            viewDetails: t("events.eventCard.viewDetails"),
-          }}
-        />
+        <div className="w-full mx-auto">
+          <EventGrid
+            events={relatedEvents}
+            cols="lg:grid-cols-3"
+            variant="compact"
+            onToggleSave={onToggleSave}
+            isEventSaved={isEventSaved}
+            onDirectPurchase={handleSecureTickets}
+            i18n={{
+              directPurchase: t("events.eventCard.buy"),
+              viewDetails: t("events.eventCard.viewDetails"),
+            }}
+          />
+        </div>
       </div>
     </div>
   );

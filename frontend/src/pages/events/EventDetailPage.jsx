@@ -21,11 +21,11 @@ import EventDetailHub from "../../events/features/EventDetailHub";
  */
 const EventDetailPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="container mx-auto py-12 px-4">
+    <div className="w-full">
+      <div className="py-6">
         {/* Isolated autonomous ecosystem handles all business and layout orchestration */}
         <EventDetailHub />
-      </main>
+      </div>
     </div>
   );
 };

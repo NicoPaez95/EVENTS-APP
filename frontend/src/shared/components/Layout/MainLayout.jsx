@@ -1,3 +1,13 @@
+/**
+ * @file MainLayout.jsx
+ * @description Primary UI Shell orchestrating the application's global layout structure.
+ * Manages core responsive grids, persistent navigation elements, and dynamic nested routing viewports.
+ * @module components/shared/layouts/MainLayout
+ * @author Nico Paez
+ */
+
+import React from "react";
+import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import HeaderBar from "./HeaderBar";
@@ -5,29 +15,24 @@ import HeaderBar from "./HeaderBar";
 /**
  * MainLayout Component.
  *
- * This component serves as the primary UI Shell for the application. It defines
- * the global grid system and orchestrates the placement of persistent navigation
- * elements (Header and Sidebar).
+ * Serves as the global frame for the application. Establishes the layout system
+ * and orchestrates structural placement for persistent shell elements.
  *
- * Architectural Strategy:
- * - Nested Route Hosting: Utilizes the `Outlet` component from react-router-dom
- *   to act as a parent route wrapper, allowing dynamic page content to be
- *   injected into the primary content area.
- * - Flexible Grid System: Employs a dynamic Tailwind grid that adapts based on
- *   the `showSidebar` flag, switching between a multi-column layout for discovery
- *   and a centered, focused layout for details.
- * - Legacy Compatibility: Maintains support for `children` to allow the component
- *   to be used as a traditional wrapper if needed, though `Outlet` is the
- *   preferred method for routed pages.
+ * Architectural Design:
+ * - Nested Route Hosting: Leverages the react-router-dom `Outlet` to establish
+ *   a parent routing viewport where dynamic page views are seamlessly injected.
+ * - Flexible Grid Architecture: Implements a responsive Tailwind grid that evaluates
+ *   the `showSidebar` state, alternating between a multi-column discovery layout
+ *   and a focused, high-density presentation block for specific domain views.
+ * - Legacy Compatibility Matrix: Preserves direct `children` injection slots to safely
+ *   support standard non-routed page wrappers without introducing breaking changes.
  *
  * @component
  * @category Components/Shared
- *
  * @param {Object} props - Component properties.
- * @param {React.ReactNode} [props.children] - Manually injected content (optional fallback).
- * @param {boolean} [props.showSidebar=true] - Toggle to enable or disable the sidebar grid.
- *
- * @returns {JSX.Element} The main application layout structure.
+ * @param {React.ReactNode} [props.children] - Legacy programmatic fallback slot for non-routed pages.
+ * @param {boolean} [props.showSidebar=true] - Structural layout flag to toggle sidebar grid layouts.
+ * @returns {React.JSX.Element} The foundational layout architecture shell.
  */
 const MainLayout = ({ children, showSidebar = true }) => {
   return (
@@ -37,7 +42,7 @@ const MainLayout = ({ children, showSidebar = true }) => {
 
       <div
         className={`grid grid-cols-1 ${
-          showSidebar ? "lg:grid-cols-12" : "max-w-5xl mx-auto"
+          showSidebar ? "lg:grid-cols-12" : "max-w-7xl mx-auto w-full"
         } gap-8`}
       >
         {/* Primary Content Region */}
@@ -48,21 +53,22 @@ const MainLayout = ({ children, showSidebar = true }) => {
           role="main"
         >
           {/* 
-            The Outlet acts as a placeholder for the matched child route.
-            This is where Home, Profile, and other pages are rendered.
+            The Outlet acts as a declarative layout placeholder for the current route.
+            Injects top-level pages like Home, Profile, and dynamic dashboards.
           */}
           <Outlet />
 
           {/* 
-            Backward compatibility slot for components rendered outside 
-            the standard nested route tree.
+            Backward compatibility slot for views processed directly 
+            outside the standard nested routing ecosystem.
           */}
           {children}
         </main>
 
         {/* 
-          Conditional Sidebar: 
-          Only rendered if the layout configuration allows it (showSidebar={true}).
+          Conditional Sidebar:
+          Evaluates the parent layout configuration rule to conditionally mount
+          and isolate context navigation panels.
         */}
         {showSidebar && (
           <aside className="lg:col-span-3" role="complementary">
@@ -72,6 +78,11 @@ const MainLayout = ({ children, showSidebar = true }) => {
       </div>
     </div>
   );
+};
+
+MainLayout.propTypes = {
+  children: PropTypes.node,
+  showSidebar: PropTypes.bool,
 };
 
 export default MainLayout;
