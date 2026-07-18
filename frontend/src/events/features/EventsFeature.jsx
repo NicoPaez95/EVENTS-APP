@@ -124,9 +124,9 @@ const EventsFeature = ({ onDirectPurchase }) => {
     return (
       <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <EmptyState
-          title={t("emptyState.notFound.title")}
-          description={t("emptyState.notFound.description")}
-          actionText={t("emptyState.notFound.actionText")}
+          title={t("events.emptyState.notFound.title")}
+          description={t("events.emptyState.notFound.description")}
+          actionText={t("events.emptyState.notFound.actionText")}
           onAction={clearFilters}
         />
       </div>

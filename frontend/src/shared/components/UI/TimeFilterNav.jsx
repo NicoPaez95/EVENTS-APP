@@ -1,7 +1,7 @@
 /**
  * @file TimeFilterNav.jsx
  * @description Presentational navigation bar rendering reusable time-window filter buttons.
- * Provides a standardized visual interface for switching granular temporal metrics.
+ * Provides a standardized visual interface for switching granular temporal metrics aligned with the design tokens.
  * @module shared/components/UI/TimeFilterNav
  * @author Nico Paez
  */
@@ -36,11 +36,6 @@ const TimeFilterNav = ({
   customFilters,
   i18n,
 }) => {
-  /**
-   * Fallback configuration mapping collection for horizontal navigation buttons.
-   * Defensively handles missing nested namespace fields to avoid runtime breakdown.
-   * @type {FilterButton[]}
-   */
   const defaultFilters = [
     { id: "24h", label: i18n?.timeFilterNav?.dia || "Today" },
     { id: "7d", label: i18n?.timeFilterNav?.semana || "This Week" },
@@ -51,9 +46,6 @@ const TimeFilterNav = ({
   const buttons = customFilters || defaultFilters;
 
   return (
-    /* Utilizes spacing scale (gap-4 mapping to 16px) for corporate consistency. 
-      The modern flex-wrap ensures flawless execution on smaller devices (Mobile-First).
-    */
     <nav className="flex flex-wrap gap-4" aria-label="Time filters">
       {buttons.map((btn) => {
         const isActive = activeFilter === btn.id;
@@ -63,10 +55,10 @@ const TimeFilterNav = ({
             key={btn.id}
             type="button"
             onClick={() => onFilterChange(btn.id)}
-            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95 border ${
               isActive
-                ? "bg-accent text-surface border-accent shadow-md shadow-sky-100 scale-105"
-                : "bg-surface text-secondary border-slate-200 hover:border-primary hover:text-primary"
+                ? "bg-primary text-inverse border-primary shadow-lg shadow-primary/20 scale-105"
+                : "bg-surface text-secondary border-secondary-border/20 hover:border-primary hover:text-primary"
             }`}
           >
             {btn.label}

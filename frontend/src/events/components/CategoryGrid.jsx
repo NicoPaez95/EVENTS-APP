@@ -19,7 +19,7 @@ import CategoryCard from "./CategoryCard";
 const CategoryGrid = ({ categories = [], onCategoryClick }) => {
   return (
     <section
-      className="flex flex-wrap justify-center gap-4 p-4"
+      className="flex flex-nowrap justify-center gap-4 p-4"
       aria-label="Event categories selection"
     >
       {categories.map((category) => (

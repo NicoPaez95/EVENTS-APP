@@ -68,7 +68,7 @@ const UpcomingListFeature = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg text-slate-600 animate-pulse">
+        <p className="text-lg font-medium text-secondary animate-pulse">
           {t("savedEventsListFeature.loading")}
         </p>
       </div>
@@ -76,7 +76,7 @@ const UpcomingListFeature = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8 animate-fade-in">
+    <div className="container mx-auto py-8 space-y-8 animate-in fade-in duration-500">
       {/* Feature Header & Filter Controls */}
       <div className="space-y-6">
         <PageHeader title={t("upcomingListFeature.pageHeader")} level={2} />
@@ -108,15 +108,17 @@ const UpcomingListFeature = () => {
             }}
           />
         ) : (
-          /* Empty State Handler for filtered results */
-          <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-            <p className="text-slate-500 text-lg">
+          /* Empty State Handler for filtered results adjusted to modern token palette */
+          <div className="text-center py-20 bg-surface rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center px-4">
+            <p className="text-secondary text-lg max-w-md font-medium">
               {t("upcomingListFeature.notFound")}
             </p>
             <button
               type="button"
               onClick={() => setTimeFilter("all")}
-              className="mt-4 text-blue-600 font-semibold hover:underline"
+              className="mt-6 text-sm font-bold px-5 py-2.5 rounded-full border border-slate-200 
+                         text-primary hover:border-primary bg-white shadow-sm transition-all duration-200 
+                         active:scale-95 tracking-wide"
             >
               {t("upcomingListFeature.showAll")}
             </button>
