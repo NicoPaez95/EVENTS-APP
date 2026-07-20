@@ -1,5 +1,6 @@
 {
     "featured": {
+        "loadingState": "Loading Featured Experiences...",
         "sectionTitle": "Featured Experiences",
         "clickToSeeDetails": "Click to see details →"
     },

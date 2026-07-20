@@ -21,7 +21,7 @@ import CartHub from "../../cart/features/CartHub";
  */
 const CartPage = () => {
   return (
-    <main className="min-h-screen bg-slate-50/50 py-12">
+    <main className="min-h-screen bg-surface-page py-12">
       <CartHub />
     </main>
   );

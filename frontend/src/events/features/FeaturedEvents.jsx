@@ -2,31 +2,35 @@ import { useMemo } from "react";
 import { useEvents } from "../hooks/useEvents";
 import FeaturedEventsCarousel from "../components/FeaturedEventsCarousel";
 import PageHeader from "shared/components/UI/PageHeader";
+import LoadingState from "shared/components/UI/LoadingState";
 import { useTranslation } from "react-i18next";
 
 /**
  * FeaturedEvents Feature Component (Smart Component).
- * * This component orchestrates the data requirements for the highlighted events section.
+ *
+ * This component orchestrates the data requirements for the highlighted events section.
  * It is decoupled from the active search filters to ensure visual persistence
  * on the Home page.
- * * @component
+ *
+ * @component
  * @category Features
- * * @description
+ *
+ * @description
  * **Architectural Strategy**:
  *
  * 1. **Internationalization**: Uses the `t` translation function from i18next
  *    to render localized UI text.
  *
  * 2. **Data Decoupling**: Consumes `allEvents` (master catalog) instead of `events` (filtered state).
- * This prevents the carousel from disappearing when a user filters by location or category.
+ *    This prevents the carousel from disappearing when a user filters by location or category.
  *
  * 3. **Performance Optimization**: Uses `useMemo` to filter the featured list only when
- * the master catalog changes, preventing redundant calculations during search inputs.
+ *    the master catalog changes, preventing redundant calculations during search inputs.
  *
  * 4. **Conditional Rendering**: Implements a "Zero-State" guard that unmounts the section
- * if no featured events are found in the source data.
+ *    if no featured events are found in the source data.
  *
- * * @returns {JSX.Element|null} The orchestrated featured section or a skeleton loader.
+ * @returns {JSX.Element|null} The orchestrated featured section or a skeleton loader.
  */
 const FeaturedEvents = () => {
   /**
@@ -52,14 +56,15 @@ const FeaturedEvents = () => {
 
   /**
    * Loading State:
-   * Provides a pulse skeleton loader to prevent Layout Shift (CLS)
-   * while the master catalog is being resolved.
+   * Delegates the waiting lifecycle step to the Shared UI Layer atom
+   * to guarantee systemic visual consistency.
    */
   if (loading) {
     return (
-      <div
-        className="h-64 md:h-80 w-full bg-slate-100 animate-pulse rounded-2xl mb-8 container mx-auto px-4"
-        aria-hidden="true"
+      <LoadingState
+        message={
+          t("featured.loadingState") || t("eventDetailsFeature.loadingState")
+        }
       />
     );
   }

@@ -21,7 +21,7 @@ import UserAuthHub from "../../user/features/UserAuthHub";
  */
 const AuthPage = () => {
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col justify-center py-20 px-4">
+    <main className="min-h-screen bg-surface-page flex flex-col justify-center py-20 px-4">
       <UserAuthHub />
     </main>
   );

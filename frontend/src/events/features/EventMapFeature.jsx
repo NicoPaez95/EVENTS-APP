@@ -53,13 +53,13 @@ const EventMapFeature = ({ venue }) => {
   const googleMapsUrl = getExternalMapUrl(venue.lat, venue.lng, venue.name);
 
   return (
-    <section className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+    <section className="bg-surface p-6 rounded-3xl border border-secondary-border shadow-sm">
       <header className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-secondary-title">
             {t("eventMapFeature.location")}
           </h3>
-          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+          <p className="text-[10px] text-secondary-muted uppercase tracking-widest font-bold">
             {t("eventMapFeature.poweredBy")}
           </p>
         </div>
@@ -69,19 +69,19 @@ const EventMapFeature = ({ venue }) => {
           href={googleMapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+          className="bg-accent-muted text-accent px-4 py-2 rounded-xl text-xs font-bold hover:bg-accent-hover hover:text-inverse transition-all shadow-sm"
         >
           {t("eventMapFeature.getDirections")}
         </a>
       </header>
 
       {/* Real Map Canvas Viewport Container */}
-      <div className="w-full h-64 rounded-2xl overflow-hidden border border-slate-100 relative group">
+      <div className="w-full h-64 rounded-2xl overflow-hidden border border-secondary-border relative group">
         <InteractiveMap lat={venue.lat} lng={venue.lng} title={venue.name} />
 
         {/* Subtle hover overlay guidance tooltips */}
         <div className="absolute top-2 right-2 z-[400] opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-slate-500 shadow-sm border">
+          <div className="bg-inverse/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-secondary-muted shadow-sm border border-secondary-border">
             {t("eventMapFeature.useForGps")}
           </div>
         </div>

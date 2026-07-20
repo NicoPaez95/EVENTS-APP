@@ -32,18 +32,20 @@ const WeatherFeature = ({ location }) => {
   // --- Asynchronous Conditional Render Lifecycle Boundaries ---
 
   if (loading) {
+    // Retains Skeleton UI to prevent CLS and maintain widget structure,
+    // updated to semantic design tokens.
     return (
-      <div className="p-5 bg-slate-100 rounded-2xl animate-pulse flex flex-col gap-2 h-32 justify-center">
-        <div className="h-4 w-24 bg-slate-200 rounded" />
-        <div className="h-8 w-16 bg-slate-200 rounded" />
+      <div className="p-5 bg-surface rounded-2xl border border-secondary-border animate-pulse flex flex-col gap-2 h-32 justify-center">
+        <div className="h-4 w-24 bg-secondary-border/50 rounded" />
+        <div className="h-8 w-16 bg-secondary-border/50 rounded" />
       </div>
     );
   }
 
   if (error || !weather) {
     return (
-      <div className="p-4 border border-dashed border-slate-200 rounded-2xl text-center">
-        <p className="text-xs text-slate-400 italic">
+      <div className="p-4 border border-dashed border-secondary-border rounded-2xl text-center">
+        <p className="text-xs text-secondary-muted italic">
           {t("WeatherFeature.weatherUnavailable")}
         </p>
       </div>

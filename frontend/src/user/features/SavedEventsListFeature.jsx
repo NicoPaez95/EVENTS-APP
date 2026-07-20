@@ -6,7 +6,7 @@
  * @author Nico Paez
  */
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEvents } from "../../events/hooks/useEvents";
 import { useUser } from "../context/UserContext";
@@ -28,7 +28,7 @@ import EventCardSkeleton from "../../shared/components/UI/EventCardSkeleton";
  *
  * @component
  * @category Features/User
- * @returns {JSX.Element} Populated event cards matching standard or strict calendar parameters.
+ * @returns {React.JSX.Element} Populated event cards matching standard or strict calendar parameters.
  */
 const SavedEventsListFeature = () => {
   const { events, loading } = useEvents();
@@ -108,8 +108,11 @@ const SavedEventsListFeature = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Dynamic Header: Adapts based on active URL filters or selected time scope */}
-      <header className="border-b border-slate-100 pb-6 space-y-6">
+      {/* 
+        Dynamic Header: Adapts based on active URL filters or selected time scope.
+        Updated border to map semantic design tokens.
+      */}
+      <header className="border-b border-secondary-border/50 pb-6 space-y-6">
         {/* Integrated Reusable Title with Pluralized Event Count Context */}
         <PageHeader
           title={

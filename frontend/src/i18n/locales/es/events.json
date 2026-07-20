@@ -1,5 +1,6 @@
 {
     "featured": {
+        "loadingState": "Cargando experiencias destacadas...",
         "sectionTitle": "Experiencias Destacadas",
         "clickToSeeDetails": "Click para ver detalles →"
     },
@@ -169,7 +170,7 @@
     },
     "userAuthHub": {
         "islogin": {
-            "welcome": "Te Damos la Bienvenida",
+            "welcome": "Bienvenido",
             "createAccount": "Crear Cuenta",
             "enterDetails": "Ingresa tus datos para acceder a tu cuenta",
             "join": "Únete a nuestra comunidad de exploradores"
