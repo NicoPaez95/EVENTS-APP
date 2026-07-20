@@ -1,12 +1,13 @@
 /**
  * @file RecommendedEventsFeature.jsx
- * @description Feature orchestrator that manages recommendation data mapping and logic.
- * Decouples layout persistence from ambient runtime feed filters to ensure stable sidebar suggestions.
+ * @description Feature orchestrator that manages recommendation data mapping and business logic filters.
+ * Decouples layout state from active catalog queries to maintain persistent sidebar suggestions.
  * @module features/events/RecommendedEventsFeature
  * @author Nico Paez
  */
 
 import React, { useMemo } from "react";
+import PropTypes from "prop-types";
 import { useEvents } from "../hooks/useEvents";
 import RecommendedEvents from "../components/RecommendedEvents";
 import { getRecommendedEvents } from "events/utils/filterEvents";
@@ -16,82 +17,64 @@ import { useTranslation } from "react-i18next";
 /**
  * RecommendedEventsFeature Component (Feature Orchestrator).
  *
- * A specialized "Smart Component" that serves as the data provider for the
- * recommendation engine domain.
+ * A specialized "Smart Component" acting as the data and business provider for the
+ * recommendation engine subdomain.
  *
  * Architectural Strategy:
- * To maintain a consistent User Experience, this component consumes `allEvents`
- * (the master catalog) instead of the filtered `events` array. This decoupling
- * ensures that recommendations stay visible in the sidebar even when the user
- * applies restrictive search filters in the main view.
+ * To maximize conversion and user experience, this orchestrator consumes the unfiltered
+ * `allEvents` master collection instead of active view states. This boundaries design
+ * guarantees recommendations remain visible in peripheral layouts even when users apply
+ * destructive search criteria or restrictive category tags in the primary route viewport.
  *
  * @component
  * @category Features/Events
- * @returns {React.JSX.Element|null} The recommended events section or null if empty.
+ * @param {Object} props - Component property payloads.
+ * @param {boolean} [props.showHeader=true] - Toggles local header component rendering. Enforces false when hosted by compound accordion containers.
+ * @returns {React.JSX.Element|null} The encapsulated recommendation stack or null if data collections are empty.
  */
-const RecommendedEventsFeature = () => {
-  /**
-   * Global State Consumption.
-   * Extracts the full master list from EventsContext.
-   */
+const RecommendedEventsFeature = ({ showHeader = true }) => {
   const { allEvents } = useEvents();
-
-  /**
-   * Internationalization Hook scoped to the local events localization bundle workspace.
-   * @type {Object}
-   */
   const { t } = useTranslation("events");
 
   /**
-   * Memoized Recommendation Logic.
-   *
-   * Processing Sequence:
-   * 1. Invokes the `getRecommendedEvents` utility to filter by 'isRecommended' flag.
-   * 2. Limits the output to 3 items to preserve sidebar layout integrity.
-   * 3. Performance: Only re-computes if the master catalog structure changes.
-   *
+   * Memoized execution branch preventing expensive computation loops on global catalog mutations.
    * @type {Array<Object>}
    */
   const recommended = useMemo(() => {
     return getRecommendedEvents(allEvents, { limit: 3 });
   }, [allEvents]);
 
-  /**
-   * Defensive Rendering Guard.
-   * Returns null to avoid rendering empty headers or containers if the
-   * recommendation engine returns no matches.
-   */
-  if (recommended.length === 0) {
-    return null;
-  }
+  if (recommended.length === 0) return null;
 
   return (
-    <section
-      className="w-full animate-in fade-in duration-700"
-      aria-labelledby="recommended-title"
-    >
-      {/* Standardized Section Header linked via accessibility anchors */}
-      <PageHeader
-        id="recommended-title"
-        title={t("recommendedEventsFeature.title")}
-        level={3}
-        className="mb-4 px-1"
-      />
-
+    <section className="w-full animate-in fade-in duration-700">
       {/* 
-        Presentational Layer:
-        Delegates the UI mapping and styling to the stateless 
-        RecommendedEvents presentational component.
+        Conditional Presentation Boundary:
+        Renders standalone headers if mounted directly into isolated structural views.
+        Bypasses local rendering inside accordion panels to prevent heading duplications.
       */}
+      {showHeader && (
+        <PageHeader
+          id="recommended-title"
+          title={t("recommendedEventsFeature.title")}
+          level={3}
+          textColor="text-accent"
+          className="mb-4 px-1"
+        />
+      )}
+
       <RecommendedEvents
         events={recommended}
         i18n={{
-          title: t("recommendedEventsFeature.recommendedEvents.title"),
           link: t("recommendedEventsFeature.recommendedEvents.link"),
         }}
       />
     </section>
   );
+};
+
+RecommendedEvents.propTypes = {
+  showHeader: PropTypes.bool,
 };
 
 export default RecommendedEventsFeature;

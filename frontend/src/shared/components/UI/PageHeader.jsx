@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
  * @property {React.ReactNode} [description] - Optional context subtitle text, reactive counters, or micro-state loaders.
  * @property {1|2|3} [level=1] - Semantic HTML heading rank used to generate dynamic nodes (H1, H2, H3).
  * @property {'left'|'center'} [align='left'] - Structural layout inline text orchestration alignment.
+ * @property {string} [textColor='text-primary'] - Tailwind typography design color token class mapping override.
  * @property {string} [className=''] - Escape hatch utility used to inject custom margins, paddings, or flex parameters.
  */
 
@@ -34,6 +35,7 @@ const PageHeader = ({
   description,
   level = 1,
   align = "left",
+  textColor = "text-primary",
   className = "",
   ...props
 }) => {
@@ -57,8 +59,8 @@ const PageHeader = ({
       className={`space-y-2 ${alignStyles[align]} ${className}`}
       {...props} // Securely spreads native attributes (e.g. id for aria-labelledby, data-attributes, roles)
     >
-      {/* Uses text-primary (#0F172A) Slate Dark Blue for maximum visual hierarchy */}
-      <Tag className={`${sizeStyles[level]} text-primary font-sans`}>
+      {/* Dynamic injection of sizing rules and color parameters over structural web fonts */}
+      <Tag className={`${sizeStyles[level]} ${textColor} font-sans`}>
         {title}
       </Tag>
 
@@ -79,6 +81,7 @@ PageHeader.propTypes = {
   description: PropTypes.node,
   level: PropTypes.oneOf([1, 2, 3]),
   align: PropTypes.oneOf(["left", "center"]),
+  textColor: PropTypes.string,
   className: PropTypes.string,
 };
 
@@ -86,6 +89,7 @@ PageHeader.defaultProps = {
   description: null,
   level: 1,
   align: "left",
+  textColor: "text-primary",
   className: "",
 };
 

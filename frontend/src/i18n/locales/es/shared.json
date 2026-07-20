@@ -8,5 +8,13 @@
     "floatingCart": {
         "title": "Mi Carrito",
         "ariaLabel": "Ver el estado de tu carrito de compras"
+    },
+    "sidebar": {
+        "sections": {
+            "weather": "Meteorología 🌤️",
+            "upcoming": "Próximas aventuras 📅",
+            "recommended": "Te puede interesar 🔥",
+            "calendar": "Mi Calendario 📌"
+        }
     }
 }

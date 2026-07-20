@@ -7,6 +7,7 @@
  */
 
 import React, { useMemo } from "react";
+import PropTypes from "prop-types";
 import { useEvents } from "../hooks/useEvents";
 import UpcomingEvents from "../components/UpcomingEvents";
 import PageHeader from "shared/components/UI/PageHeader";
@@ -15,67 +16,57 @@ import { useTranslation } from "react-i18next";
 /**
  * UpcomingSidebarFeature Component (Feature Orchestrator).
  *
- * A specialized "Smart Component" that serves as the data provider for the
- * chronological upcoming roadmap segment in the application sidebar.
+ * A specialized "Smart Component" serving as the data manager for the upcoming events domain.
  *
  * Architectural Strategy:
- * This feature specifically consumes `allEvents` (the master catalog) instead of
- * the filtered `events` array. This ensures that the sidebar remains persistent
- * and unaffected by user-applied search filters or category selections in the
- * main application view.
+ * Similar to the recommendations engine, this orchestrator slices data directly from the
+ * master `allEvents` stream instead of the active filter mutations array. This isolation barrier
+ * guarantees that upcoming structural summaries maintain chronological continuity in peripheral
+ * widgets without being wiped out when users apply highly narrow search terms or category exclusions.
  *
  * @component
  * @category Features/Events
+ * @param {Object} props - Component property payloads.
+ * @param {boolean} [props.showHeader=true] - Structural flag to control polymorphic layout title boundaries. Bypassed inside accordions.
  * @returns {React.JSX.Element|null} The orchestrated sidebar section or null if no data exists.
  */
-const UpcomingSidebarFeature = () => {
-  /**
-   * Global State Consumption.
-   * Extracts the full master list from EventsContext to preserve structural visibility bounds.
-   */
+const UpcomingSidebarFeature = ({ showHeader = true }) => {
   const { allEvents } = useEvents();
-
-  /**
-   * Internationalization Hook scoped to the local events localization bundle workspace.
-   * @type {Object}
-   */
   const { t } = useTranslation("events");
 
   /**
-   * Memoized Chronological Slicing Logic.
-   *
-   * Slices the master catalog to display the top 5 upcoming events.
-   * Memoized to prevent re-calculations during unrelated parent re-renders.
-   *
+   * Memoized processing scope that slices the master collection to provide a top-5 preview array.
    * @type {Array<Object>}
    */
   const sidebarEvents = useMemo(() => {
     return allEvents?.slice(0, 5) || [];
   }, [allEvents]);
 
-  /**
-   * Defensive Rendering Guard.
-   * Prevents rendering an empty section if the event catalog hasn't loaded
-   * or is empty, maintaining a clean UI skeleton balance.
-   */
   if (sidebarEvents.length === 0) {
     return null;
   }
 
   return (
     <section
-      className="animate-in fade-in duration-700 space-y-4"
+      className={`animate-in fade-in duration-700 ${showHeader ? "space-y-4" : ""}`}
       aria-labelledby="upcoming-sidebar-title"
     >
-      {/* Standardized Section Header aligned outside the presentation card */}
-      <PageHeader
-        id="upcoming-sidebar-title"
-        title={t("upcomingSidebarFeature.title")}
-        level={3}
-        className="px-1"
-      />
+      {/* 
+        Polymorphic Title Layout Boundary:
+        Renders isolated PageHeader nodes if used as an independent widget view.
+        Silences local headers inside sidebar accordions to avoid visual duplication.
+      */}
+      {showHeader && (
+        <PageHeader
+          id="upcoming-sidebar-title"
+          title={t("upcomingSidebarFeature.title")}
+          level={3}
+          textColor="text-accent"
+          className="px-1"
+        />
+      )}
 
-      {/* Presentational layer containing strictly the collection list card */}
+      {/* Presentational layer containing strictly the collection list */}
       <UpcomingEvents
         events={sidebarEvents}
         i18n={{
@@ -85,6 +76,10 @@ const UpcomingSidebarFeature = () => {
       />
     </section>
   );
+};
+
+UpcomingSidebarFeature.propTypes = {
+  showHeader: PropTypes.bool,
 };
 
 export default UpcomingSidebarFeature;

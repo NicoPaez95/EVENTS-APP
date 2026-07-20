@@ -120,6 +120,7 @@ const SavedCalendarFeature = () => {
       <PageHeader
         title={t("savedEventsCalendarFeature.title")}
         description={t("savedEventsCalendarFeature.description")}
+        textColor="text-accent"
       />
 
       {/* Presentational Calendar Component View */}

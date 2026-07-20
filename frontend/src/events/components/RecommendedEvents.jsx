@@ -1,7 +1,7 @@
 /**
  * @file RecommendedEvents.jsx
- * @description Presentational component that displays recommended events with thumbnails constrained on the right side.
- * Acts as a contextual widget for cross-promoting related experiences within detail or checkout views.
+ * @description Presentational list sub-renderer that displays recommended events with thumbnails constrained on the right side.
+ * Designed to cleanly stream data entries within layout parent containers like headers or sidebar wrappers.
  * @module components/events/RecommendedEvents
  * @author Nico Paez
  */
@@ -29,8 +29,7 @@ import EventThumbnail from "shared/components/UI/EventThumbnail";
 
 /**
  * @typedef {Object} RecommendedEventsI18n
- * @property {string} title - Localized heading text for the recommendations section.
- * @property {string} link - Localized screen-reader accessible text for the navigation action.
+ * @property {string} link - Localized screen-reader accessible text for navigation action accessibility enhancements.
  */
 
 /**
@@ -42,59 +41,45 @@ import EventThumbnail from "shared/components/UI/EventThumbnail";
 /**
  * RecommendedEvents Presentational Component.
  *
- * A pure user interface element responsible for rendering a list of recommended events.
- * It enforces strict visual constraints, keeping text content on the left and thumbnails on the right,
- * ensuring layout stability across different screen sizes.
+ * A lean user interface element responsible for rendering a list of recommended events.
+ * It enforces strict visual alignment, keeping textual context on the left and thumbnails on the right,
+ * ensuring layout stability across adaptive layout containers.
  *
  * @component
  * @category Components/Events
  * @param {RecommendedEventsProps} props - Component property payloads.
- * @returns {React.JSX.Element} The rendered recommended events section markup tree structure.
+ * @returns {React.JSX.Element} The rendered recommended events list tree structure.
  */
 const RecommendedEvents = ({ events, i18n }) => {
   return (
-    <section
-      className="bg-surface p-5 rounded-2xl shadow-sm border border-secondary-border"
-      aria-labelledby="recommended-heading"
-    >
-      <h2
-        id="recommended-heading"
-        className="text-lg font-bold text-secondary-subtitle mb-4 px-1"
-      >
-        {i18n.title}
-      </h2>
-
-      <div className="space-y-3">
-        {events.map((event) => (
-          <Link
-            key={event.id}
-            to={`/events/${event.id}`}
-            className="block group"
-            aria-label={`${i18n.link} ${event.title}`}
-          >
-            <article className="bg-surface-subcard p-4 rounded-xl shadow-sm border border-secondary-border group-hover:border-primary group-hover:shadow-md transition-all duration-300 flex items-center justify-start gap-3 w-full">
-              {/* Text content container on the left with max-width restriction to handle large displays */}
-              <div className="flex-1 min-w-0 max-w-[70%] sm:max-w-[75%] space-y-1.5">
-                <h3 className="text-md font-semibold text-secondary-subtitle group-hover:text-primary transition-colors line-clamp-2 operational-title">
-                  {event.title}
-                </h3>
-
-                <div className="space-y-1">
-                  <EventDate date={event.date} />
-                  <VenueInfo
-                    venue={{ city: event.venue?.city }}
-                    useEmoji={true}
-                  />
-                </div>
+    <div className="space-y-3">
+      {events.map((event) => (
+        <Link
+          key={event.id}
+          to={`/events/${event.id}`}
+          className="block group"
+          aria-label={`${i18n.link} ${event.title}`}
+        >
+          <article className="bg-surface-subcard p-4 rounded-xl shadow-sm border border-secondary-border group-hover:border-primary group-hover:shadow-md transition-all duration-300 flex items-center justify-start gap-3 w-full">
+            {/* Text content container on the left with max-width restriction to handle large displays */}
+            <div className="flex-1 min-w-0 max-w-[70%] sm:max-w-[75%] space-y-1.5">
+              <h3 className="text-md font-semibold text-secondary-subtitle group-hover:text-primary transition-colors line-clamp-2 operational-title">
+                {event.title}
+              </h3>
+              <div className="space-y-1">
+                <EventDate date={event.date} />
+                <VenueInfo
+                  venue={{ city: event.venue?.city }}
+                  useEmoji={true}
+                />
               </div>
-
-              {/* Event thumbnail placed consistently on the right side */}
-              <EventThumbnail src={event.image} alt={event.title} size="md" />
-            </article>
-          </Link>
-        ))}
-      </div>
-    </section>
+            </div>
+            {/* Event thumbnail placed consistently on the right side */}
+            <EventThumbnail src={event.image} alt={event.title} size="md" />
+          </article>
+        </Link>
+      ))}
+    </div>
   );
 };
 
@@ -111,7 +96,6 @@ RecommendedEvents.propTypes = {
     })
   ).isRequired,
   i18n: PropTypes.shape({
-    title: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
   }).isRequired,
 };
