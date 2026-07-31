@@ -1,7 +1,7 @@
 /**
  * @file CategoryCard.jsx
  * @description Presentational component for displaying event categories using interactive visual cards.
- * Integrates synchronized local asset mapping and full keyboard interaction support for screen reader accessibility.
+ * Integrates synchronized local asset mapping, fluid sizing capability, and full accessibility support.
  * @module components/events/CategoryCard
  * @author Nico Paez
  */
@@ -12,7 +12,7 @@ import { resolveCategoryFallback } from "../utils/categoryAssetMapper";
 
 /**
  * @typedef {Object} CategoryCardProps
- * @property {string} title - The explicit display name or taxonomic title of the category (e.g., 'Music', 'Tech').
+ * @property {string} title - The explicit display title of the category (e.g., 'Music', 'Tech').
  * @property {string} imagekey - The unique asset resolution token mapped to static local images.
  * @property {Function} onClick - Interceptor callback executed upon pointer activation or keyboard confirmation.
  */
@@ -26,7 +26,7 @@ import { resolveCategoryFallback } from "../utils/categoryAssetMapper";
  * @component
  * @category Components/Events
  * @param {CategoryCardProps} props - Component property payloads.
- * @returns {React.JSX.Element} An accessible and styled visual category summary markup tree structure.
+ * @returns {React.JSX.Element} An accessible and styled visual category tile.
  */
 const CategoryCard = ({ title, imagekey, onClick }) => {
   // Resolve the visual asset path synchronously inside the presentational layer
@@ -34,7 +34,12 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
 
   return (
     <article
-      className="relative w-64 h-40 rounded-xl overflow-hidden cursor-pointer shadow-sm border border-solid border-secondary-border hover:shadow-md hover:scale-[1.02] transition-all duration-300 group"
+      /* 
+        Responsive Width Strategy:
+        - Mobile: Fixed width (`w-64`) to preserve story card aspect ratio during swipe scrolling.
+        - Desktop (`md:w-full`): Adapts dynamically to 100% of the parent wrapper width to maintain spacing and scaling.
+      */
+      className="relative w-64 md:w-full h-40 rounded-xl overflow-hidden cursor-pointer shadow-sm border border-solid border-secondary-border hover:shadow-md hover:scale-[1.02] transition-all duration-300 group"
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -53,11 +58,12 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
         loading="lazy"
       />
 
+      {/* Gradient Overlay for Text Readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:from-black/85 transition-colors duration-300" />
 
       {/* Content Layer */}
       <div className="absolute inset-0 p-4 flex items-end">
-        <h3 className="font-bold text-inverse text-xl tracking-wide drop-shadow-sm font-display">
+        <h3 className="font-bold text-inverse text-lg md:text-xl tracking-wide drop-shadow-sm font-display truncate">
           {title}
         </h3>
       </div>
@@ -66,8 +72,11 @@ const CategoryCard = ({ title, imagekey, onClick }) => {
 };
 
 CategoryCard.propTypes = {
+  /** Display title for the category */
   title: PropTypes.string.isRequired,
+  /** Asset mapping key token for image lookup */
   imagekey: PropTypes.string.isRequired,
+  /** Click/Selection handler */
   onClick: PropTypes.func.isRequired,
 };
 
